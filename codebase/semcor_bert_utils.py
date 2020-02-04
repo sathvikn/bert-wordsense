@@ -1,6 +1,10 @@
 import nltk
 import torch
 import numpy as np
+import pandas as pd
+import matplotlib.patches as mpatches
+#from nltk.corpus import wordnet
+from scipy.cluster.hierarchy import dendrogram, linkage 
 import matplotlib.pyplot as plt
 from pytorch_pretrained_bert import BertTokenizer, BertModel, BertForMaskedLM
 from sklearn.manifold import TSNE
@@ -203,4 +207,20 @@ def run_pipeline(word, pos, model, plot = False):
         return summed_embeds, tree_labels, tsne_results
     else:
         return summed_embeds, tree_labels
+
+def plot_dendrogram(embeds, color_dict, label_dict, word_pos):
+    embeds = [v.numpy() for v in embeds]
+    Z = linkage(place_embeds, method = 'single', metric = 'cosine')
+    plt.figure(figsize = (20, 8))
+    dendrogram(Z, labels = place_labels, link_color_func=lambda k: 'gray')
+
+    ax = plt.gca()
+    xlbls = ax.get_xmajorticklabels()
+    for lbl in xlbls:
+        lbl.set_color(color_dict[lbl.get_text()])
+    
+    leg_patches = [mpatches.Patch(color = label_dict[i]['color'],
+                                  label = label_dict[i]['label']) for i in np.arange(len(label_dict))]
+    plt.legend(handles=leg_patches)
+    plt.title("Nearest Neighbor Dendrogram for BERT Embeddings of " + word_pos + " in SEMCOR")
 
