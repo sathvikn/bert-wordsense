@@ -210,9 +210,9 @@ def run_pipeline(word, pos, model, plot = False):
 
 def plot_dendrogram(embeds, color_dict, label_dict, word_pos):
     embeds = [v.numpy() for v in embeds]
-    Z = linkage(place_embeds, method = 'single', metric = 'cosine')
+    Z = linkage(embeds, method = 'single', metric = 'cosine')
     plt.figure(figsize = (20, 8))
-    dendrogram(Z, labels = place_labels, link_color_func=lambda k: 'gray')
+    dendrogram(Z, labels = label_dict, link_color_func=lambda k: 'gray')
 
     ax = plt.gca()
     xlbls = ax.get_xmajorticklabels()
