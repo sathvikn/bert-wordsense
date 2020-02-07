@@ -29,11 +29,12 @@ class SemCorSelector:
             for tok in s:
                 if type(tok) == nltk.tree.Tree:
                     lem = tok.label()
-                    if get_pos(lem) == pos and get_name(lem) == word:
-                        self.tagged_word.append(self.semcor_tagged_sents[i])
-                        self.original_sent_for_word.append(self.semcor_sentences[i])
-                        sense = (pos, get_sense_num(lem))
-                        self.senses.append(sense)
+                    if type(lem) == nltk.corpus.reader.wordnet.Lemma:
+                        if get_pos(lem) == pos and get_name(lem) == word:
+                            self.tagged_word.append(self.semcor_tagged_sents[i])
+                            self.original_sent_for_word.append(self.semcor_sentences[i])
+                            #sense = (pos, get_sense_num(lem))
+                            self.senses.append(lem.synset())
 
         #self.senses = [self.get_sense_for_sent(s, word) for s in self.tagged_word]
     
@@ -45,14 +46,14 @@ class SemCorSelector:
             print("No word has been searched for.")
     
     def get_selected_sense_sents(self, sel_senses):
-        #sel_senses is a list of tuples with ('pos', 'sense number')
+        #sel_senses is a list of WordNet Synsets
         original_full = self.change_original(self.original_sent_for_word)
         last_ind_for_sense = []
         selected_origs = []
         selected_tagged = []
 
         for s in sel_senses:
-            sense_indices = self.get_ind_for_sense(s[0], s[1])
+            sense_indices = self.get_ind_for_sense(s)
             print("Number of sentences for sense", s, len(sense_indices))
             if len(last_ind_for_sense):
                 last_ind_for_sense.append(last_ind_for_sense[-1] + len(sense_indices))
@@ -70,7 +71,6 @@ class SemCorSelector:
         original_sentences = [self.semcor_sentences[i] for i in word_indices]
         self.tagged_word = tagged_word
         self.original_sent_for_word = original_sentences
-        """    
 
     def get_sense_for_sent(self, sent, word):
         for w in sent:
@@ -81,6 +81,7 @@ class SemCorSelector:
                         return self.get_sense_pos(w)
             except:
                 continue
+    """
 
     def get_sense_pos(self, tree):
         lem = tree.label()
@@ -92,8 +93,8 @@ class SemCorSelector:
     def change_original(self, original_s_list):
         return [' '.join(s) for s in original_s_list]
 
-    def get_ind_for_sense(self, pos, num):
-        return [i for i in np.arange(len(self.senses)) if self.senses[i] == (pos, num)]
+    def get_ind_for_sense(self, synset):
+        return [i for i in np.arange(len(self.senses)) if self.senses[i] == synset]
 
 def get_pos(lem):
     lem = str(lem)
@@ -116,7 +117,7 @@ def get_name(lem):
         return lem.split('.')[0]
     
 #BERT
-def preprocess(text, target_word):
+def preprocess(text, target_word): #should take in a SemCorSelector object too?
     #START and STOP tokens
     tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
     marked_text = "[CLS] " + text + " [SEP]" 
@@ -125,7 +126,14 @@ def preprocess(text, target_word):
     indexed_tokens = tokenizer.convert_tokens_to_ids(tokenized_text)
     #BERT can work with either 1 or 2 sentences, but for our purposes we're using one
     segments_ids = [1] * len(tokenized_text)
-    target_token_index = tokenized_text.index(target_word) 
+    l = nltk.stem.WordNetLemmatizer()
+    try:
+        target_token_index = tokenized_text.index(target_word)
+    except:
+        for i in np.arange(len(tokenized_text)):
+            if l.lemmatize(tokenized_text[i]) == target_word:
+                target_token_index = i
+                break
     return (indexed_tokens, segments_ids, target_token_index)
 
 def initialize_model():
@@ -204,11 +212,8 @@ def euc_dist(v1, v2):
 def select_senses(senses, pos, reader, min_sents):
     sel_senses = []
     for s in senses:
-        if type(s) == tuple:
-            enough_vals = len(reader.get_ind_for_sense(s[0], s[1])) > min_sents
-            right_pos = s[0] == pos
-            if right_pos and enough_vals:
-                sel_senses.append(s)
+        if len(reader.get_ind_for_sense(s)) > min_sents:
+            sel_senses.append(s)
     return sel_senses
 """
 def get_sense_num(senses):
@@ -231,6 +236,7 @@ def run_pipeline(word, pos, model):
     senses = semcor_reader.get_senses_for_curr_word()
     print("Getting sentences for relevant senses")
     sel_senses = select_senses(senses, pos, semcor_reader, 10)
+    #print(sel_senses)
     sentences, trees, sense_indices = semcor_reader.get_selected_sense_sents(sel_senses)
     tree_labels = get_tree_labels(sense_indices, sel_senses)
     print("Generating BERT embeddings")
