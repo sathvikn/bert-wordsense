@@ -1,15 +1,12 @@
 import nltk
 import torch
 import numpy as np
-import pandas as pd
-import matplotlib.patches as mpatches
 #from nltk.corpus import wordnet
-from scipy.cluster.hierarchy import dendrogram, linkage 
-import matplotlib.pyplot as plt
 from pytorch_pretrained_bert import BertTokenizer, BertModel, BertForMaskedLM
-from sklearn.manifold import TSNE
 
 #Selecting words from SEMCOR
+
+#pipeline
 class SemCorSelector:
     def __init__(self):
         self.semcor_sentences = nltk.corpus.semcor.sents()
@@ -95,6 +92,13 @@ class SemCorSelector:
 
     def get_ind_for_sense(self, synset):
         return [i for i in np.arange(len(self.senses)) if self.senses[i] == synset]
+    
+    def select_senses(self, min_sents):
+        sel_senses = []
+        for s in self.senses:
+            if len(self.get_ind_for_sense(s)) > min_sents:
+                sel_senses.append(s)
+        return sel_senses
 
 def get_pos(lem):
     lem = str(lem)
@@ -109,14 +113,12 @@ def get_sense_num(lem):
         return lem.split('.')[2]
     except:
         return "No marked sense"
-
 def get_name(lem):
     if type(lem) != str:
         return lem.name()
     else:
         return lem.split('.')[0]
     
-#BERT
 def preprocess(text, target_word): #should take in a SemCorSelector object too?
     #START and STOP tokens
     tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
@@ -173,53 +175,14 @@ def process_raw_embeddings(raw_embeds, layer, fn):
     #fn can either be take_layer or sum_layers
     return [fn(t, layer) for t in raw_embeds]
 
-def plot_embeddings(e, sense_indices, sense_names, word_name):
-    assert len(sense_indices) == len(sense_names)
-    as_arr = np.asarray([t.numpy() for t in e])
-    dim_red = TSNE()
-    tsne_results = dim_red.fit_transform(as_arr)
-    num_senses = len(sense_indices)
-    results_for_sense = []
-
-    results_for_sense.append(tsne_results[:sense_indices[0] - 1])
-    for i in np.arange(len(sense_indices) - 1):
-        start = sense_indices[i]
-        end = sense_indices[i + 1]
-        results_for_sense.append(tsne_results[start:end])
-    
-    sense_dict = {}
-    for i in range(num_senses):
-        if i == 2:
-            plt.scatter(results_for_sense[i][:,0], results_for_sense[i][:,1], label = sense_names[i], color = 'violet')
-        else:
-            plt.scatter(results_for_sense[i][:,0], results_for_sense[i][:,1], label = sense_names[i])
-        sense_dict[sense_names[i]] = results_for_sense[i]
-
-    plt.title("BERT Embeddings for Senses of the Word \"" + word_name + "\" ")
-    plt.legend()
-    return sense_dict
-
-def find_closest_distance(e1_lst, e2_lst):
-    return min([min([euc_dist(e1, e2) for e2 in e2_lst]) for e1 in e1_lst])
-
-def euc_dist(v1, v2):
-    if type(v1) == torch.Tensor:
-        v1 = v1.numpy()
-    if type(v2) == torch.Tensor:
-        v2 = v2.numpy()
-    return np.sqrt(np.sum((v1 - v2)**2))
-
-def select_senses(senses, pos, reader, min_sents):
+"""def select_senses(senses, pos, reader, min_sents):
     sel_senses = []
     for s in senses:
         if len(reader.get_ind_for_sense(s)) > min_sents:
             sel_senses.append(s)
     return sel_senses
 """
-def get_sense_num(senses):
-    return [s[1] for s in senses]
-
-"""
+#pipeline
 def get_tree_labels(sense_indices, sel_senses):
     tree_labels = []
     this_sense_indices = [0] + sense_indices
@@ -229,13 +192,14 @@ def get_tree_labels(sense_indices, sel_senses):
         tree_labels += (end - start) * [sel_senses[i]]
     return tree_labels
 
+#pipeline
 def run_pipeline(word, pos, model):
     print("Getting data from SEMCOR")
     semcor_reader = SemCorSelector()
     semcor_reader.get_word_data(word, pos)
     senses = semcor_reader.get_senses_for_curr_word()
     print("Getting sentences for relevant senses")
-    sel_senses = select_senses(senses, pos, semcor_reader, 10)
+    sel_senses = semcor_reader.select_senses(10)
     #print(sel_senses)
     sentences, trees, sense_indices = semcor_reader.get_selected_sense_sents(sel_senses)
     tree_labels = get_tree_labels(sense_indices, sel_senses)
@@ -249,21 +213,6 @@ def run_pipeline(word, pos, model):
             tsne_results = plot_embeddings(summed_embeds, sense_indices, leg, word)
             return summed_embeds, tree_labels, tsne_results
     """    
-    return summed_embeds, tree_labels
-
-def plot_dendrogram(embeds, color_dict, label_dict, word_pos):
-    embeds = [v.numpy() for v in embeds]
-    Z = linkage(embeds, method = 'single', metric = 'cosine')
-    plt.figure(figsize = (20, 8))
-    dendrogram(Z, labels = label_dict, link_color_func=lambda k: 'gray')
-
-    ax = plt.gca()
-    xlbls = ax.get_xmajorticklabels()
-    for lbl in xlbls:
-        lbl.set_color(color_dict[lbl.get_text()])
-    
-    leg_patches = [mpatches.Patch(color = label_dict[i]['color'],
-                                  label = label_dict[i]['label']) for i in np.arange(len(label_dict))]
-    plt.legend(handles=leg_patches)
-    plt.title("Nearest Neighbor Dendrogram for BERT Embeddings of " + word_pos + " in SEMCOR")
+    return {'lemma': semcor_reader.curr_word, 'embeddings': summed_embeds, 'sense_indices': sense_indices, 
+    'original_sentences': sentences, 'tagged_sentences', trees, 'sense_labels': tree_labels}
 
