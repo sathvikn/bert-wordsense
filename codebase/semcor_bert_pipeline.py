@@ -95,7 +95,8 @@ class SemCorSelector:
     
     def select_senses(self, min_sents):
         sel_senses = []
-        for s in self.senses:
+        uq_senses = self.get_senses_for_curr_word()
+        for s in uq_senses:
             if len(self.get_ind_for_sense(s)) > min_sents:
                 sel_senses.append(s)
         return sel_senses
@@ -189,7 +190,7 @@ def get_tree_labels(sense_indices, sel_senses):
     for i in np.arange(len(sense_indices)):
         start = this_sense_indices[i]
         end = this_sense_indices[i + 1]
-        tree_labels += (end - start) * [sel_senses[i]]
+        tree_labels += (end - start) * [sel_senses[i].name()]
     return tree_labels
 
 #pipeline
@@ -214,5 +215,6 @@ def run_pipeline(word, pos, model):
             return summed_embeds, tree_labels, tsne_results
     """    
     return {'lemma': semcor_reader.curr_word, 'embeddings': summed_embeds, 'sense_indices': sense_indices, 
-    'original_sentences': sentences, 'tagged_sentences', trees, 'sense_labels': tree_labels}
+    'original_sentences': sentences, 'tagged_sentences': trees, 'sense_labels': tree_labels}
+    #TODO: Maybe save this as a JSON file?
 
