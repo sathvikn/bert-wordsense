@@ -111,5 +111,4 @@ def gmm_rand(pca_result, wn_labels, true_labels):
         ari_gmm.append(adjusted_rand_score(gmm_preds, true_labels))
         random_clusters = np.random.choice(np.unique(true_labels), len(true_labels))
         ari_random.append(adjusted_rand_score(gmm_preds, random_clusters))
-    return {'GMM': [np.mean(ari_gmm), np.std(ari_gmm)], 'Random': [np.mean(ari_random), np.std(ari_random)]}
-        
+    return {'GMM': [np.mean(ari_gmm), np.std(ari_gmm)], 'Random': [np.mean(ari_random), np.std(ari_random)]}        
