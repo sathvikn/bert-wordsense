@@ -119,6 +119,20 @@ def get_name(lem):
         return lem.name()
     else:
         return lem.split('.')[0]
+
+def process_tree(tree, lemma, pos):
+    text = []
+    word_with_sense = ''
+    for t in tree:
+        if type(t) == list:
+            text += t
+        if type(t) == nltk.Tree:
+            text += t.leaves()
+            word_name = get_name(t.label())
+            word_pos = get_pos(t.label())
+            if word_pos == pos and word_name == lemma:
+                word_with_sense = t.leaves()[0]
+    return ' '.join(text), word_with_sense.lower()
     
 def preprocess(text, target_word): #should take in a SemCorSelector object too?
     #START and STOP tokens
@@ -129,14 +143,8 @@ def preprocess(text, target_word): #should take in a SemCorSelector object too?
     indexed_tokens = tokenizer.convert_tokens_to_ids(tokenized_text)
     #BERT can work with either 1 or 2 sentences, but for our purposes we're using one
     segments_ids = [1] * len(tokenized_text)
-    l = nltk.stem.WordNetLemmatizer()
-    try:
-        target_token_index = tokenized_text.index(target_word)
-    except:
-        for i in np.arange(len(tokenized_text)):
-            if l.lemmatize(tokenized_text[i]) == target_word:
-                target_token_index = i
-                break
+    #print(tokenized_text)
+    target_token_index = tokenized_text.index(target_word)
     return (indexed_tokens, segments_ids, target_token_index)
 
 def initialize_model():
@@ -159,8 +167,9 @@ def get_embeddings(data, model):
     all_embeddings = predict(indexed_tokens, segments_ids, model)
     return all_embeddings[:,target_token_index,:]
 
-def get_raw_embeddings(word, sentences, model):
-    preprocessed_texts = [preprocess(t, word) for t in sentences]
+def get_raw_embeddings(word, pos, trees, model):
+    text_and_word = [process_tree(t, word, pos) for t in trees]
+    preprocessed_texts = [preprocess(t[0], t[1]) for t in text_and_word]
     raw_embeddings = [get_embeddings(t, model) for t in preprocessed_texts]
     return raw_embeddings
 
@@ -176,13 +185,6 @@ def process_raw_embeddings(raw_embeds, layer, fn):
     #fn can either be take_layer or sum_layers
     return [fn(t, layer) for t in raw_embeds]
 
-"""def select_senses(senses, pos, reader, min_sents):
-    sel_senses = []
-    for s in senses:
-        if len(reader.get_ind_for_sense(s)) > min_sents:
-            sel_senses.append(s)
-    return sel_senses
-"""
 #pipeline
 def get_tree_labels(sense_indices, sel_senses):
     tree_labels = []
@@ -205,7 +207,7 @@ def run_pipeline(word, pos, model):
     sentences, trees, sense_indices = semcor_reader.get_selected_sense_sents(sel_senses)
     tree_labels = get_tree_labels(sense_indices, sel_senses)
     print("Generating BERT embeddings")
-    raw_embeddings = get_raw_embeddings(word, sentences, model)
+    raw_embeddings = get_raw_embeddings(word, pos, trees, model)
     summed_embeds = process_raw_embeddings(raw_embeddings, 4, sum_layers)
     """
         if plot:
