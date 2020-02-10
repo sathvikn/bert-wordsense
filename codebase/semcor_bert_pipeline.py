@@ -1,3 +1,5 @@
+import json
+import os
 import nltk
 import torch
 import numpy as np
@@ -196,11 +198,17 @@ def get_tree_labels(sense_indices, sel_senses):
     return tree_labels
 
 #pipeline
-def run_pipeline(word, pos, model):
+
+def write_json(results, word, pos):
+    filename = word + '_' + pos + '.json'
+    with open(os.path.join('data', 'pipeline_results', filename), 'w') as f:
+        json.dump(results, f)
+
+def run_pipeline(word, pos, model, savefile = False):
     print("Getting data from SEMCOR")
     semcor_reader = SemCorSelector()
     semcor_reader.get_word_data(word, pos)
-    senses = semcor_reader.get_senses_for_curr_word()
+    #senses = semcor_reader.get_senses_for_curr_word()
     print("Getting sentences for relevant senses")
     sel_senses = semcor_reader.select_senses(10)
     #print(sel_senses)
@@ -209,14 +217,10 @@ def run_pipeline(word, pos, model):
     print("Generating BERT embeddings")
     raw_embeddings = get_raw_embeddings(word, pos, trees, model)
     summed_embeds = process_raw_embeddings(raw_embeddings, 4, sum_layers)
-    """
-        if plot:
-            print("Plotting t-SNE")
-            leg = get_sense_num(sel_senses)
-            tsne_results = plot_embeddings(summed_embeds, sense_indices, leg, word)
-            return summed_embeds, tree_labels, tsne_results
-    """    
-    return {'lemma': semcor_reader.curr_word, 'embeddings': summed_embeds, 'sense_indices': sense_indices, 
+    result_dict = {'lemma': semcor_reader.curr_word, 'embeddings': summed_embeds, 'sense_indices': sense_indices, 
     'original_sentences': sentences, 'tagged_sentences': trees, 'sense_labels': tree_labels}
+    if savefile:
+        write_json(result_dict, word, pos)
+    return result_dict
     #TODO: Maybe save this as a JSON file?
 
