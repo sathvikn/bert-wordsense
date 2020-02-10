@@ -1,4 +1,5 @@
 import os
+import json
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
@@ -77,7 +78,8 @@ def pca(embeddings, num_comps):
     return PCA(n_components = num_comps).fit(embeds).components_.T
 
 def plot_gmm_rand_indices(embedding_data, comp_range, savefile = False):
-    #Plots Rand Index 
+    #Plots Rand Index means and SDs over 1000 GMM fits
+    # returns dict of format: {PCA components: {GMM ARI, Random Baseline ARI}}
     embeddings = embedding_data['embeddings']
     lemma = embedding_data['lemma']
     senses = embedding_data['sense_labels']
@@ -87,6 +89,8 @@ def plot_gmm_rand_indices(embedding_data, comp_range, savefile = False):
     gmm_wn_sds = []
     gmm_random_means = []
     gmm_random_sds = []
+    results = {}
+
     for c in comp_range:
         pca_result = pca(embeddings, c)
         results = gmm_rand(pca_result, num_senses, true_labels)
@@ -94,6 +98,7 @@ def plot_gmm_rand_indices(embedding_data, comp_range, savefile = False):
         gmm_wn_sds.append(results['GMM'][1])
         gmm_random_means.append(results['Random'][0])
         gmm_random_sds.append(results['Random'][1])
+        results[c] = {'gmm_raw_aris': results['gmm_raw'], 'random_baseline_raw_ari': results['random_raw']}
     plt.errorbar(comp_range, gmm_wn_means, yerr = gmm_wn_sds, label = "WordNet Senses")
     plt.errorbar(comp_range, gmm_random_means, yerr = gmm_random_sds, label = "Random Baseline")
     plt.xlabel("Number of PCA Components")
@@ -105,8 +110,11 @@ def plot_gmm_rand_indices(embedding_data, comp_range, savefile = False):
         word_token, word_pos = get_name(lemma), get_pos(lemma)
         path = os.path.join('data', 'clustering_results', word_token + '_' + word_pos, 'gmm_evr.png')
         plt.savefig(path)
+        json_path = os.path.join('data', 'clustering_results', word_token + '_' + word_pos, 'gmm_results.json')
+        with open(str(json_path), 'w') as path:
+            json.dump(results, path)
 
-    return gmm_wn_means
+    return results
 
 def recode_labels(true_labels):
     seen = {}
@@ -119,8 +127,6 @@ def recode_labels(true_labels):
         senses_as_nums.append(seen[l])
     return senses_as_nums
 
-#def save_image()
-
 def gmm_rand(pca_result, wn_labels, true_labels):
     ari_gmm = []
     ari_random = []
@@ -130,5 +136,6 @@ def gmm_rand(pca_result, wn_labels, true_labels):
         ari_gmm.append(adjusted_rand_score(gmm_preds, true_labels))
         random_clusters = np.random.choice(np.unique(true_labels), len(true_labels))
         ari_random.append(adjusted_rand_score(gmm_preds, random_clusters))
-    return {'GMM': [np.mean(ari_gmm), np.std(ari_gmm)], 'Random': [np.mean(ari_random), np.std(ari_random)]}
+    return {'GMM': [np.mean(ari_gmm), np.std(ari_gmm)], 'Random': [np.mean(ari_random), np.std(ari_random)],
+    "gmm_raw": ari_gmm, 'random_raw': ari_random}
         
