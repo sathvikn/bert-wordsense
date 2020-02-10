@@ -138,4 +138,13 @@ def gmm_rand(pca_result, wn_labels, true_labels):
         ari_random.append(adjusted_rand_score(gmm_preds, random_clusters))
     return {'GMM': [np.mean(ari_gmm), np.std(ari_gmm)], 'Random': [np.mean(ari_random), np.std(ari_random)],
     "gmm_raw": ari_gmm, 'random_raw': ari_random}
-        
+
+def create_dendrogram_colors(senses):
+    color_dict = {}
+    label_dict = {}
+    for i in range(len(senses)):
+        mplotlib_color = 'C' + str(i)
+        sense = get_name(senses[i])
+        color_dict[sense] = mplotlib_color
+        label_dict[i] = {'color': mplotlib_color, 'label': sense}
+    return color_dict, label_dict
