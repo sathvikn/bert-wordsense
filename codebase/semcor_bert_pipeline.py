@@ -217,6 +217,6 @@ def run_pipeline(word, pos, model):
             return summed_embeds, tree_labels, tsne_results
     """    
     return {'lemma': semcor_reader.curr_word, 'embeddings': summed_embeds, 'sense_indices': sense_indices, 
-    'original_sentences': sentences, 'tagged_sentences': trees, 'sense_labels': tree_labels}
+    'original_sentences': sentences, 'tagged_sentences': trees, 'sense_names': sel_senses, 'sense_labels': tree_labels}
     #TODO: Maybe save this as a JSON file?
 
