@@ -196,13 +196,13 @@ def get_tree_labels(sense_indices, sel_senses):
     return tree_labels
 
 #pipeline
-def run_pipeline(word, pos, model):
+def run_pipeline(word, pos, model, min_senses = 10):
     print("Getting data from SEMCOR")
     semcor_reader = SemCorSelector()
     semcor_reader.get_word_data(word, pos)
     senses = semcor_reader.get_senses_for_curr_word()
     print("Getting sentences for relevant senses")
-    sel_senses = semcor_reader.select_senses(10)
+    sel_senses = semcor_reader.select_senses(min_senses)
     #print(sel_senses)
     sentences, trees, sense_indices = semcor_reader.get_selected_sense_sents(sel_senses)
     tree_labels = get_tree_labels(sense_indices, sel_senses)
