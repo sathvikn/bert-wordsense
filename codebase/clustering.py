@@ -1,3 +1,4 @@
+import os
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
@@ -6,9 +7,9 @@ from sklearn.decomposition import PCA
 from scipy.cluster.hierarchy import dendrogram, linkage 
 from sklearn.mixture import GaussianMixture
 from sklearn.metrics import adjusted_rand_score
+from semcor_bert_pipeline import get_pos, get_name
 
-
-def plot_embeddings(e, sense_indices, sense_names, word_name):
+def plot_embeddings(e, sense_indices, sense_names, word_name, savefile = False):
     assert len(sense_indices) == len(sense_names)
     as_arr = np.asarray([t.numpy() for t in e])
     dim_red = TSNE()
@@ -32,10 +33,14 @@ def plot_embeddings(e, sense_indices, sense_names, word_name):
 
     plt.title("BERT Embeddings for Senses of the Word \"" + word_name + "\" ")
     plt.legend()
+    if savefile: #TODO see if we can make this a fn?
+        word_token, word_pos = get_name(word_name), get_pos(word_name)
+        path = os.path.join('data', 'clustering_results', word_token + '_' + word_pos, 'tsne.png')
+        plt.savefig(path)
     return sense_dict
 
 #clustering/viz
-def plot_dendrogram(embed_data, color_dict, label_dict):
+def plot_dendrogram(embed_data, color_dict, label_dict, savefile = False):
     #color_dict is of format: {sense_name: color_str...}
     #label_dict is of format: {index: {'color': char, 'label': sense label}}
     
@@ -52,6 +57,12 @@ def plot_dendrogram(embed_data, color_dict, label_dict):
                                 label = label_dict[i]['label']) for i in np.arange(len(label_dict))]
     plt.legend(handles=leg_patches)
     plt.title("Nearest Neighbor Dendrogram for BERT Embeddings of " + embed_data['lemma'] + " in SEMCOR")
+    if savefile:
+        word_name = embed_data['lemma']
+        word_token, word_pos = get_name(word_name), get_pos(word_name)
+        path = os.path.join('data', 'clustering_results', word_token + '_' + word_pos, 'dendrogram.png')
+        plt.savefig(path)
+
 
 def plot_pca_ev(comp_range, embeddings, lemma):
     embeddings = np.transpose(np.array([v.numpy() for v in embeddings]))
@@ -65,7 +76,7 @@ def pca(embeddings, num_comps):
     embeds = np.transpose(np.array([v.numpy() for v in embeddings]))
     return PCA(n_components = num_comps).fit(embeds).components_.T
 
-def plot_gmm_rand_indices(embedding_data, comp_range):
+def plot_gmm_rand_indices(embedding_data, comp_range, savefile = False):
     #Plots Rand Index 
     embeddings = embedding_data['embeddings']
     lemma = embedding_data['lemma']
@@ -89,6 +100,12 @@ def plot_gmm_rand_indices(embedding_data, comp_range):
     plt.ylabel("Rand Index")
     plt.title("Rand Indices for PCA decomposition of " + lemma)
     plt.legend(title = 'Ground Truth')
+    
+    if savefile:
+        word_token, word_pos = get_name(lemma), get_pos(lemma)
+        path = os.path.join('data', 'clustering_results', word_token + '_' + word_pos, 'gmm_evr.png')
+        plt.savefig(path)
+
     return gmm_wn_means
 
 def recode_labels(true_labels):
@@ -101,6 +118,8 @@ def recode_labels(true_labels):
             label_num += 1
         senses_as_nums.append(seen[l])
     return senses_as_nums
+
+#def save_image()
 
 def gmm_rand(pca_result, wn_labels, true_labels):
     ari_gmm = []
