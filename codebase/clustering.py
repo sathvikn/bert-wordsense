@@ -38,6 +38,9 @@ def plot_embeddings(e, sense_indices, sense_names, word_name, savefile = False):
         word_token, word_pos = get_name(word_name), get_pos(word_name)
         path = os.path.join('data', 'clustering_results', word_token + '_' + word_pos, 'tsne.png')
         plt.savefig(path)
+        plt.clf()
+        plt.cla()
+
     return sense_dict
 
 #clustering/viz
@@ -116,7 +119,8 @@ def plot_gmm_rand_indices(embedding_data, comp_range, savefile = False):
         json_path = os.path.join('data', 'clustering_results', word_token + '_' + word_pos, 'gmm_results.json')
         with open(str(json_path), 'w') as path:
             json.dump(results, path)
-
+        plt.clf()
+        plt.cla()
     return results
 
 def recode_labels(true_labels):

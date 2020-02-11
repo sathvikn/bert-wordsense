@@ -1,4 +1,6 @@
 import os
+import sys
+import argparse
 import pandas as pd
 from semcor_bert_pipeline import *
 from clustering import *
@@ -29,14 +31,32 @@ def convert_imgs_to_pdf(name, pos):
     print("Saving as PDF")
     pdf.output("../results/clustering_images/" + name + "_" + pos + ".pdf", "F")
 
-
-if __name__ == '__main__':
-    model = initialize_model()
+def run_all_sparse():
     sparse_senses = pd.read_csv('data/semcor_sparsity.csv')
-    for i in range(2, len(sparse_senses.index)):
+    #be, have, see
+    for i in range(len(sparse_senses.index)):
         row = sparse_senses.iloc[i]
         word, pos = row['word'], row['pos']
         dir_name = os.path.join("data", 'clustering_results', word + '_' + pos)
         os.system('mkdir ' + dir_name)
-        run_clustering(word, pos, model)
-        convert_imgs_to_pdf(word, pos)
+        try: 
+            run_clustering(word, pos, model)
+            convert_imgs_to_pdf(word, pos)
+        except:
+            continue
+def run_test():
+    #For testing purposes, default to word table
+    word, pos = 'table', 'n'
+    dir_name = os.path.join("data", 'clustering_results', word + '_' + pos)
+    os.system('mkdir ' + dir_name)
+    run_clustering(word, pos, model)
+    convert_imgs_to_pdf(word, pos)
+
+
+if __name__ == '__main__':
+    model = initialize_model()
+    if sys.argv[1] == '--test':
+        run_test()
+    else:
+        run_all_sparse()
+        
