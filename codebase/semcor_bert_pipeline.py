@@ -204,7 +204,7 @@ def write_json(results, word, pos):
     with open(os.path.join('data', 'pipeline_results', filename), 'w') as f:
         json.dump(results, f)
 
-def run_pipeline(word, pos, model, savefile = False):
+def run_pipeline(word, pos, model, min_senses = 10, savefile = False):
     print("Getting data from SEMCOR")
     semcor_reader = SemCorSelector()
     semcor_reader.get_word_data(word, pos)
@@ -218,8 +218,9 @@ def run_pipeline(word, pos, model, savefile = False):
     raw_embeddings = get_raw_embeddings(word, pos, trees, model)
     summed_embeds = process_raw_embeddings(raw_embeddings, 4, sum_layers)
     result_dict = {'lemma': semcor_reader.curr_word, 'embeddings': summed_embeds, 'sense_indices': sense_indices, 
-    'original_sentences': sentences, 'tagged_sentences': trees, 'sense_labels': tree_labels}
+    'original_sentences': sentences, 'tagged_sentences': trees, 'sense_names': sel_senses, 'sense_labels': tree_labels}
     if savefile:
+        result_dict['embeddings'] = [v.numpy() for v in result_dict['embeddings']]
         write_json(result_dict, word, pos)
     return result_dict
     #TODO: Maybe save this as a JSON file?
