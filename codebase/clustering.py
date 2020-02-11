@@ -47,7 +47,8 @@ def plot_dendrogram(embed_data, color_dict, label_dict, savefile = False):
     
     embeds = [v.numpy() for v in embed_data['embeddings']]
     Z = linkage(embeds, method = 'single', metric = 'cosine')
-    plt.figure(figsize = (20, 8))
+    #plt.figure(figsize = (20, 8)) # for Jupyter plotting
+    plt.figure(figsize = (11, 6)) #to plot on PDF
     dendrogram(Z, labels = embed_data['sense_labels'], link_color_func=lambda k: 'gray')
     ax = plt.gca()
     xlbls = ax.get_xmajorticklabels()
