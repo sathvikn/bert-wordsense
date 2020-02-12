@@ -46,7 +46,7 @@ def run_all_sparse():
             continue
 def run_test():
     #For testing purposes, default to word table
-    word, pos = 'table', 'n'
+    word, pos = 'run', 'v'
     dir_name = os.path.join("data", 'clustering_results', word + '_' + pos)
     os.system('mkdir ' + dir_name)
     run_clustering(word, pos, model)
