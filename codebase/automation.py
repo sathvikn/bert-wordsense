@@ -34,6 +34,7 @@ def convert_imgs_to_pdf(name, pos):
 def run_all_sparse():
     sparse_senses = pd.read_csv('data/semcor_sparsity.csv')
     #be, have, see
+    skipped_words = []
     for i in range(len(sparse_senses.index)):
         row = sparse_senses.iloc[i]
         word, pos = row['word'], row['pos']
@@ -43,7 +44,14 @@ def run_all_sparse():
             run_clustering(word, pos, model)
             convert_imgs_to_pdf(word, pos)
         except:
+            skipped_words.append(word + '.' + pos)
             continue
+    write_to_file(skipped_words, os.path.join('data', 'skipped_sparse_words.txt'))
+
+def write_to_file(lst, fpath):
+    with open(fpath, 'w') as f:
+        f.write(lst)
+
 def run_test():
     #For testing purposes, default to word table
     word, pos = 'run', 'v'
