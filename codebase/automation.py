@@ -63,6 +63,7 @@ def run_test():
 
 if __name__ == '__main__':
     model = initialize_model()
+    
     if sys.argv[1] == '--test':
         run_test()
     else:
