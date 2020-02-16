@@ -3,6 +3,7 @@ import os
 import nltk
 import torch
 import numpy as np
+import copy
 #from nltk.corpus import wordnet
 from pytorch_pretrained_bert import BertTokenizer, BertModel, BertForMaskedLM
 
@@ -221,8 +222,9 @@ def run_pipeline(word, pos, model, min_senses = 10, savefile = False):
     'original_sentences': sentences, 'sense_names': sel_senses, 'sense_labels': tree_labels}
     #Things to include: embeddings for the full sentence, 'tagged_sentences': trees
     if savefile:
-        result_dict['embeddings'] = [v.tolist() for v in result_dict['embeddings']]
-        result_dict['sense_names'] = [str(s) for s in sel_senses]
+        json_dict = copy.deepcopy(result_dicts)
+        json_dict['embeddings'] = [v.tolist() for v in result_dict['embeddings']]
+        json_dict['sense_names'] = [str(s) for s in sel_senses]
         write_json(result_dict, word, pos)
     return result_dict
     #TODO: Maybe save this as a JSON file?

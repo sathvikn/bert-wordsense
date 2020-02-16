@@ -83,7 +83,7 @@ def pca(embeddings, num_comps):
     embeds = np.transpose(np.array([v.numpy() for v in embeddings]))
     return PCA(n_components = num_comps).fit(embeds).components_.T
 
-def plot_gmm_rand_indices(embedding_data, comp_range, save_img = False, save_json = False):
+def plot_gmm_rand_indices_test(embedding_data, comp_range, save_img = False, save_json = False):
     #Plots Rand Index means and SDs over 1000 GMM fits
     # returns dict of format: {PCA components: {GMM ARI, Random Baseline ARI}}
     embeddings = embedding_data['embeddings']
@@ -104,7 +104,7 @@ def plot_gmm_rand_indices(embedding_data, comp_range, save_img = False, save_jso
         gmm_wn_sds.append(results['GMM'][1])
         gmm_random_means.append(results['Random'][0])
         gmm_random_sds.append(results['Random'][1])
-        raw_resullts[c] = {'gmm_raw_aris': results['gmm_raw'], 'random_baseline_raw_ari': results['random_raw']}
+        raw_results[c] = {'gmm_raw_aris': results['gmm_raw'], 'random_baseline_raw_ari': results['random_raw']}
     plt.errorbar(comp_range, gmm_wn_means, yerr = gmm_wn_sds, label = "WordNet Senses")
     plt.errorbar(comp_range, gmm_random_means, yerr = gmm_random_sds, label = "Random Baseline")
     plt.xlabel("Number of PCA Components")
@@ -116,13 +116,13 @@ def plot_gmm_rand_indices(embedding_data, comp_range, save_img = False, save_jso
     if save_img:
         img_path = os.path.join('data', 'clustering_results', word_token + '_' + word_pos, 'gmm_evr.png')
         plt.savefig(img_path)
+        plt.clf()
+        plt.cla()
     if save_json:
         json_path = os.path.join('data', 'clustering_results', word_token + '_' + word_pos, 'gmm_results.json')
         with open(str(json_path), 'w') as path:
             json.dump(raw_results, path)
 
-    plt.clf()
-    plt.cla()
     return results
 
 def recode_labels(true_labels):
