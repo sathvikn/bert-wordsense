@@ -83,7 +83,7 @@ def pca(embeddings, num_comps):
     embeds = np.transpose(np.array([v.numpy() for v in embeddings]))
     return PCA(n_components = num_comps).fit(embeds).components_.T
 
-def plot_gmm_rand_indices_test(embedding_data, comp_range, save_img = False, save_json = False):
+def plot_gmm_rand_indices(embedding_data, comp_range, save_img = False, save_json = False):
     #Plots Rand Index means and SDs over 1000 GMM fits
     # returns dict of format: {PCA components: {GMM ARI, Random Baseline ARI}}
     embeddings = embedding_data['embeddings']
