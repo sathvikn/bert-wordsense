@@ -12,7 +12,7 @@ from semcor_bert_pipeline import get_pos, get_name
 
 def plot_embeddings(e, sense_indices, sense_names, word_name, savefile = False):
     assert len(sense_indices) == len(sense_names)
-    as_arr = np.asarray([t.numpy() for t in e])
+    as_arr = np.asarray(convert_embeddings(e))
     dim_red = TSNE()
     tsne_results = dim_red.fit_transform(as_arr)
     num_senses = len(sense_indices)
@@ -47,8 +47,7 @@ def plot_embeddings(e, sense_indices, sense_names, word_name, savefile = False):
 def plot_dendrogram(embed_data, color_dict, label_dict, savefile = False):
     #color_dict is of format: {sense_name: color_str...}
     #label_dict is of format: {index: {'color': char, 'label': sense label}}
-    
-    embeds = [v.numpy() for v in embed_data['embeddings']]
+    embeds = convert_embeddings(embed_data['embeddings'])
     Z = linkage(embeds, method = 'single', metric = 'cosine')
     #plt.figure(figsize = (20, 8)) # for Jupyter plotting
     plt.figure(figsize = (9, 6)) #to plot on PDF
@@ -80,7 +79,8 @@ def plot_pca_ev(comp_range, embeddings, lemma):
     plt.title("PCA on BERT embeddings of " + lemma)
 
 def pca(embeddings, num_comps):
-    embeds = np.transpose(np.array([v.numpy() for v in embeddings]))
+    embeds = convert_embeddings(embeddings)
+    embeds = np.transpose(np.array(embeds))
     return PCA(n_components = num_comps).fit(embeds).components_.T
 
 def plot_gmm_rand_indices(embedding_data, comp_range, save_img = False, save_json = False):
@@ -157,3 +157,10 @@ def create_dendrogram_colors(senses):
         color_dict[sense] = mplotlib_color
         label_dict[i] = {'color': mplotlib_color, 'label': sense}
     return color_dict, label_dict
+
+def convert_embeddings(embeds):
+    if type(embed_data['embeddings'][0]) == list:
+        embeds = [np.array(v) for v in embeds]
+    else:
+        embeds = [v.numpy() for v in embeds]
+    return embeds
