@@ -71,7 +71,7 @@ def plot_dendrogram(embed_data, color_dict, label_dict, savefile = False):
 
 
 def plot_pca_ev(comp_range, embeddings, lemma):
-    embeddings = np.transpose(np.array([v.numpy() for v in embeddings]))
+    embeddings = np.transpose(convert_embeddings(embeddings))
     ev_ratios = [sum(PCA(n_components = c).fit(embeddings).explained_variance_ratio_) for c in comp_range]
     plt.plot(comp_range, ev_ratios)
     plt.xlabel("Number of Components")
@@ -159,7 +159,7 @@ def create_dendrogram_colors(senses):
     return color_dict, label_dict
 
 def convert_embeddings(embeds):
-    if type(embed_data['embeddings'][0]) == list:
+    if type(embeds[0]) == list:
         embeds = [np.array(v) for v in embeds]
     else:
         embeds = [v.numpy() for v in embeds]
