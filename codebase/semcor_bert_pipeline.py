@@ -227,5 +227,11 @@ def run_pipeline(word, pos, model, min_senses = 10, savefile = False):
         json_dict['sense_names'] = [str(s) for s in sel_senses]
         write_json(json_dict, word, pos)
     return result_dict
-    #TODO: Maybe save this as a JSON file?
+
+def load_data(word, pos):
+    fname = word + '_' + pos + '.json'
+    fpath = os.path.join('data', 'pipeline_results', fname)
+    with open(fpath, 'r') as path:
+        results = json.loads(path)
+    return results        
 
