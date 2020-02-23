@@ -69,6 +69,20 @@ def plot_dendrogram(embed_data, color_dict, label_dict, savefile = False):
         plt.clf()
         plt.cla()
 
+def tsne_rand(pipeline_output):
+    #Only works for 2-3 components
+    results_for_word = []
+    for c in range(2, 4):
+        tsne = TSNE(n_components = c)
+        tsne_results = tsne.fit_transform(pipeline_output['embeddings'])
+        true_labels = recode_labels(pipeline_output['sense_labels'])
+        num_senses = len(set(true_labels))
+        gmm_results = gmm_rand(tsne_results, num_senses, true_labels)
+        results_for_word.append({'Lemma': pipeline_output['lemma'], 'Principle Components': c,
+                                 'WordNet Mean': gmm_results['GMM'][0], 'WordNet SD': gmm_results['GMM'][1], 
+        'Random Mean': gmm_results['Random'][0],
+        'Random SD': gmm_results['Random'][1]})
+    return results_for_word
 
 def plot_pca_ev(comp_range, embeddings, lemma):
     embeddings = np.transpose(convert_embeddings(embeddings))
@@ -136,12 +150,12 @@ def recode_labels(true_labels):
         senses_as_nums.append(seen[l])
     return senses_as_nums
 
-def gmm_rand(pca_result, wn_labels, true_labels):
+def gmm_rand(clustered_result, wn_labels, true_labels):
     ari_gmm = []
     ari_random = []
     for _ in range(1000):
         gmm = GaussianMixture(n_components = wn_labels)
-        gmm_preds = gmm.fit_predict(pca_result)
+        gmm_preds = gmm.fit_predict(clustered_result)
         ari_gmm.append(adjusted_rand_score(gmm_preds, true_labels))
         random_clusters = np.random.choice(np.unique(true_labels), len(true_labels))
         ari_random.append(adjusted_rand_score(gmm_preds, random_clusters))
