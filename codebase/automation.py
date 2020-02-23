@@ -7,7 +7,8 @@ from clustering import *
 from fpdf import FPDF
 
 
-def run_clustering(word, pos, model):
+def run_clustering(word, pos, model, gmm_dr = 'TSNE'):
+    #either PCA or TSNE
     print(word, pos)
     fname = word + '_' + pos
     word_results = run_pipeline(word, pos, model, min_senses = 10, savefile = True)
@@ -16,7 +17,10 @@ def run_clustering(word, pos, model):
     color_dict, label_dict = create_dendrogram_colors(word_results['sense_names'])
     plot_dendrogram(word_results, color_dict, label_dict, savefile = True)
     print("Running GMM Simulations")
-    raw_json = plot_gmm_rand_indices(word_results, range(2, 30), save_json = True)
+    if gmm_dr == 'PCA':
+        raw_json = plot_gmm_rand_indices(word_results, range(2, 30), save_json = True)
+    if gmm_dr == 'TSNE':
+        return tsne_rand(word_results)
 
 def convert_imgs_to_pdf(name, pos):
     pdf = FPDF('L') 
@@ -48,6 +52,35 @@ def run_all_sparse():
             continue
     write_to_file(skipped_words, os.path.join('data', 'skipped_sparse_words.txt'))
 
+def run_tsne_entropy():
+    sparse_senses = pd.read_csv('data/')
+    completed_files = os.listdir(os.path.join('data', 'pipeline_results', 'sparse'))
+    all_rand_tsne = []
+    failed_words = []
+    for i in range(len(sparse_senses.index)):
+        row = sparse_senses.iloc[i]
+        word, pos = row['word'], row['pos']
+        json_name = word + "_" + pos + '.json'
+        if json_name in completed_files:
+            with open(os.path.join('data', 'pipeline_results', 'sparse', json_name), 'r') as fpath:
+                word_results = json.load(fpath)
+            tsne_rand_indices = tsne_rand(word_results)
+            all_rand_tsne += tsne_rand_indices
+        else:
+            try:
+                tsne_rand_indices = run_clustering(word, pos, model)
+                all_rand_tsne += tsne_rand_indices
+            except:
+                failed_words.append(word + '.' + pos)
+    
+        if i % 20 == 0:
+            pd.DataFrame(all_rand_tsne).to_csv('data/tsne_rand_indices.csv', index = False)
+        
+    write_to_file(failed_words, os.path.join('data', 'skipped_sparse_words.txt'))
+
+
+            
+
 def run_test():
     #For testing purposes, default to word table
     word, pos = 'table', 'n'
@@ -70,7 +103,8 @@ def run_sparse_pca():
 
 def write_to_file(lst, fpath):
     with open(fpath, 'w') as f:
-        f.write(lst)
+        for i in lst:
+            f.write(i + '\n')
 
 def check_for_embedding_data(word, pos):
     fname = word + '_' + pos + '.json'
@@ -79,22 +113,10 @@ def check_for_embedding_data(word, pos):
     else:
         return 0
 
-def run_gmm_existing():
-    for f in os.listdir(os.path.join('data', 'pipeline_results', 'sparse')):
-        datapath = os.path.join('data', 'pipeline_results', 'sparse' f)
-        print(datapath)
-        with open(datapath, 'r') as fp:
-            word_results = json.load(fp)
-        raw_json = plot_gmm_rand_indices(word_results, range(2, 30), save_json = True)
-
 if __name__ == '__main__':
     model = initialize_model()
     if sys.argv[1] == '--test':
         run_test()
-    elif sys.argv[1] == '--pca':
-        run_sparse_pca()
-    elif sys.argv[1] == '--gmm':
-        run_gmm_existing()
     else:
         run_all_sparse()
         
