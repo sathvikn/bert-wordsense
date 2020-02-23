@@ -2,6 +2,7 @@ import numpy as np
 import torch
 import json
 import pandas as pd
+import matplotlib.pyplot as plt
 from semcor_bert_pipeline import *
 from scipy import stats
 
@@ -43,6 +44,13 @@ def get_word_senses_ri(folder_name):
         ri_pca = json.load(ri)
     return num_senses, ri_pca
 
+def check_for_embedding_data(word, pos):
+    fname = word + '_' + pos + '.json'
+    if fname in os.listdir(os.path.join('data', 'pipeline_results')):
+        return 1
+    else:
+        return 0
+
 def get_corr_words():
     df = pd.read_csv('data/semcor_sparsity.csv')
     words_with_data = []
@@ -50,8 +58,9 @@ def get_corr_words():
         row = df.iloc[i]
         word, pos = row['word'], row['pos']
         folder_name = word + '_' + pos
-        dir_name = os.path.join("data", 'clustering_results', word + '_' + pos)
-        if os.listdir(dir_name):
+        #fname = word + '_' + pos + '.json'
+        #dir_name = os.path.join("data", 'pipeline_results', word + '_' + pos + '.json')
+        if check_for_embedding_data(word, pos):
             words_with_data.append(folder_name)
     return words_with_data
 
@@ -62,5 +71,28 @@ def compute_correlation(corr_dict, key):
     corr_dict[key]['pearson_gmm'] = stats.pearsonr(num_senses, gmm)[0]
     corr_dict[key]['spearman_gmm'] = stats.spearmanr(num_senses, gmm)[0]
     corr_dict[key]['pearson_random'] = stats.pearsonr(num_senses, random)[0]
-    corr_dict[key]['pearson_random'] = stats.spearmanr(num_senses, random)[0]
-    return corr_dict
+    corr_dict[key]['spearman_random'] = stats.spearmanr(num_senses, random)[0]
+
+def plot_correlation(corr_dict, max_pcs):
+    random_sp, random_pe, gmm_sp, gmm_pe = [], [], [], []
+    for k in corr_dict:
+        pc_data = corr_dict[k]
+        random_sp.append(pc_data['spearman_random'])
+        random_pe.append(pc_data['pearson_random'])
+        gmm_sp.append(pc_data['spearman_gmm'])
+        gmm_pe.append(pc_data['pearson_gmm'])
+    num_pcs = np.arange(2, max_pcs)
+    plt.figure(figsize = (8, 6))
+    plt.subplot(1, 2, 1)
+    plt.plot(num_pcs, random_sp, label = "Random Baseline")
+    plt.plot(num_pcs, gmm_sp, label = "WordNet Senses")
+    plt.xlabel("Principle Components of BERT Embeddings")
+    plt.ylabel("Correlation Coefficient")
+    plt.title("Spearman Correlation")
+    plt.subplot(1, 2, 2)
+    plt.plot(num_pcs, random_pe, label = "Random Baseline")
+    plt.plot(num_pcs, gmm_pe, label = "WordNet Senses")
+    plt.xlabel("Principle Components of BERT Embeddings")
+    plt.ylabel("Correlation Coefficient")
+    plt.title("Pearson Correlation")
+    plt.legend()
