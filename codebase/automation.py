@@ -53,7 +53,7 @@ def run_all_sparse():
     write_to_file(skipped_words, os.path.join('data', 'skipped_sparse_words.txt'))
 
 def run_tsne_entropy():
-    sparse_senses = pd.read_csv('data/')
+    sparse_senses = pd.read_csv('data/semcor_entropy.csv')
     completed_files = os.listdir(os.path.join('data', 'pipeline_results', 'sparse'))
     all_rand_tsne = []
     failed_words = []
@@ -68,7 +68,9 @@ def run_tsne_entropy():
             all_rand_tsne += tsne_rand_indices
         else:
             try:
-                tsne_rand_indices = run_clustering(word, pos, model)
+                dir_name = os.path.join("data", 'clustering_results', word + '_' + pos)
+                os.system('mkdir ' + dir_name)
+                tsne_rand_indices = run_clustering(word, pos, model, 'TSNE')
                 all_rand_tsne += tsne_rand_indices
             except:
                 failed_words.append(word + '.' + pos)
@@ -77,9 +79,6 @@ def run_tsne_entropy():
             pd.DataFrame(all_rand_tsne).to_csv('data/tsne_rand_indices.csv', index = False)
         
     write_to_file(failed_words, os.path.join('data', 'skipped_sparse_words.txt'))
-
-
-            
 
 def run_test():
     #For testing purposes, default to word table
@@ -117,6 +116,8 @@ if __name__ == '__main__':
     model = initialize_model()
     if sys.argv[1] == '--test':
         run_test()
-    else:
+    elif sys.argv[1] == '--pca':
         run_all_sparse()
+    elif sys.argv[1] == '--tsne_entropy':
+        run_tsne_entropy()
         

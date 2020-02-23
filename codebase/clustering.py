@@ -72,9 +72,10 @@ def plot_dendrogram(embed_data, color_dict, label_dict, savefile = False):
 def tsne_rand(pipeline_output):
     #Only works for 2-3 components
     results_for_word = []
+    numpy_embeds = convert_embeddings(pipeline_output['embeddings'])
     for c in range(2, 4):
         tsne = TSNE(n_components = c)
-        tsne_results = tsne.fit_transform(pipeline_output['embeddings'])
+        tsne_results = tsne.fit_transform(numpy_embeds)
         true_labels = recode_labels(pipeline_output['sense_labels'])
         num_senses = len(set(true_labels))
         gmm_results = gmm_rand(tsne_results, num_senses, true_labels)

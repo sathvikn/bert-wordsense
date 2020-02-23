@@ -230,8 +230,8 @@ def run_pipeline(word, pos, model, min_senses = 10, savefile = False):
 
 def load_data(word, pos):
     fname = word + '_' + pos + '.json'
-    fpath = os.path.join('data', 'pipeline_results', fname)
+    fpath = os.path.join('data', 'pipeline_results', 'sparse', fname)
     with open(fpath, 'r') as path:
-        results = json.loads(path)
+        results = json.load(path)
     return results        
 
