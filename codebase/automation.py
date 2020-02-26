@@ -67,10 +67,14 @@ def run_tsne_entropy():
         row = sparse_senses.iloc[i]
         word, pos = row['word'], row['pos']
         json_name = word + "_" + pos + '.json'
+        print("Processing", word, pos)
         if json_name in completed_files:
+            print("Found logged data")
             with open(os.path.join('data', 'pipeline_results', 'sparse', json_name), 'r') as fpath:
                 word_results = json.load(fpath)
+            print("Running GMM+TSNE")
             tsne_rand_indices = tsne_rand(word_results)
+            print("Running GMM+PCA")
             gmm_rand_indices = process_pca(plot_gmm_rand_indices(word_results, range(2, 4)), range(2, 4), word, pos)
             all_rand_tsne += tsne_rand_indices
             all_rand_gmm += gmm_rand_indices
@@ -78,14 +82,14 @@ def run_tsne_entropy():
             try:
                 dir_name = os.path.join("data", 'clustering_results', word + '_' + pos)
                 os.system('mkdir ' + dir_name)
-                tsne_rand_indices = run_clustering(word, pos, model, 'TSNE')
-                gmm_rand_indices = process_pca(plot_gmm_rand_indices(word_results, range(2, 4)), range(2, 4), word, pos)
+                tsne_rand_indices, gmm_rand_indices = run_clustering(word, pos, model, 'both')
                 all_rand_tsne += tsne_rand_indices
                 all_rand_gmm += gmm_rand_indices
             except:
                 failed_words.append(word + '.' + pos)
     
         if i % 5 == 0:
+            print("Saving results to disk")
             pd.DataFrame(all_rand_tsne).to_csv('data/tsne_rand_indices.csv', index = False)
             pd.DataFrame(all_rand_gmm).to_csv('data/gmm_rand_indices.csv', index = False)
         
