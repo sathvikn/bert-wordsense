@@ -79,7 +79,9 @@ def run_tsne_entropy():
                 dir_name = os.path.join("data", 'clustering_results', word + '_' + pos)
                 os.system('mkdir ' + dir_name)
                 tsne_rand_indices = run_clustering(word, pos, model, 'TSNE')
+                gmm_rand_indices = process_pca(plot_gmm_rand_indices(word_results, range(2, 4)), range(2, 4), word, pos)
                 all_rand_tsne += tsne_rand_indices
+                all_rand_gmm += gmm_rand_indices
             except:
                 failed_words.append(word + '.' + pos)
     
