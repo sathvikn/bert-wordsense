@@ -85,6 +85,14 @@ def tsne_rand(pipeline_output):
         'Random SD': gmm_results['Random'][1]})
     return results_for_word
 
+def process_pca(pca_results, num_comps, word, pos):
+    results_for_word = []
+    for c in num_comps:
+        results_for_word.append({'Lemma': word + '.' + pos, 'Principle Components': c, 'WordNet Mean': np.mean(pca_results[c]['gmm_raw_aris']),
+         'WordNet SD': np.std(pca_results[c]['gmm_raw_aris']), 'Random Mean': np.mean(pca_results[c]['random_baseline_raw_ari']),
+          'Random SD': np.std(pca_results[c]['random_baseline_raw_ari'])})
+    return results_for_word
+
 def plot_pca_ev(comp_range, embeddings, lemma):
     embeddings = np.transpose(convert_embeddings(embeddings))
     ev_ratios = [sum(PCA(n_components = c).fit(embeddings).explained_variance_ratio_) for c in comp_range]
@@ -138,7 +146,7 @@ def plot_gmm_rand_indices(embedding_data, comp_range, save_img = False, save_jso
         with open(str(json_path), 'w') as path:
             json.dump(raw_results, path)
 
-    return results
+    return raw_results
 
 def recode_labels(true_labels):
     seen = {}

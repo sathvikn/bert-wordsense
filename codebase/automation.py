@@ -7,7 +7,7 @@ from clustering import *
 from fpdf import FPDF
 
 
-def run_clustering(word, pos, model, gmm_dr = 'TSNE'):
+def run_clustering(word, pos, model, gmm_dr):
     #either PCA or TSNE
     print(word, pos)
     fname = word + '_' + pos
@@ -21,6 +21,11 @@ def run_clustering(word, pos, model, gmm_dr = 'TSNE'):
         raw_json = plot_gmm_rand_indices(word_results, range(2, 30), save_json = True)
     if gmm_dr == 'TSNE':
         return tsne_rand(word_results)
+    else:
+        tsne_rand_indices = tsne_rand(word_results)
+        rand = plot_gmm_rand_indices(word_results, range(2, 4))
+        pca_rand_indices = process_pca(rand, range(2, 4), word, pos)
+        return tsne_rand_indices, pca_rand_indices
 
 def convert_imgs_to_pdf(name, pos):
     pdf = FPDF('L') 
@@ -45,7 +50,7 @@ def run_all_sparse():
         dir_name = os.path.join("data", 'clustering_results', word + '_' + pos)
         os.system('mkdir ' + dir_name)
         try: 
-            run_clustering(word, pos, model)
+            run_clustering(word, pos, model, 'GMM')
             convert_imgs_to_pdf(word, pos)
         except:
             skipped_words.append(word + '.' + pos)
@@ -53,9 +58,10 @@ def run_all_sparse():
     write_to_file(skipped_words, os.path.join('data', 'skipped_sparse_words.txt'))
 
 def run_tsne_entropy():
-    sparse_senses = pd.read_csv('data/semcor_entropy.csv')
+    sparse_senses = pd.read_csv('data/semcor_entropy_sample.csv')
     completed_files = os.listdir(os.path.join('data', 'pipeline_results', 'sparse'))
     all_rand_tsne = []
+    all_rand_gmm = []
     failed_words = []
     for i in range(len(sparse_senses.index)):
         row = sparse_senses.iloc[i]
@@ -65,7 +71,9 @@ def run_tsne_entropy():
             with open(os.path.join('data', 'pipeline_results', 'sparse', json_name), 'r') as fpath:
                 word_results = json.load(fpath)
             tsne_rand_indices = tsne_rand(word_results)
+            gmm_rand_indices = process_pca(plot_gmm_rand_indices(word_results, range(2, 4)), range(2, 4), word, pos)
             all_rand_tsne += tsne_rand_indices
+            all_rand_gmm += gmm_rand_indices
         else:
             try:
                 dir_name = os.path.join("data", 'clustering_results', word + '_' + pos)
@@ -75,8 +83,9 @@ def run_tsne_entropy():
             except:
                 failed_words.append(word + '.' + pos)
     
-        if i % 20 == 0:
+        if i % 5 == 0:
             pd.DataFrame(all_rand_tsne).to_csv('data/tsne_rand_indices.csv', index = False)
+            pd.DataFrame(all_rand_gmm).to_csv('data/gmm_rand_indices.csv', index = False)
         
     write_to_file(failed_words, os.path.join('data', 'skipped_sparse_words.txt'))
 
@@ -85,7 +94,7 @@ def run_test():
     word, pos = 'table', 'n'
     dir_name = os.path.join("data", 'clustering_results', word + '_' + pos)
     os.system('mkdir ' + dir_name)
-    run_clustering(word, pos, model)
+    run_clustering(word, pos, model, 'both')
     #convert_imgs_to_pdf(word, pos)
 
 def run_sparse_pca():
