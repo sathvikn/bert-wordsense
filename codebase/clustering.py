@@ -36,7 +36,7 @@ def plot_embeddings(e, sense_indices, sense_names, word_name, savefile = False):
     plt.legend()
     if savefile: #TODO see if we can make this a fn?
         word_token, word_pos = get_name(word_name), get_pos(word_name)
-        path = os.path.join('data', 'clustering_results', word_token + '_' + word_pos, 'tsne.png')
+        path = os.path.join('data', 'clustering_results', 'tsne.png')
         plt.savefig(path)
         plt.clf()
         plt.cla()
