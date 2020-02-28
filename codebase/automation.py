@@ -58,7 +58,7 @@ def run_all_sparse():
     write_to_file(skipped_words, os.path.join('data', 'skipped_sparse_words.txt'))
 
 def run_tsne_entropy():
-    sparse_senses = pd.read_csv('data/semcor_entropy_sample.csv')
+    sparse_senses = pd.read_csv('data/semcor_entropy.csv')
     completed_files = os.listdir(os.path.join('data', 'pipeline_results', 'sparse'))
     all_rand_tsne = []
     all_rand_gmm = []
@@ -72,12 +72,15 @@ def run_tsne_entropy():
             print("Found logged data")
             with open(os.path.join('data', 'pipeline_results', 'sparse', json_name), 'r') as fpath:
                 word_results = json.load(fpath)
-            print("Running GMM+TSNE")
-            tsne_rand_indices = tsne_rand(word_results)
-            print("Running GMM+PCA")
-            gmm_rand_indices = process_pca(plot_gmm_rand_indices(word_results, range(2, 4)), range(2, 4), word, pos)
-            all_rand_tsne += tsne_rand_indices
-            all_rand_gmm += gmm_rand_indices
+            try:
+                print("Running GMM+TSNE")
+                tsne_rand_indices = tsne_rand(word_results)
+                print("Running GMM+PCA")
+                gmm_rand_indices = process_pca(plot_gmm_rand_indices(word_results, range(2, 4)), range(2, 4), word, pos)
+                all_rand_tsne += tsne_rand_indices
+                all_rand_gmm += gmm_rand_indices
+            except:
+                failed_words.append(word + '.' + pos)
         else:
             try:
                 dir_name = os.path.join("data", 'clustering_results', word + '_' + pos)
