@@ -68,8 +68,10 @@ def run_tsne_entropy():
     tsne_result_df = pd.read_csv("data/tsne_rand_indices.csv")
     pca_result_df = pd.read_csv('data/gmm_rand_indices.csv')
     if len(tsne_result_df.index) and len(pca_result_df.index):
-        all_rand_tsne = tsne_result_df.to_dict().values()
-        all_rand_gmm = pca_result_df.to_dict().values()
+        all_rand_tsne = tsne_result_df.to_dict(orient = 'records')#orient = records
+        all_rand_gmm = pca_result_df.to_dict(orient = 'records')
+        assert type(all_rand_tsne) == list and type(all_rand_gmm) == list
+        #print(all_rand_tsne[0])
         index_dict = tsne_result_df.to_dict('index') #Both dataframes should have the same words
         last_row = index_dict[len(index_dict.keys()) - 1]
         last_word, last_pos = last_row['Lemma'].split('.')[0], last_row['Lemma'].split('.')[1]
@@ -103,12 +105,10 @@ def run_tsne_entropy():
                 all_rand_gmm += gmm_rand_indices
             except:
                 failed_words.append(word + '.' + pos)
-    
         if i % 5 == 0:
             print("Saving results to disk")
             pd.DataFrame(all_rand_tsne).to_csv('data/tsne_rand_indices.csv', index = False)
             pd.DataFrame(all_rand_gmm).to_csv('data/gmm_rand_indices.csv', index = False)
-        
     write_to_file(failed_words, os.path.join('data', 'skipped_sparse_words.txt'))
 
 def run_test():
