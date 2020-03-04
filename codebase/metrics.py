@@ -5,6 +5,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from semcor_bert_pipeline import *
 from scipy import stats
+from adjustText import adjust_text
 
 def euc_dist(v1, v2):
     if type(v1) == torch.Tensor:
@@ -52,6 +53,7 @@ def check_for_embedding_data(word, pos):
         return 0
 
 def plot_metric_ri(x_col, df, method, dims):
+    plt.subplots()
     plt.scatter(df[x_col], df['Random Mean_' + method], label = 'random')
     plt.scatter(df[x_col], df['WordNet Mean_' + method], label = 'WN Senses', alpha = 0.3)
     plt.xlabel(x_col)
@@ -63,17 +65,22 @@ def plot_dim_metric_method_combos(two_pc, three_pc, fn):
     for d in ['2D', '3D']:
         for m in ['pca', 'tsne']:
             for v in ['entropy', 'num_senses']:
-                plt.subplots()
                 if d == '2D':
                     fn(v, two_pc, m, d)
                 else:
                     fn(v, three_pc, m, d)
 
-def scatter_gmm_results_text(x_col, df, x_metric, method, dims):
+def get_sample(two_pc, three_pc, num_words):
+    two_sample = two_pc.sample(num_words)
+    three_sample = three_pc[three_pc['Lemma'].isin(two_sample['Lemma'])]
+    return two_sample, three_sample
+
+def scatter_gmm_results_text(x_col, df, method, dims):
     #plt.scatter(ent, df['Random Mean_' + method], label = 'random')
     x = df[x_col]
     y = df['WordNet Mean_' + method]
     labels = df['Lemma']
+    #plt.subplots()
     plt.figure(figsize = (10, 8))
     
     plt.scatter(x, y)
@@ -83,7 +90,7 @@ def scatter_gmm_results_text(x_col, df, x_metric, method, dims):
         texts.append(plt.text(x, y, s))
     plt.xlabel(x_col)
     plt.ylabel("Rand Index")
-    plt.title("Rand Scores for GMMs fitted to " + method.upper() + " Embeddings " + "vs. " + x_metric + '(' + dims + ')')
+    plt.title("Rand Scores for GMMs fitted to " + method.upper() + " Embeddings " + "vs. " + x_col + '(' + dims + ')')
     
     adjust_text(texts, force_points=0.2, force_text=0.2,
            expand_points=(1, 1), expand_text=(1, 1),
