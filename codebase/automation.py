@@ -65,19 +65,23 @@ def run_tsne_entropy():
     all_rand_gmm = []
     failed_words = []
     index_range = range(len(sparse_senses.index))
-    tsne_result_df = pd.read_csv("data/tsne_rand_indices.csv")
-    pca_result_df = pd.read_csv('data/gmm_rand_indices.csv')
-    if len(tsne_result_df.index) and len(pca_result_df.index):
-        all_rand_tsne = tsne_result_df.to_dict(orient = 'records')#orient = records
-        all_rand_gmm = pca_result_df.to_dict(orient = 'records')
-        assert type(all_rand_tsne) == list and type(all_rand_gmm) == list
-        #print(all_rand_tsne[0])
-        index_dict = tsne_result_df.to_dict('index') #Both dataframes should have the same words
-        last_row = index_dict[len(index_dict.keys()) - 1]
-        last_word, last_pos = last_row['Lemma'].split('.')[0], last_row['Lemma'].split('.')[1]
-        start_index = sparse_senses[(sparse_senses['word'] == last_word) & (sparse_senses['pos'] == last_pos)].index[0] + 1
-        end_index = len(sparse_senses.index)
-        index_range = range(start_index, end_index)
+    try:
+        tsne_result_df = pd.read_csv("data/tsne_rand_indices.csv")
+        pca_result_df = pd.read_csv('data/gmm_rand_indices.csv')
+        if len(tsne_result_df.index) and len(pca_result_df.index):
+
+            all_rand_tsne = tsne_result_df.to_dict(orient = 'records')#orient = records
+            all_rand_gmm = pca_result_df.to_dict(orient = 'records')
+            assert type(all_rand_tsne) == list and type(all_rand_gmm) == list
+            #print(all_rand_tsne[0])
+            index_dict = tsne_result_df.to_dict('index') #Both dataframes should have the same words
+            last_row = index_dict[len(index_dict.keys()) - 1]
+            last_word, last_pos = last_row['Lemma'].split('.')[0], last_row['Lemma'].split('.')[1]
+            start_index = sparse_senses[(sparse_senses['word'] == last_word) & (sparse_senses['pos'] == last_pos)].index[0] + 1
+            end_index = len(sparse_senses.index)
+            index_range = range(start_index, end_index)
+    except:
+        print("Starting job")
     for i in index_range:
         row = sparse_senses.iloc[i]
         word, pos = row['word'], row['pos']

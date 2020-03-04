@@ -128,13 +128,14 @@ def plot_gmm_rand_indices(embedding_data, comp_range, save_img = False, save_jso
         gmm_random_means.append(results['Random'][0])
         gmm_random_sds.append(results['Random'][1])
         raw_results[c] = {'gmm_raw_aris': results['gmm_raw'], 'random_baseline_raw_ari': results['random_raw']}
+    """
     plt.errorbar(comp_range, gmm_wn_means, yerr = gmm_wn_sds, label = "WordNet Senses")
     plt.errorbar(comp_range, gmm_random_means, yerr = gmm_random_sds, label = "Random Baseline")
     plt.xlabel("Number of PCA Components")
     plt.ylabel("Rand Index")
     plt.title("Rand Indices for PCA decomposition of " + lemma)
     plt.legend(title = 'Ground Truth')
-    
+    """
     word_token, word_pos = get_name(lemma), get_pos(lemma)
     if save_img:
         img_path = os.path.join('data', 'clustering_results', word_token + '_' + word_pos, 'gmm_evr.png')

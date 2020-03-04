@@ -51,6 +51,45 @@ def check_for_embedding_data(word, pos):
     else:
         return 0
 
+def plot_metric_ri(x_col, df, method, dims):
+    plt.scatter(df[x_col], df['Random Mean_' + method], label = 'random')
+    plt.scatter(df[x_col], df['WordNet Mean_' + method], label = 'WN Senses', alpha = 0.3)
+    plt.xlabel(x_col)
+    plt.ylabel("Rand Index")
+    plt.title("Rand Scores for GMMs fitted to " + method.upper() + " Embeddings " + "vs. " + x_col + '(' + dims + ')')
+    plt.legend()
+
+def plot_dim_metric_method_combos(two_pc, three_pc, fn):
+    for d in ['2D', '3D']:
+        for m in ['pca', 'tsne']:
+            for v in ['entropy', 'num_senses']:
+                plt.subplots()
+                if d == '2D':
+                    fn(v, two_pc, m, d)
+                else:
+                    fn(v, three_pc, m, d)
+
+def scatter_gmm_results_text(x_col, df, x_metric, method, dims):
+    #plt.scatter(ent, df['Random Mean_' + method], label = 'random')
+    x = df[x_col]
+    y = df['WordNet Mean_' + method]
+    labels = df['Lemma']
+    plt.figure(figsize = (10, 8))
+    
+    plt.scatter(x, y)
+    texts = []
+    i = 0
+    for x, y, s in zip(x, y, labels):
+        texts.append(plt.text(x, y, s))
+    plt.xlabel(x_col)
+    plt.ylabel("Rand Index")
+    plt.title("Rand Scores for GMMs fitted to " + method.upper() + " Embeddings " + "vs. " + x_metric + '(' + dims + ')')
+    
+    adjust_text(texts, force_points=0.2, force_text=0.2,
+           expand_points=(1, 1), expand_text=(1, 1),
+            arrowprops=dict(arrowstyle="-", color='black', lw=0.5))
+
+
 def get_corr_words():
     df = pd.read_csv('data/semcor_sparsity.csv')
     words_with_data = []
