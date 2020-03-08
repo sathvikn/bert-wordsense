@@ -202,7 +202,7 @@ def get_tree_labels(sense_indices, sel_senses):
 def write_json(results, word, pos):
     filename = word + '_' + pos + '.json'
     #Fix this later??
-    with open(os.path.join('data', 'pipeline_results', 'sparse', filename), 'w') as f:
+    with open(os.path.join('..', 'data', 'pipeline_results', 'sparse', filename), 'w') as f:
         json.dump(results, f)
 
 def run_pipeline(word, pos, model, min_senses = 10, savefile = False):
@@ -230,7 +230,7 @@ def run_pipeline(word, pos, model, min_senses = 10, savefile = False):
 
 def load_data(word, pos):
     fname = word + '_' + pos + '.json'
-    fpath = os.path.join('data', 'pipeline_results', 'sparse', fname)
+    fpath = os.path.join('..', 'data', 'pipeline_results', 'sparse', fname)
     with open(fpath, 'r') as path:
         results = json.load(path)
     return results        

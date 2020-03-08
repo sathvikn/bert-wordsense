@@ -36,18 +36,18 @@ def dist_centroids(s1, s2):
     return euc_dist(centroid(s1), centroid(s2))
 
 def get_word_senses_ri(folder_name):
-    embed_fpath = os.path.join('data', 'pipeline_results', folder_name + '.json')
+    embed_fpath = os.path.join('..', 'data', 'pipeline_results', folder_name + '.json')
     with open(embed_fpath, 'r') as embeds:
         embed_json = json.load(embeds)
     num_senses = len(embed_json['sense_names'])
-    gmm_fpath = os.path.join('data', 'clustering_results', folder_name, 'gmm_results.json')
+    gmm_fpath = os.path.join('..', 'data', 'clustering_results', folder_name, 'gmm_results.json')
     with open(gmm_fpath, 'r') as ri:
         ri_pca = json.load(ri)
     return num_senses, ri_pca
 
 def check_for_embedding_data(word, pos):
     fname = word + '_' + pos + '.json'
-    if fname in os.listdir(os.path.join('data', 'pipeline_results')):
+    if fname in os.listdir(os.path.join('..', 'data', 'pipeline_results')):
         return 1
     else:
         return 0
@@ -98,7 +98,7 @@ def scatter_gmm_results_text(x_col, df, method, dims):
 
 
 def get_corr_words():
-    df = pd.read_csv('data/semcor_sparsity.csv')
+    df = pd.read_csv('..data/semcor_sparsity.csv')
     words_with_data = []
     for i in range(len(df.index)):
         row = df.iloc[i]
