@@ -36,7 +36,7 @@ def plot_embeddings(e, sense_indices, sense_names, word_name, savefile = False):
     plt.legend()
     if savefile: #TODO see if we can make this a fn?
         word_token, word_pos = get_name(word_name), get_pos(word_name)
-        path = os.path.join('data', 'clustering_results', 'tsne.png')
+        path = os.path.join('..', 'data', 'clustering_results', 'tsne.png')
         plt.savefig(path)
         plt.clf()
         plt.cla()
@@ -64,7 +64,7 @@ def plot_dendrogram(embed_data, color_dict, label_dict, savefile = False):
     if savefile:
         word_name = embed_data['lemma']
         word_token, word_pos = get_name(word_name), get_pos(word_name)
-        path = os.path.join('data', 'clustering_results', word_token + '_' + word_pos, 'dendrogram.png')
+        path = os.path.join('..', 'data', 'clustering_results', word_token + '_' + word_pos, 'dendrogram.png')
         plt.savefig(path)
         plt.clf()
         plt.cla()
@@ -138,12 +138,12 @@ def plot_gmm_rand_indices(embedding_data, comp_range, save_img = False, save_jso
     """
     word_token, word_pos = get_name(lemma), get_pos(lemma)
     if save_img:
-        img_path = os.path.join('data', 'clustering_results', word_token + '_' + word_pos, 'gmm_evr.png')
+        img_path = os.path.join('..', 'data', 'clustering_results', word_token + '_' + word_pos, 'gmm_evr.png')
         plt.savefig(img_path)
         plt.clf()
         plt.cla()
     if save_json:
-        json_path = os.path.join('data', 'clustering_results', word_token + '_' + word_pos, 'gmm_results.json')
+        json_path = os.path.join('..', 'data', 'clustering_results', word_token + '_' + word_pos, 'gmm_results.json')
         with open(str(json_path), 'w') as path:
             json.dump(raw_results, path)
 
