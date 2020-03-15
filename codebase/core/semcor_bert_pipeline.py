@@ -23,6 +23,9 @@ class SemCorSelector:
     
     def get_word_data(self, word, pos):
         self.curr_word = word + '.' + pos
+        self.original_sent_for_word = []
+        self.senses = []
+        self.tagged_word = []
         #self.semcor_for_word(word, pos)
         for i in range(self.num_sentences):
             s = self.semcor_tagged_sents[i]
@@ -202,7 +205,7 @@ def get_tree_labels(sense_indices, sel_senses):
 def write_json(results, word, pos):
     filename = word + '_' + pos + '.json'
     #Fix this later??
-    with open(os.path.join('..', 'data', 'pipeline_results', 'sparse', filename), 'w') as f:
+    with open(os.path.join('..', 'data', 'pipeline_results', filename), 'w') as f:
         json.dump(results, f)
 
 def run_pipeline(word, pos, model, min_senses = 10, savefile = False):
@@ -230,7 +233,7 @@ def run_pipeline(word, pos, model, min_senses = 10, savefile = False):
 
 def load_data(word, pos):
     fname = word + '_' + pos + '.json'
-    fpath = os.path.join('..', 'data', 'pipeline_results', 'sparse', fname)
+    fpath = os.path.join('..', 'data', 'pipeline_results', fname)
     with open(fpath, 'r') as path:
         results = json.load(path)
     return results        
