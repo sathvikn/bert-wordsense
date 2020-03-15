@@ -1,10 +1,16 @@
 import os
 import numpy as np
 import json
+import re
 import pandas as pd
 from nltk.corpus import wordnet as wn
 
-
+def select_clean_sentences(sentences, indices, limit = 50):
+    short_sentences = [sentences[i] for i in indices if len(sentences[i].split(" ")) <= limit]
+    selected = np.random.choice(short_sentences)
+    selected = re.sub(r"\s([?.!,`'](?:\s|$))", r'\1', selected)
+    return selected
+    
 sense_as_str = lambda s: s.split('(')[1].replace(')', '')
 semcor_lemmas = pd.read_csv('../data/expt_semcor_types.csv')["Lemma"].tolist()
 with open('../data/polysemy_words.txt', 'r') as f:
@@ -36,7 +42,7 @@ for l in lemmas:
         inputs[lem][l] = {}
         inputs[lem][l]['def'] = defn
         indices_for_sense = np.argwhere(np.array(logged_data['sense_labels']) == pooja_synset.name()).flatten()
-        random_sentence = logged_data['original_sentences'][np.random.choice(indices_for_sense)]
+        random_sentence = select_clean_sentences(logged_data['original_sentences'], indices_for_sense)
         inputs[lem][l]["sent"] = random_sentence
     inputs[lem]['senses'] = len(logged_data['sense_names'])
     inputs[lem]['type'] = lem
