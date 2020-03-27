@@ -18,8 +18,21 @@ def get_trial_data(db):
         t = trials[trialID]
         for sense_name in t['response']:
             left, top = segment_position_string(t['response'][sense_name])
-            row = {'trialID': trialID, 'userID': t['userID'], 'type': t['inputWord'], 'sense': sense_name, 'x': left, 'y': top}
+            row = {'trialID': trialID, 'userID': t['userID'], 'trialIndex': t['trialIndex'], 'trialType': t['trialType'],
+            'lemma': t['inputWord'], 'sense': sense_name, 'x': left, 'y': top,
+            }
             df_rows.append(row)
+    return pd.DataFrame(df_rows)
+
+def get_participant_data(db):
+    node = db['subjectInfo']
+    df_rows = []
+    for userID in node:
+        user_data = node[userID]
+        elapsedTimeSec = (user_data['endedAt'] - user_data['startedAt']) / 1000 #Time for trial in seconds
+        row = {"userID": userID, "workerID": user_data['qualtricsWorkerID'], 'completedTask': user_data['completed'], 'timeTaken': elapsedTimeSec
+        }
+        df_rows.append(row)
     return pd.DataFrame(df_rows)
 
 def segment_position_string(s):
