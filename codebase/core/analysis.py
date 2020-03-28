@@ -30,7 +30,8 @@ def get_participant_data(db):
     for userID in node:
         user_data = node[userID]
         elapsedTimeSec = (user_data['endedAt'] - user_data['startedAt']) / 1000 #Time for trial in seconds
-        row = {"userID": userID, "workerID": user_data['qualtricsWorkerID'], 'completedTask': user_data['completed'], 'timeTaken': elapsedTimeSec
+        row = {"userID": userID, "workerID": user_data['qualtricsWorkerID'], "userIP": user_data['ipAddress'], 
+        'completedTask': user_data['completed'], 'timeTaken': elapsedTimeSec
         }
         df_rows.append(row)
     return pd.DataFrame(df_rows)
