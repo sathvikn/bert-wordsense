@@ -18,7 +18,7 @@ def get_trial_data(db):
         t = trials[trialID]
         for sense_name in t['response']:
             left, top = segment_position_string(t['response'][sense_name])
-            row = {'trialID': trialID, 'userID': t['userID'], 'trialIndex': t['trialIndex'], 'trialType': t['trialType'],
+            row = {'trialID': trialID, 'userID': t['userID'], 'trialIndex': t['trialIndex'], 'trialType': t['trialType'], 'prevChanged': t['timesPrevTrialsChanged'],
             'lemma': t['inputWord'], 'sense': sense_name, 'x': left, 'y': top,
             }
             df_rows.append(row)
