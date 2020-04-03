@@ -17,7 +17,10 @@ def get_trial_data(db):
     for trialID in trials:
         t = trials[trialID]
         for sense_name in t['response']:
-            left, top = segment_position_string(t['response'][sense_name])
+            try:
+                left, top = segment_position_string(t['response'][sense_name])
+            except:
+                left, top = -1, -1
             row = {'trialID': trialID, 'userID': t['userID'], 'trialIndex': t['trialIndex'], 'trialType': t['trialType'], 'prevChanged': t['timesPrevTrialsChanged'],
             'lemma': t['inputWord'], 'sense': sense_name, 'x': left, 'y': top,
             }
@@ -29,7 +32,10 @@ def get_participant_data(db):
     df_rows = []
     for userID in node:
         user_data = node[userID]
-        elapsedTimeSec = (user_data['endedAt'] - user_data['startedAt']) / 1000 #Time for trial in seconds
+        if 'endedAt' in user_data:
+            elapsedTimeSec = (user_data['endedAt'] - user_data['startedAt']) / 1000 #Time for trial in seconds
+        else:
+            elapsedTimeSec = -1
         row = {"userID": userID, "workerID": user_data['qualtricsWorkerID'], "userIP": user_data['ipAddress'], 
         'completedTask': user_data['completed'], 'timeTaken': elapsedTimeSec
         }
