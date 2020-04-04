@@ -17,9 +17,9 @@ def get_trial_data(db):
     for trialID in trials:
         t = trials[trialID]
         for sense_name in t['response']:
-            try:
+            if "div" not in t['response'][sense_name]:
                 left, top = segment_position_string(t['response'][sense_name])
-            except:
+            else:
                 left, top = -1, -1
             row = {'trialID': trialID, 'userID': t['userID'], 'trialIndex': t['trialIndex'], 'trialType': t['trialType'], 'prevChanged': t['timesPrevTrialsChanged'],
             'lemma': t['inputWord'], 'sense': sense_name, 'x': left, 'y': top,
@@ -43,8 +43,8 @@ def get_participant_data(db):
     return pd.DataFrame(df_rows)
 
 def segment_position_string(s):
-    left, top = s.split(";")
-    x = int(left.split(" ")[1].strip("px"))
-    y = int(top.split(" ")[1].strip("px"))
+    left, top = s.strip().split(";")
+    x = float(left.split(":")[1].strip("px").strip(" "))
+    y = float(top.split(":")[1].strip("px").strip(" "))
     return x, y
 
