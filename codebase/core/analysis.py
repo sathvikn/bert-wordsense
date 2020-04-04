@@ -17,9 +17,9 @@ def get_trial_data(db):
     for trialID in trials:
         t = trials[trialID]
         for sense_name in t['response']:
-            if "div" not in t['response'][sense_name]:
+            try:
                 left, top = segment_position_string(t['response'][sense_name])
-            else:
+            except:
                 left, top = -1, -1
             row = {'trialID': trialID, 'userID': t['userID'], 'trialIndex': t['trialIndex'], 'trialType': t['trialType'], 'prevChanged': t['timesPrevTrialsChanged'],
             'lemma': t['inputWord'], 'sense': sense_name, 'x': left, 'y': top,
