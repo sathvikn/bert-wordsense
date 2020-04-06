@@ -61,12 +61,17 @@ def get_subject_mtx(results, userID, word_type, trial_type):
     word_data = results[(results['userID'] == userID) & (results['lemma'] == word_type) & (results['trialType'] == trial_type)]
     result_mtx = []
     senses = word_data['sense']
+    max_value = 0
     for i in range(len(word_data.index)):
         row = []
         for j in range(len(word_data.index)):
-            row.append(calculate_distance(word_data.iloc[i], word_data.iloc[j]))
+            dist = calculate_distance(word_data.iloc[i], word_data.iloc[j])
+            if dist > max_value:
+                max_value = dist
+            row.append(dist)
         result_mtx.append(np.asarray(row))
     result_mtx = np.asarray(result_mtx)
+    result_mtx = result_mtx / max_value
     return result_mtx, senses
 
 
@@ -91,7 +96,7 @@ def plot_mtx(result_mtx, senses):
     # Loop over data dimensions and create text annotations.
     for i in range(len(senses)):
         for j in range(len(senses)):
-            square_color = textcolors[int(im.norm(result_mtx[i][j]) < threshold)]
+            square_color = textcolors[int(im.norm(result_mtx[i][j]) > threshold)]
             text = ax.text(j, i, np.round(result_mtx[i][j], 3),
                            ha="center", va="center", color=square_color)
 
