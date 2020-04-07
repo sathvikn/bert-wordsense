@@ -1,0 +1,12 @@
+school.n
+book.n
+glass.n
+door.n
+heart.n
+face.n
+table.n
+plane.n
+degree.n
+right.n
+foot.n
+model.n
