@@ -2,8 +2,8 @@ import os
 import sys
 import argparse
 import pandas as pd
-from semcor_bert_pipeline import *
-from clustering import *
+from core.semcor_bert_pipeline import *
+from core.clustering import *
 from fpdf import FPDF
 
 
