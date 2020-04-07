@@ -4,6 +4,7 @@ from firebase_admin import db
 import pandas as pd
 import numpy as np 
 import matplotlib.pyplot as plt
+plt.set_cmap('Blues')
 
 #Firebase functions, getting trial & subject data
 def access_db():
@@ -74,9 +75,23 @@ def get_subject_mtx(results, userID, word_type, trial_type):
     result_mtx = result_mtx / max_value
     return result_mtx, senses
 
+def plot_repeat_trials(results, userID):
+    user_trials = results[results['userID'] == userID]
+    repeat_types = user_trials[user_trials['trialType'] == 'repeat']['lemma'].unique()
+    for l in repeat_types:
+        original_result, senses = get_subject_mtx(results, userID, l, 'test')
+        repeat_result, _ = get_subject_mtx(results, userID, l, 'repeat')
+        plot_mtx(original_result, senses, x = 1, y = 2, z = 1)
+        plot_mtx(repeat_result, senses, x = 1, y = 2, z = 2)
+        plt.title("Repeated Trials for " + l)
 
-def plot_mtx(result_mtx, senses):
-    fig, ax = plt.subplots()
+
+
+def plot_mtx(result_mtx, senses, x, y, z):
+    if x < 0 and y < 0 and z < 0:
+        fig, ax = plt.subplots()
+    else:
+        ax = plt.subplot(x, y, z)
     im = ax.imshow(result_mtx)
 
     # We want to show all ticks...
@@ -101,6 +116,6 @@ def plot_mtx(result_mtx, senses):
                            ha="center", va="center", color=square_color)
 
     #fig.tight_layout()
-    plt.show()
+    #plt.show()
 
 
