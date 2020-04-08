@@ -78,6 +78,8 @@ def get_subject_mtx(results, userID, word_type, trial_type):
 def plot_repeat_trials(results, userID, subject_index = None):
     user_trials = results[results['userID'] == userID]
     repeat_types = user_trials[user_trials['trialType'] == 'repeat']['lemma'].unique()
+    user_orig = []
+    user_repeat = []
     for l in repeat_types:
         original_result, senses = get_subject_mtx(results, userID, l, 'test')
         repeat_result, _ = get_subject_mtx(results, userID, l, 'repeat')
@@ -92,12 +94,25 @@ def plot_repeat_trials(results, userID, subject_index = None):
         annotate_mtx(repeat_result, rep_img, ax2, senses)
         pos = 2
         my_eyes.subplots_adjust(right = pos)
-        my_eyes.suptitle("Subject " + subject_index + " Annotations for Repeated Type " + l, x = pos / 1.9)
+        r = mtx_correlation([original_result], [repeat_result])
+        user_orig.append(np.array(original_result))
+        user_repeat.append(np.array(repeat_result))
+        my_eyes.suptitle("Subject " + subject_index + " Annotations for Repeated Type " + l + " (r = " + str(np.round(r, 2)) + ")", x = pos / 1.9)
+    return user_orig, user_repeat
 
 def plot_all_repeats(results, users):
+    all_orig = []
+    all_repeat = []
     for u in users:
         subject_index = str(users[users == u].index[0])
-        plot_repeat_trials(results, u, subject_index)
+        user_orig, user_repeat = plot_repeat_trials(results, u, subject_index)
+        print("User", subject_index, " Correlation ", mtx_correlation(np.asarray(user_orig), np.asarray(user_repeat)))
+        for m in user_orig:
+            all_orig.append(m)
+        for m in user_repeat:
+            all_repeat.append(m)
+    print("Correlation of all original vs. repeat trials", mtx_correlation(all_orig, all_repeat))
+    
 
 #Plots all matrices for shared trials (words x subjects)
 def plot_all_shared(results, users):
@@ -137,28 +152,7 @@ def annotate_mtx(result_mtx, im, ax, senses, write_text = True):
             text = ax.text(j, i, np.round(result_mtx[i][j], 3),
                            ha="center", va="center", color=square_color)
 
-
-#Helper functions
-
-#Creates x and y coordinates
-def segment_position_string(s):
-    left, top = s.strip().split(";")
-    x = float(left.split(":")[1].strip("px").strip(" "))
-    y = float(top.split(":")[1].strip("px").strip(" "))
-    return x, y
-    
-#Euclidean distance
-def calculate_distance(r1, r2):
-    s1 = np.array([r1['x'], r1['y']])
-    s2 = np.array([r2['x'], r2['y']])
-    return np.linalg.norm(s1 - s2)
-
-def get_senses(db, word):
-    return [k for k in db['inputs'][word] if k not in ['senses', 'type']]
-
-def get_num_senses(w, db):
-    return db['inputs'][w]['senses']
-
+#MDS functions
 def mean_distance_mtx(results, lemma, trial_type, user_lst):
     shared_tensor = []
     for j in range(len(user_lst)):
@@ -185,3 +179,37 @@ def plot_all_mds(results, users, trial_type):
     for l in data['lemma'].unique():
         word_means = mean_distance_mtx(results, l, trial_type, users)
         plot_mds(word_means, l, mds_model)
+
+
+
+#Helper functions
+
+#Creates x and y coordinates
+def segment_position_string(s):
+    left, top = s.strip().split(";")
+    x = float(left.split(":")[1].strip("px").strip(" "))
+    y = float(top.split(":")[1].strip("px").strip(" "))
+    return x, y
+    
+#Euclidean distance
+def calculate_distance(r1, r2):
+    s1 = np.array([r1['x'], r1['y']])
+    s2 = np.array([r2['x'], r2['y']])
+    return np.linalg.norm(s1 - s2)
+
+def get_senses(db, word):
+    return [k for k in db['inputs'][word] if k not in ['senses', 'type']]
+
+def get_num_senses(w, db):
+    return db['inputs'][w]['senses']
+
+def mtx_correlation(m1, m2):
+    #m1 and m2 are lists of distance matrices
+    assert len(m1) == len(m2)
+    flat_m1 = []
+    for i in range(len(m1)):
+        flat_m1 += m1[i].flatten().tolist()
+    flat_m2 = []
+    for i in range(len(m2)):
+        flat_m2 += m2[i].flatten().tolist()
+    return np.corrcoef(flat_m1, flat_m2)[0][1]
