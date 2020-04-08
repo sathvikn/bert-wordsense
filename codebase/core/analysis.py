@@ -48,6 +48,13 @@ def get_participant_data(db):
         df_rows.append(row)
     return pd.DataFrame(df_rows)
 
+def get_num_trials(results):
+    lst = []
+    for l in results['lemma'].unique():
+        num_words = len(results[results['lemma'] == l].index) / get_num_senses(l, db)
+        lst.append({'type': l, 'num_trials': num_words, 'num_senses': get_num_senses(l, db)})
+    return pd.DataFrame(lst)
+
 #Represents subject's data for a word as a matrix
 def get_subject_mtx(results, userID, word_type, trial_type):
     word_data = results[(results['userID'] == userID) & (results['lemma'] == word_type) & (results['trialType'] == trial_type)]
@@ -90,7 +97,7 @@ def plot_all_repeats(results, users):
     for u in users:
         subject_index = str(users[users == u].index[0])
         plot_repeat_trials(results, u, subject_index)
-        
+
 #Plots all matrices for shared trials (words x subjects)
 def plot_all_shared(results, users):
     shared_words = results[results['trialType'] == 'shared']['lemma'].unique()
@@ -144,3 +151,10 @@ def calculate_distance(r1, r2):
     s1 = np.array([r1['x'], r1['y']])
     s2 = np.array([r2['x'], r2['y']])
     return np.linalg.norm(s1 - s2)
+
+def get_senses(db, word):
+    return [k for k in db['inputs'][word] if k not in ['senses', 'type']]
+
+def get_num_senses(w, db):
+    return db['inputs'][w]['senses']
+
