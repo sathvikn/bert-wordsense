@@ -162,7 +162,7 @@ def mean_distance_mtx(results, lemma, trial_type, user_lst):
     shared_tensor = np.asarray(shared_tensor)
     return np.mean(shared_tensor, axis = 0)
 
-def plot_mds(word_means, word, mds_model):
+def plot_mds(word_means, word, mds_model, db):
     results = mds_model.fit_transform(word_means)
     x = results[:,0]
     y = results[:,1]
@@ -173,12 +173,12 @@ def plot_mds(word_means, word, mds_model):
         ax.annotate(txt, (x[i], y[i]))
     plt.title("MDS over Averaged Reported Distances for " + word)
 
-def plot_all_mds(results, users, trial_type):
+def plot_all_mds(results, users, trial_type, db):
     data = results[results['trialType'] == trial_type]
     mds_model = MDS(n_components = 2, dissimilarity = 'precomputed')
     for l in data['lemma'].unique():
         word_means = mean_distance_mtx(results, l, trial_type, users)
-        plot_mds(word_means, l, mds_model)
+        plot_mds(word_means, l, mds_model, db)
 
 
 
