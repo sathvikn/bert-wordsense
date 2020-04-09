@@ -9,6 +9,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 plt.set_cmap('Blues')
 
+
 #Firebase functions, getting trial & subject data
 def access_db():
     cred = credentials.Certificate('../data/wordsense-pilesort-firebase-adminsdk-3ipny-791a81e575.json')
@@ -139,7 +140,7 @@ def hoo_corr(results, userID, exclude):
     return mtx_correlation(user_results, avg_results)
 
 
-def plot_all_repeats(results, users):
+def plot_all_repeats(results, users, random_baseline = False, db = None):
     all_orig = []
     all_repeat = []
     user_corrs = []
@@ -153,6 +154,15 @@ def plot_all_repeats(results, users):
             all_orig.append(m)
         for m in user_repeat:
             all_repeat.append(m)
+    if random_baseline:
+        first_trial_dim = random_num_senses(db)
+        second_trial_dim = random_num_senses(db)
+        random_orig = np.array([create_random_symmetric_mtx(first_trial_dim), create_random_symmetric_mtx(second_trial_dim)])
+        random_repeat = np.array([create_random_symmetric_mtx(first_trial_dim), create_random_symmetric_mtx(second_trial_dim)])
+        random_corrs = mtx_correlation(random_orig, random_repeat)
+        user_corrs.append(random_corrs)
+        print("Random Baseline", random_corrs)
+
     print("Correlation of all original vs. repeat trials", mtx_correlation(all_orig, all_repeat))
     return user_corrs
     
@@ -266,4 +276,21 @@ def mtx_correlation(m1, m2):
     for i in range(len(m2)):
         flat_m2 += m2[i].flatten().tolist()
     return stats.spearmanr(flat_m1, flat_m2)[0]
+
+def random_num_senses(db):
+    vals, probs = get_num_to_sense_dist(db)
+    return np.random.choice(vals, p = probs)
+
+def get_num_to_sense_dist(db):
+    val_counts = pd.Series([db['inputs'][i]['senses'] for i in db['inputs']]).value_counts()
+    probs = val_counts / sum(val_counts)
+    return probs.index, probs.values
+
+def create_random_symmetric_mtx(dims = 3):
+    mtx = np.random.uniform(0,1000,size=(dims, dims))
+    max_val = max(mtx.flatten())
+    mtx = (mtx + mtx.T)/2
+    np.fill_diagonal(mtx, 0)
+    mtx = mtx / max_val
+    return mtx
 
