@@ -301,9 +301,8 @@ def get_num_to_sense_dist(db):
 
 def create_random_symmetric_mtx(dims = 3):
     mtx = np.random.uniform(0,1000,size=(dims, dims))
-    max_val = max(mtx.flatten())
     mtx = (mtx + mtx.T)/2
     np.fill_diagonal(mtx, 0)
+    max_val = max(mtx.flatten())
     mtx = mtx / max_val
     return mtx
-
