@@ -3,6 +3,7 @@ from firebase_admin import credentials
 from firebase_admin import db
 from sklearn.manifold import MDS
 from scipy import stats
+from nltk.corpus import wordnet
 import pandas as pd
 import numpy as np 
 import matplotlib.pyplot as plt
@@ -56,6 +57,15 @@ def get_num_trials(results):
         num_words = len(results[results['lemma'] == l].index) / get_num_senses(l, db)
         lst.append({'type': l, 'num_trials': num_words, 'num_senses': get_num_senses(l, db)})
     return pd.DataFrame(lst)
+
+def display_sense_definitions(results, trial_type):
+    shared_trials = results[results['trialType'] == trial_type]
+    pd.set_option('display.max_colwidth', 200)
+
+    sense_defns = pd.DataFrame({"Sense": shared_trials['sense'],
+        "Definition": shared_trials['sense'].apply(wordnet_defn)}).drop_duplicates()
+    sense_defns['Definition'] = sense_defns['Definition']
+    return sense_defns
 
 #Represents subject's data for a word as a matrix
 def get_subject_mtx(results, userID, word_type, trial_type):
@@ -111,7 +121,7 @@ def group_consistency(results, users, exclude = []):
         user_corr = hoo_corr(shared_results, u, exclude)
         hoo_corrs.append(user_corr)
         print("Hold One Out Correlation for User" , subject_index, user_corr)
-    print("Average Hold One Out Correlation", np.average(hoo_corrs))
+    return hoo_corrs
 
 #hold one out correlation
 def hoo_corr(results, userID, exclude):
@@ -131,15 +141,19 @@ def hoo_corr(results, userID, exclude):
 def plot_all_repeats(results, users):
     all_orig = []
     all_repeat = []
+    user_corrs = []
     for u in users:
         subject_index = str(users[users == u].index[0])
         user_orig, user_repeat = plot_repeat_trials(results, u, subject_index)
-        print("User", subject_index, " Correlation ", mtx_correlation(np.asarray(user_orig), np.asarray(user_repeat)))
+        user_corr = mtx_correlation(np.asarray(user_orig), np.asarray(user_repeat))
+        user_corrs.append(user_corr)
+        print("User", subject_index, " Correlation ", user_corr)
         for m in user_orig:
             all_orig.append(m)
         for m in user_repeat:
             all_repeat.append(m)
     print("Correlation of all original vs. repeat trials", mtx_correlation(all_orig, all_repeat))
+    return user_corrs
     
 
 #Plots all matrices for shared trials (words x subjects)
@@ -200,6 +214,7 @@ def plot_mds(word_means, word, mds_model, db):
     for i, txt in enumerate(senses):
         ax.annotate(txt, (x[i], y[i]))
     plt.title("MDS over Averaged Reported Distances for " + word)
+    plt.table(cellText = [['sense', 'definition'], ['1', 'hello there'], ['2', 'general kenobi']])
 
 def plot_all_mds(results, users, trial_type, db):
     data = results[results['trialType'] == trial_type]
@@ -229,6 +244,11 @@ def get_senses(db, word):
 
 def get_num_senses(w, db):
     return db['inputs'][w]['senses']
+
+def wordnet_defn(fb_sense):
+    parts = fb_sense.split('_')
+    synset_str = '_'.join(parts[:len(parts) - 2]) + '.' + '.'.join(parts[-2:])
+    return wordnet.synset(synset_str).definition()
 
 def mtx_correlation(m1, m2):
     #m1 and m2 are lists of distance matrices
