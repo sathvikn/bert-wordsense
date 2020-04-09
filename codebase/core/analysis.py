@@ -113,7 +113,7 @@ def plot_repeat_trials(results, userID, subject_index = None):
         my_eyes.suptitle("Subject " + subject_index + " Annotations for Repeated Type " + l + " (r = " + str(np.round(r, 2)) + ")", x = pos / 1.9)
     return user_orig, user_repeat
 
-def group_consistency(results, users, exclude = []):
+def group_consistency(results, users, random_baseline = False, exclude = []):
     #Returns a score for each user
     #"for each pairwise relationship, take the average of all participants except one"
     shared_results = results[results['trialType'] == 'shared']
@@ -123,6 +123,10 @@ def group_consistency(results, users, exclude = []):
         user_corr = hoo_corr(shared_results, u, exclude)
         hoo_corrs.append(user_corr)
         print("Hold One Out Correlation for User" , subject_index, user_corr)
+    if random_baseline:
+        random_corr = random_vs_all(shared_results)
+        print("Random Baseline", random_corr)
+        hoo_corrs.append(random_corr)
     return hoo_corrs
 
 #hold one out correlation
@@ -139,6 +143,15 @@ def hoo_corr(results, userID, exclude):
             user_results.append(user_result)
     return mtx_correlation(user_results, avg_results)
 
+#refactoring the above fn to work with random data
+def random_vs_all(results):
+    user_results = []
+    avg_results = []
+    for l in results['lemma'].unique():
+        user_lst = results['userID'].tolist()
+        avg_results.append(mean_distance_mtx(results, l, 'shared', user_lst))
+        user_results.append(create_random_symmetric_mtx()) #All of these words have 3 senses
+    return mtx_correlation(user_results, avg_results)
 
 def plot_all_repeats(results, users, random_baseline = False, db = None):
     all_orig = []
