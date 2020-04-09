@@ -2,6 +2,7 @@ import firebase_admin
 from firebase_admin import credentials
 from firebase_admin import db
 from sklearn.manifold import MDS
+from scipy import stats
 import pandas as pd
 import numpy as np 
 import matplotlib.pyplot as plt
@@ -100,6 +101,33 @@ def plot_repeat_trials(results, userID, subject_index = None):
         my_eyes.suptitle("Subject " + subject_index + " Annotations for Repeated Type " + l + " (r = " + str(np.round(r, 2)) + ")", x = pos / 1.9)
     return user_orig, user_repeat
 
+def group_consistency(results, users, exclude = []):
+    #Returns a score for each user
+    #"for each pairwise relationship, take the average of all participants except one"
+    shared_results = results[results['trialType'] == 'shared']
+    hoo_corrs = []
+    for u in users:
+        subject_index = str(users[users == u].index[0])
+        user_corr = hoo_corr(shared_results, u, exclude)
+        hoo_corrs.append(user_corr)
+        print("Hold One Out Correlation for User" , subject_index, user_corr)
+    print("Average Hold One Out Correlation", np.average(hoo_corrs))
+
+#hold one out correlation
+def hoo_corr(results, userID, exclude):
+    user_results = []
+    avg_results = []
+    for l in results['lemma'].unique():
+        if l not in exclude:
+            held_out_results = results[results['userID'] != userID]
+            user_lst = held_out_results['userID'].tolist()
+            avg_with_others = mean_distance_mtx(held_out_results, l, 'shared', user_lst)
+            avg_results.append(avg_with_others)
+            user_result, _ = get_subject_mtx(results, userID, l, 'shared')
+            user_results.append(user_result)
+    return mtx_correlation(user_results, avg_results)
+
+
 def plot_all_repeats(results, users):
     all_orig = []
     all_repeat = []
@@ -181,7 +209,6 @@ def plot_all_mds(results, users, trial_type, db):
         plot_mds(word_means, l, mds_model, db)
 
 
-
 #Helper functions
 
 #Creates x and y coordinates
@@ -212,4 +239,5 @@ def mtx_correlation(m1, m2):
     flat_m2 = []
     for i in range(len(m2)):
         flat_m2 += m2[i].flatten().tolist()
-    return np.corrcoef(flat_m1, flat_m2)[0][1]
+    return stats.spearmanr(flat_m1, flat_m2)[0]
+
