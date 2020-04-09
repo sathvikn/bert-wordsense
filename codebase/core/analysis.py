@@ -63,6 +63,7 @@ def display_sense_definitions(results, trial_type):
     pd.set_option('display.max_colwidth', 200)
 
     sense_defns = pd.DataFrame({"Sense": shared_trials['sense'],
+        "Type": shared_trials['lemma'],
         "Definition": shared_trials['sense'].apply(wordnet_defn)}).drop_duplicates()
     sense_defns['Definition'] = sense_defns['Definition']
     return sense_defns
@@ -214,7 +215,6 @@ def plot_mds(word_means, word, mds_model, db):
     for i, txt in enumerate(senses):
         ax.annotate(txt, (x[i], y[i]))
     plt.title("MDS over Averaged Reported Distances for " + word)
-    plt.table(cellText = [['sense', 'definition'], ['1', 'hello there'], ['2', 'general kenobi']])
 
 def plot_all_mds(results, users, trial_type, db):
     data = results[results['trialType'] == trial_type]
@@ -223,6 +223,12 @@ def plot_all_mds(results, users, trial_type, db):
         word_means = mean_distance_mtx(results, l, trial_type, users)
         plot_mds(word_means, l, mds_model, db)
 
+def plot_individual_mds(results, word, trial_type, users, db, sense_df):
+    mds_model = MDS(n_components = 2, dissimilarity = 'precomputed')
+    user_lst = users.tolist()
+    word_means = mean_distance_mtx(results, word, trial_type, user_lst)
+    plot_mds(word_means, word, mds_model, db)
+    return sense_df[sense_df['Type'] == word]
 
 #Helper functions
 
