@@ -116,15 +116,15 @@ def plot_repeat_trials(results, userID, subject_index = None):
 def group_consistency(results, users, random_baseline = False, exclude = []):
     #Returns a score for each user
     #"for each pairwise relationship, take the average of all participants except one"
-    shared_results = results[results['trialType'] == 'shared']
+    #shared_results = results[results['trialType'] == 'shared']
     hoo_corrs = []
     for u in users:
         subject_index = str(users[users == u].index[0])
-        user_corr = hoo_corr(shared_results, u, exclude)
+        user_corr = hoo_corr(results, u, exclude)
         hoo_corrs.append(user_corr)
         print("Hold One Out Correlation for User" , subject_index, user_corr)
     if random_baseline:
-        random_corr = random_vs_all(shared_results)
+        random_corr = random_vs_all(results)
         print("Random Baseline", random_corr)
         hoo_corrs.append(random_corr)
     return hoo_corrs
@@ -135,8 +135,9 @@ def hoo_corr(results, userID, exclude):
     avg_results = []
     for l in results['lemma'].unique():
         if l not in exclude:
+
             held_out_results = results[results['userID'] != userID]
-            user_lst = held_out_results['userID'].tolist()
+            user_lst = held_out_results['userID'].unique().tolist()
             avg_with_others = mean_distance_mtx(held_out_results, l, 'shared', user_lst)
             avg_results.append(avg_with_others)
             user_result, _ = get_subject_mtx(results, userID, l, 'shared')
@@ -148,7 +149,7 @@ def random_vs_all(results):
     user_results = []
     avg_results = []
     for l in results['lemma'].unique():
-        user_lst = results['userID'].tolist()
+        user_lst = results['userID'].unique().tolist()
         avg_results.append(mean_distance_mtx(results, l, 'shared', user_lst))
         user_results.append(create_random_symmetric_mtx()) #All of these words have 3 senses
     return mtx_correlation(user_results, avg_results)
@@ -284,10 +285,11 @@ def mtx_correlation(m1, m2):
     assert len(m1) == len(m2)
     flat_m1 = []
     for i in range(len(m1)):
-        flat_m1 += m1[i].flatten().tolist()
+         #OpTimiZAtIoNS
+         flat_m1 += m1[i][np.triu_indices(m1[i].shape[0], k = 1)].tolist()
     flat_m2 = []
     for i in range(len(m2)):
-        flat_m2 += m2[i].flatten().tolist()
+        flat_m2 += m2[i][np.triu_indices(m2[i].shape[0], k = 1)].tolist()
     return stats.spearmanr(flat_m1, flat_m2)[0]
 
 def random_num_senses(db):
