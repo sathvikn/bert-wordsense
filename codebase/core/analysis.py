@@ -144,6 +144,16 @@ def hoo_corr(results, userID, exclude):
             user_results.append(user_result)
     return mtx_correlation(user_results, avg_results)
 
+def user_vs_user_shared(results, user1, user2):
+    u1_results = []
+    u2_results = []
+    for l in results.lemma.unique():
+        u1_word, _ = get_subject_mtx(results, user1, l, 'shared')
+        u2_word, _ = get_subject_mtx(results, user2, l, 'shared')
+        u1_results.append(u1_word)
+        u2_results.append(u2_word)
+    return mtx_correlation(user_results, u2_results)
+
 #refactoring the above fn to work with random data
 def random_vs_all(results):
     user_results = []
