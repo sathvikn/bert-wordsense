@@ -7,6 +7,7 @@ from nltk.corpus import wordnet
 import pandas as pd
 import numpy as np 
 import matplotlib.pyplot as plt
+import seaborn as sns
 plt.set_cmap('Blues')
 
 
@@ -68,6 +69,13 @@ def display_sense_definitions(results, trial_type):
         "Definition": shared_trials['sense'].apply(wordnet_defn)}).drop_duplicates()
     sense_defns['Definition'] = sense_defns['Definition']
     return sense_defns
+
+def get_time_and_changes(results, user_mtx):
+    changed = results[['userID', 'lemma', 'prevChanged']].groupby(['userID', 'lemma']).agg(max).reset_index()
+    user_changes = changed.groupby('userID').agg(sum).reset_index()
+    time = user_df[['userID', 'timeTaken']]
+    time['changes'] = user_changes['prevChanged'].values
+    return time
 
 #Represents subject's data for a word as a matrix
 def get_subject_mtx(results, userID, word_type, trial_type):
@@ -152,7 +160,15 @@ def user_vs_user_shared(results, user1, user2):
         u2_word, _ = get_subject_mtx(results, user2, l, 'shared')
         u1_results.append(u1_word)
         u2_results.append(u2_word)
-    return mtx_correlation(user_results, u2_results)
+    return mtx_correlation(u1_results, u2_results)
+
+def my_correlations(participants, trials, results):
+    complete = participants[participants['completedTask'] == 1]
+    my_userid = complete.iloc[1]['userID']
+    gt_results = trials[trials['userID'] == my_userid]
+    shared_plus_gt = pd.concat([results, gt_results])
+    shared_plus_gt = shared_plus_gt[shared_plus_gt['trialType'] == 'shared']
+    return [user_vs_user_shared(shared_plus_gt, u, my_userid) for u in users]
 
 #refactoring the above fn to work with random data
 def random_vs_all(results):
@@ -264,6 +280,27 @@ def plot_individual_mds(results, word, trial_type, users, db, sense_df):
     plot_mds(word_means, word, mds_model, db)
     return sense_df[sense_df['Type'] == word]
 
+def plot_consistency_hist(randoms, parts, title):
+    sns.distplot(randoms)
+    colors = ['red', 'gold', 'green', 'blue', 'orange', 'magenta', 'black', 'cyan', 'brown']
+    #TODO randomly generate this
+    for i in range(len(parts)):
+        plt.axvline(parts[i], c = colors[i], label = i)
+    plt.legend(title = 'Subject Index')
+    plt.title(title)
+    plt.xlabel("Spearman Correlation")
+
+def simulate_self_correlation(num_trials, db):
+    randoms_self = []
+    for i in range(num_trials):
+        first_trial_dim = random_num_senses(db)
+        second_trial_dim = random_num_senses(db)
+        random_orig = np.array([create_random_symmetric_mtx(first_trial_dim), create_random_symmetric_mtx(second_trial_dim)])
+        random_repeat = np.array([create_random_symmetric_mtx(first_trial_dim), create_random_symmetric_mtx(second_trial_dim)])
+        random_corrs = mtx_correlation(random_orig, random_repeat)
+        randoms_self.append(random_corrs)
+    return randoms_self
+
 #Helper functions
 
 #Creates x and y coordinates
@@ -318,3 +355,17 @@ def create_random_symmetric_mtx(dims = 3):
     max_val = max(mtx.flatten())
     mtx = mtx / max_val
     return mtx
+
+"""
+Correlation with average result for each word
+me_global = []
+them_global = []
+shared_plus_gt = shared_plus_gt[(shared_plus_gt['trialType'] == 'shared')]
+for l in shared_plus_gt['lemma'].unique():
+    word_distance = mean_distance_mtx(shared_plus_gt, l, 'shared', users.tolist())
+    my_mtx, _ = get_subject_mtx(shared_plus_gt, '-M3dFu6M2DvitHICPl2A', l, 'shared')
+    print(l, mtx_correlation([word_distance], [my_mtx]))
+    me_global.append(my_mtx)
+    them_global.append(word_distance)
+print("Overall", mtx_correlation(np.array(me_global), np.array(them_global)))
+"""
