@@ -70,7 +70,7 @@ def display_sense_definitions(results, trial_type):
     sense_defns['Definition'] = sense_defns['Definition']
     return sense_defns
 
-def get_time_and_changes(results, user_mtx):
+def get_time_and_changes(results, user_df):
     changed = results[['userID', 'lemma', 'prevChanged']].groupby(['userID', 'lemma']).agg(max).reset_index()
     user_changes = changed.groupby('userID').agg(sum).reset_index()
     time = user_df[['userID', 'timeTaken']]
@@ -162,13 +162,13 @@ def user_vs_user_shared(results, user1, user2):
         u2_results.append(u2_word)
     return mtx_correlation(u1_results, u2_results)
 
-def my_correlations(participants, trials, results):
+def my_correlations(participants, trials, results, userids):
     complete = participants[participants['completedTask'] == 1]
     my_userid = complete.iloc[1]['userID']
     gt_results = trials[trials['userID'] == my_userid]
     shared_plus_gt = pd.concat([results, gt_results])
     shared_plus_gt = shared_plus_gt[shared_plus_gt['trialType'] == 'shared']
-    return [user_vs_user_shared(shared_plus_gt, u, my_userid) for u in users]
+    return [user_vs_user_shared(shared_plus_gt, u, my_userid) for u in userids]
 
 #refactoring the above fn to work with random data
 def random_vs_all(results):
@@ -282,7 +282,8 @@ def plot_individual_mds(results, word, trial_type, users, db, sense_df):
 
 def plot_consistency_hist(randoms, parts, title):
     sns.distplot(randoms)
-    colors = ['red', 'gold', 'green', 'blue', 'orange', 'magenta', 'black', 'cyan', 'brown']
+    fmt_color = lambda num: "C" + str(num)
+    colors = [fmt_color(i) for i in range(len(parts))]
     #TODO randomly generate this
     for i in range(len(parts)):
         plt.axvline(parts[i], c = colors[i], label = i)
