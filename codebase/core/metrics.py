@@ -6,6 +6,10 @@ import matplotlib.pyplot as plt
 #from semcor_bert_pipeline import *
 from scipy import stats
 from adjustText import adjust_text
+from sklearn.linear_model import Lasso, LogisticRegression
+from sklearn.preprocessing import LabelEncoder
+from sklearn.model_selection import KFold
+from sklearn.metrics import accuracy_score, f1_score
 
 def euc_dist(v1, v2):
     if type(v1) == torch.Tensor:
@@ -142,3 +146,36 @@ def plot_correlation(corr_dict, max_pcs):
     plt.ylabel("Correlation Coefficient")
     plt.title("Pearson Correlation")
     plt.legend()
+
+def k_fold_cv(x, y, k = 5):
+    kf = KFold(n_splits = k)
+    f = []
+    acc = []
+    for train_index, test_index in kf.split(x):
+        model = LogisticRegression(penalty = 'l1', multi_class = 'multinomial', solver = 'saga', max_iter = 5000)
+        X_train, X_test = x[train_index], x[test_index]
+        y_train, y_test = y[train_index], y[test_index]
+        model.fit(X_train, y_train)
+        test_pred = model.predict(X_test)
+        f.append(f1_score(y_test, test_pred))
+        acc.append(accuracy_score(y_test, test_pred))
+    return f, acc
+
+def nonzero_weights(model):
+    weights = model.coef_[0]
+    nonzero_indices = np.where(weights != 0)[0]
+    return weights[nonzero_indices], nonzero_indices
+
+def binary_logistic(word_pos, target_senses):
+    word, pos = word_pos.split('.')
+    data = semcor_bert_pipeline.load_data(word, pos)
+    le = LabelEncoder()
+    sense_labels = data['sense_labels']
+    le.fit(target_senses)
+    sense_indices = [i for i in range(len(sense_labels)) if sense_labels[i] in target_senses]
+    x = np.array(data['embeddings'])[sense_indices]
+    labels = np.array(data['sense_labels'])[sense_indices]
+    y = le.transform(labels)
+    model = LogisticRegression(penalty = 'l1', solver = 'saga', max_iter = 5000)
+    model.fit(x, y)
+    return {'model': model, 'data': x, 'labels': labels, 'transformed_labels': y}
