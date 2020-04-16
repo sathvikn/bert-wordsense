@@ -1,9 +1,10 @@
 import numpy as np
 import torch
 import json
+import os
 import pandas as pd
 import matplotlib.pyplot as plt
-#from semcor_bert_pipeline import *
+from . import semcor_bert_pipeline
 from scipy import stats
 from adjustText import adjust_text
 from sklearn.linear_model import Lasso, LogisticRegression
@@ -151,6 +152,7 @@ def k_fold_cv(x, y, k = 5):
     kf = KFold(n_splits = k)
     f = []
     acc = []
+    incorrect_indices = []
     for train_index, test_index in kf.split(x):
         model = LogisticRegression(penalty = 'l1', multi_class = 'multinomial', solver = 'saga', max_iter = 5000)
         X_train, X_test = x[train_index], x[test_index]
@@ -159,7 +161,8 @@ def k_fold_cv(x, y, k = 5):
         test_pred = model.predict(X_test)
         f.append(f1_score(y_test, test_pred))
         acc.append(accuracy_score(y_test, test_pred))
-    return f, acc
+        incorrect_indices +=[i[0] for i in np.argwhere(y_test != test_pred)]
+    return f, acc, incorrect_indices
 
 def nonzero_weights(model):
     weights = model.coef_[0]
@@ -178,4 +181,8 @@ def binary_logistic(word_pos, target_senses):
     y = le.transform(labels)
     model = LogisticRegression(penalty = 'l1', solver = 'saga', max_iter = 5000)
     model.fit(x, y)
-    return {'model': model, 'data': x, 'labels': labels, 'transformed_labels': y}
+    return {'model': model, 'data': x, 'labels': labels, 'transformed_labels': y, 'sentences': data['original_sentences']}
+
+def misclassified_sentences(model_data, incorrect_indices):
+    sense_names, sentences = model_data['labels'][incorrect_indices], model_data['sentences'][incorrect_indices]
+    return pd.DataFrame({'true_label': sense_names, 'sentences': sentences})
