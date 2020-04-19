@@ -4,7 +4,8 @@ import xml.etree.ElementTree as ET
 import pandas as pd
 
 
-def parse_xml(fpath):
+def parse_xml(fpath, sense_map):
+    print("Processing ", fpath)
     contents = ET.parse(fpath)
     root = contents.getroot()
     tags = []
@@ -29,11 +30,14 @@ def parse_xml(fpath):
         for t in sentence_tokens:
             sentence_str += (t['text'] + " ")
             if 'lemma' in t.keys():
-                lemma_sense.append({'lemma': t['lemma'], 'pos': t['pos'], 'sense': t['sense']})
+                wn_sense = sense_map[sense_map['NOAD'] == t['sense']]['WordNet']
+                lemma_sense.append({'lemma': t['lemma'], 'pos': t['pos'], 'sense': wn_sense})
 
         for l in lemma_sense:
             l['sentence'] = sentence_str
-        text_lemmas += lemma_sense
+
+        if len(lemma_sense):
+            text_lemmas += lemma_sense
     return pd.DataFrame(text_lemmas)
 
 
@@ -42,6 +46,9 @@ if __name__ == "__main__":
     #1. Get everything into CSV format by lemma
     #2. Change Senses to WN senses
     corpus_path = os.path.join(datapath, "masc")
+    wn_mapping_path = os.path.join(datapath, "algorithmic_map.txt")
+    sense_map = pd.read_csv(wn_mapping_path, sep = '\t', header = None)
+    sense_map.columns = ['NOAD', 'WordNet']
     result = list(Path(corpus_path).rglob("*.xml"))
-    
-    parsed_xml = [parse_xml(r) for r in result]
+    parsed_xml = [parse_xml(r, sense_map) for r in result]
+    pd.concat(parsed_xml).to_csv("../data/google_ws_data.csv")
