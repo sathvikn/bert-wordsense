@@ -149,8 +149,7 @@ def preprocess(text, target_word): #should take in a SemCorSelector object too?
     indexed_tokens = tokenizer.convert_tokens_to_ids(tokenized_text)
     #BERT can work with either 1 or 2 sentences, but for our purposes we're using one
     segments_ids = [1] * len(tokenized_text)
-    #print(tokenized_text)
-    target_token_index = tokenized_text.index(target_word)
+    target_token_index = tokenized_text.index(target_word.lower())
     return (indexed_tokens, segments_ids, target_token_index)
 
 def initialize_model():
@@ -203,6 +202,8 @@ def get_tree_labels(sense_indices, sel_senses):
 
 
 def write_json(results, word, pos, corpus_dir):
+    if len(pos) != 1:
+        pos = pos[0].lower()
     filename = word + '_' + pos + '.json'
     #Fix this later??
     with open(os.path.join('..', 'data', 'pipeline_results', corpus_dir, filename), 'w') as f:
@@ -235,11 +236,17 @@ def run_pipeline_df(word, pos, df, model, savefile = False):
     #Working with the Google Word Sense dataset, pos is allcaps
     word_df = df[(df['lemma'] == word) & (df['pos'] == pos)]
     embeddings = []
-    for s_w in zip(word_df['sentence'], word_df['word']):
-        activations = get_embeddings(preprocess(s_w[0], s_w[1]), model)
-        embeddings.append(process_raw_embeddings(activations, 4, sum_layers))
+    sense_names = []
+    sentences = []
+    df = df.reset_index()
+    for i in df.index:
+        row = df.iloc[i]
+        activations = get_embeddings(preprocess(row['sentence'], row['word']), model)
+        embeddings.append(process_raw_embeddings([activations], 4, sum_layers)[0])
+        sense_names.append(row['wn_sense'])
+        sentences.append(row['sentence'])
     #All we need to do is save the embeddings somewhere, we have the information we store for the SEMCOR words in our corpus
-    result_dict = {'lemma': word + '.' + pos, 'embeddings': embeddings}
+    result_dict = {'lemma': word + '.' + pos, 'embeddings': embeddings, 'original_sentences': sentences, 'sense_labels': sense_names}
     if savefile:
         json_dict = result_dict.copy()
         json_dict['embeddings'] = [v.tolist() for v in result_dict['embeddings']]
