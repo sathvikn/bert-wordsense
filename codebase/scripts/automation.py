@@ -123,10 +123,18 @@ def run_google_shared():
     shared_senses = ['degree.n.01', 'airplane.n.01', 'model.n.01', 'foot.n.01', 'academic_degree.n.01', 'model.n.03']
     shared_words = ['degree', 'plane', 'model', 'foot']
 
-    shared_corpus_data = corpus[corpus['wn_sense'].isin(shared_senses)]
+    shared_corpus_data = corpus[corpus['wn_sense'].isin(shared_senses)][['lemma', 'word','pos', 'wn_sense', 'sentence']].drop_duplicates()
     for w in shared_words:
         print("Generating embeddings for", w)
         run_pipeline_df(w, 'NOUN', shared_corpus_data[shared_corpus_data['word'] == w], model, savefile = True)
+
+def run_masc_table():
+    corpus = pd.read_csv('../data/google_ws_data_wn_synsets.csv', encoding='latin-1')
+    strip_synset = lambda s: s.strip("Synset(')")
+    corpus['wn_sense'] = corpus['wn_sense'].apply(strip_synset)
+    tbl = corpus[corpus['lemma'] == 'table'][['lemma', 'word','pos', 'wn_sense', 'sentence']].drop_duplicates()
+    tbl = tbl.replace({'able.n.01': 'table.n.02', 'board.n.04': 'table.n.01'}).iloc[2:]
+    run_pipeline_df("table", "NOUN", tbl, model, savefile = True)   
     
 def run_test():
     #For testing purposes, default to word table
@@ -170,5 +178,7 @@ if __name__ == '__main__':
         run_tsne_entropy()
     elif sys.argv[1] == '--google_shared':
         run_google_shared()
+    elif sys.argv[1] == '--table_masc':
+        run_masc_table()
     else:
         "Must specify argument (one of --test, --pca, --tsne_entropy)"
