@@ -47,11 +47,10 @@ def parse_xml(fpath, sense_map):
                         except:
                             continue
                     for s in wn_synsets:
-                        lemma_sense.append({'lemma': t['lemma'], 'pos': t['pos'], 'noad_sense': t['sense'], 'wn_sense': s, 'source': fpath})
+                        lemma_sense.append({'lemma': t['lemma'], 'word': t['text'], 'pos': t['pos'], 'noad_sense': t['sense'], 'wn_sense': s, 'source': fpath})
 
         for l in lemma_sense:
             l['sentence'] = sentence_str
-
         if len(lemma_sense):
             text_lemmas += lemma_sense
     return pd.DataFrame(text_lemmas)
