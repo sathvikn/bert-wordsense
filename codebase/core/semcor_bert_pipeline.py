@@ -202,10 +202,10 @@ def get_tree_labels(sense_indices, sel_senses):
     return tree_labels
 
 
-def write_json(results, word, pos):
+def write_json(results, word, pos, corpus_dir):
     filename = word + '_' + pos + '.json'
     #Fix this later??
-    with open(os.path.join('..', 'data', 'pipeline_results', filename), 'w') as f:
+    with open(os.path.join('..', 'data', 'pipeline_results', corpus_dir, filename), 'w') as f:
         json.dump(results, f)
 
 def run_pipeline(word, pos, model, min_senses = 10, savefile = False):
@@ -228,12 +228,27 @@ def run_pipeline(word, pos, model, min_senses = 10, savefile = False):
         json_dict = result_dict.copy()
         json_dict['embeddings'] = [v.tolist() for v in result_dict['embeddings']]
         json_dict['sense_names'] = [str(s) for s in sel_senses]
-        write_json(json_dict, word, pos)
+        write_json(json_dict, word, pos, 'semcor')
     return result_dict
 
-def load_data(word, pos):
+def run_pipeline_df(word, pos, df, model, savefile = False):
+    #Working with the Google Word Sense dataset, pos is allcaps
+    word_df = df[(df['lemma'] == word) & (df['pos'] == pos)]
+    embeddings = []
+    for s_w in zip(word_df['sentence'], word_df['word']):
+        activations = get_embeddings(preprocess(s_w[0], s_w[1]), model)
+        embeddings.append(process_raw_embeddings(activations, 4, sum_layers))
+    #All we need to do is save the embeddings somewhere, we have the information we store for the SEMCOR words in our corpus
+    result_dict = {'lemma': word + '.' + pos, 'embeddings': embeddings}
+    if savefile:
+        json_dict = result_dict.copy()
+        json_dict['embeddings'] = [v.tolist() for v in result_dict['embeddings']]
+    write_json(json_dict, word, pos, 'masc')
+
+
+def load_data(word, pos, corpus_dir):
     fname = word + '_' + pos + '.json'
-    fpath = os.path.join('..', 'data', 'pipeline_results', fname)
+    fpath = os.path.join('..', 'data', 'pipeline_results', corpus_dir, fname)
     with open(fpath, 'r') as path:
         results = json.load(path)
     return results        
