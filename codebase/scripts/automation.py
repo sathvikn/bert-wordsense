@@ -115,6 +115,19 @@ def run_tsne_entropy():
             pd.DataFrame(all_rand_gmm).to_csv('data/gmm_rand_indices.csv', index = False)
     write_to_file(failed_words, os.path.join('data', 'skipped_sparse_words.txt'))
 
+def run_google_shared():
+    corpus = pd.read_csv('../data/google_ws_data_wn_synsets.csv', encoding='latin-1')
+    strip_synset = lambda s: s.strip("Synset(')")
+    corpus['wn_sense'] = corpus['wn_sense'].apply(strip_synset)
+
+    shared_senses = ['degree.n.01', 'airplane.n.01', 'model.n.01', 'foot.n.01', 'academic_degree.n.01', 'model.n.03']
+    shared_words = ['degree', 'plane', 'model', 'foot']
+
+    shared_corpus_data = corpus[corpus['wn_sense'].isin(shared_senses)]
+    for w in shared_words:
+        print("Generating embeddings for", w)
+        run_pipeline_df(w, 'NOUN', shared_corpus_data[shared_corpus_data['word'] == w], model, savefile = True)
+    
 def run_test():
     #For testing purposes, default to word table
     word, pos = 'table', 'n'
@@ -155,3 +168,7 @@ if __name__ == '__main__':
         run_all_sparse()
     elif sys.argv[1] == '--tsne_entropy':
         run_tsne_entropy()
+    elif sys.argv[1] == '--google_shared':
+        run_google_shared()
+    else:
+        "Must specify argument (one of --test, --pca, --tsne_entropy)"
