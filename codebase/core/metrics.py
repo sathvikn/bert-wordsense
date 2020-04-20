@@ -171,17 +171,18 @@ def nonzero_weights(model):
 
 def binary_logistic(word_pos, target_senses):
     word, pos = word_pos.split('.')
-    data = semcor_bert_pipeline.load_data(word, pos)
+    data = semcor_bert_pipeline.load_data(word, pos, 'semcor')
+    masc_data = semcor_bert_pipeline.load_data(word, pos, 'masc')
     le = LabelEncoder()
-    sense_labels = data['sense_labels']
+    sense_labels = data['sense_labels'] + masc_data['sense_labels']
     le.fit(target_senses)
     sense_indices = [i for i in range(len(sense_labels)) if sense_labels[i] in target_senses]
-    x = np.array(data['embeddings'])[sense_indices]
-    labels = np.array(data['sense_labels'])[sense_indices]
+    x = np.array(data['embeddings'] + masc_data['embeddings'])[sense_indices]
+    labels = np.array(data['sense_labels'] + masc_data['sense_labels'])[sense_indices]
     y = le.transform(labels)
     model = LogisticRegression(penalty = 'l1', solver = 'saga', max_iter = 5000)
     model.fit(x, y)
-    return {'model': model, 'data': x, 'labels': labels, 'transformed_labels': y, 'sentences': data['original_sentences']}
+    return {'model': model, 'data': x, 'labels': np.asarray(labels), 'transformed_labels': y, 'sentences': np.asarray(data['original_sentences'])}
 
 def misclassified_sentences(model_data, incorrect_indices):
     sense_names, sentences = model_data['labels'][incorrect_indices], model_data['sentences'][incorrect_indices]
