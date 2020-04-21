@@ -70,6 +70,11 @@ def display_sense_definitions(results, trial_type):
     sense_defns['Definition'] = sense_defns['Definition']
     return sense_defns
 
+def fb_to_local(fb_sense):
+    parts = fb_sense.split('_')
+    return '_'.join(parts[:len(parts) - 2]) + '.' + '.'.join(parts[-2:])
+
+
 def get_time_and_changes(results, user_df):
     changed = results[['userID', 'lemma', 'prevChanged']].groupby(['userID', 'lemma']).agg(max).reset_index()
     user_changes = changed.groupby('userID').agg(sum).reset_index()

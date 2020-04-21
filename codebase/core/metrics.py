@@ -24,7 +24,6 @@ def find_closest_distance(e1_lst, e2_lst, fn):
     return fn([min([euc_dist(e1, e2) for e2 in e2_lst]) for e1 in e1_lst])
 
 def centroid(arr):
-    arr = lst_to_np(arr)
     length, dim = arr.shape
     return np.array([np.sum(arr[:, i])/length for i in range(dim)])
 
@@ -39,6 +38,27 @@ def cs_centroids(s1, s2):
 
 def dist_centroids(s1, s2):
     return euc_dist(centroid(s1), centroid(s2))
+
+def cosine_sim_mtx(word, pos, sel_senses = []):
+    data = semcor_bert_pipeline.load_data(word, pos, 'semcor')
+    embeddings_by_sense = {}
+    word_embeddings = data['embeddings']
+    word_embeddings = np.array([np.array(e) for e in word_embeddings])
+    if not len(sel_senses):
+        strip_synset = lambda s: s.strip("Synset()").strip("'")
+        sel_senses = [strip_synset(i) for i in data['sense_names']]
+    for s in sel_senses:
+        embeddings_by_sense[s] = word_embeddings[np.argwhere(np.array(data['sense_labels']) == s).flatten()]
+    result_mtx = []
+    for i in sel_senses:
+        row = []
+        for j in sel_senses:
+            dist = cs_centroids(embeddings_by_sense[i], embeddings_by_sense[j])
+            row.append(dist)
+        result_mtx.append(np.asarray(row))
+    result_mtx = np.asarray(result_mtx)
+    return result_mtx, sel_senses
+
 
 def get_word_senses_ri(folder_name):
     embed_fpath = os.path.join('..', 'data', 'pipeline_results', folder_name + '.json')
