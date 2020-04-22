@@ -10,7 +10,7 @@ from adjustText import adjust_text
 from sklearn.linear_model import Lasso, LogisticRegression
 from sklearn.preprocessing import LabelEncoder
 from sklearn.model_selection import KFold
-from sklearn.metrics import accuracy_score, f1_score
+from sklearn.metrics import accuracy_score, f1_score, classification_report
 
 def euc_dist(v1, v2):
     if type(v1) == torch.Tensor:
@@ -169,7 +169,7 @@ def plot_correlation(corr_dict, max_pcs):
     plt.legend()
 
 def k_fold_cv(x, y, k = 5):
-    kf = KFold(n_splits = k)
+    kf = KFold(n_splits = k, shuffle = True)
     f = []
     acc = []
     incorrect_indices = []
@@ -179,6 +179,7 @@ def k_fold_cv(x, y, k = 5):
         y_train, y_test = y[train_index], y[test_index]
         model.fit(X_train, y_train)
         test_pred = model.predict(X_test)
+        #print(classification_report(y_test, test_pred))
         f.append(f1_score(y_test, test_pred))
         acc.append(accuracy_score(y_test, test_pred))
         incorrect_indices +=[i[0] for i in np.argwhere(y_test != test_pred)]
