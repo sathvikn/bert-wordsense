@@ -101,7 +101,7 @@ def get_subject_mtx(results, userID, word_type, trial_type):
     return result_mtx, senses
 
 #Plots matrices for a user's repeat trials (2x2)
-def plot_repeat_trials(results, userID, subject_index = None):
+def repeat_correlations(results, userID, subject_index = None, plot = False):
     user_trials = results[results['userID'] == userID]
     repeat_types = user_trials[user_trials['trialType'] == 'repeat']['lemma'].unique()
     user_orig = []
@@ -109,21 +109,22 @@ def plot_repeat_trials(results, userID, subject_index = None):
     for l in repeat_types:
         original_result, senses = get_subject_mtx(results, userID, l, 'test')
         repeat_result, _ = get_subject_mtx(results, userID, l, 'repeat')
-        my_eyes = plt.figure()
-        ax1 = plt.subplot(1, 2, 1)
-        ax1.set_title("Original")
-        orig_img = ax1.imshow(original_result)
-        annotate_mtx(original_result, orig_img, ax1, senses)
-        ax2 = plt.subplot(1, 2, 2)
-        ax2.set_title("Repeat")
-        rep_img = ax2.imshow(repeat_result)
-        annotate_mtx(repeat_result, rep_img, ax2, senses)
-        pos = 2
-        my_eyes.subplots_adjust(right = pos)
-        r = mtx_correlation([original_result], [repeat_result])
+        if plot:
+            my_eyes = plt.figure()
+            ax1 = plt.subplot(1, 2, 1)
+            ax1.set_title("Original")
+            orig_img = ax1.imshow(original_result)
+            annotate_mtx(original_result, orig_img, ax1, senses)
+            ax2 = plt.subplot(1, 2, 2)
+            ax2.set_title("Repeat")
+            rep_img = ax2.imshow(repeat_result)
+            annotate_mtx(repeat_result, rep_img, ax2, senses)
+            pos = 2
+            my_eyes.subplots_adjust(right = pos)
+            r = mtx_correlation([original_result], [repeat_result])
+            my_eyes.suptitle("Subject " + subject_index + " Annotations for Repeated Type " + l + " (r = " + str(np.round(r, 2)) + ")", x = pos / 1.9)
         user_orig.append(np.array(original_result))
         user_repeat.append(np.array(repeat_result))
-        my_eyes.suptitle("Subject " + subject_index + " Annotations for Repeated Type " + l + " (r = " + str(np.round(r, 2)) + ")", x = pos / 1.9)
     return user_orig, user_repeat
 
 def group_consistency(results, users, random_baseline = False, exclude = []):
@@ -135,10 +136,10 @@ def group_consistency(results, users, random_baseline = False, exclude = []):
         subject_index = str(users[users == u].index[0])
         user_corr = hoo_corr(results, u, exclude)
         hoo_corrs.append(user_corr)
-        print("Hold One Out Correlation for User" , subject_index, user_corr)
+        #print("Hold One Out Correlation for User" , subject_index, user_corr)
     if random_baseline:
         random_corr = random_vs_all(results)
-        print("Random Baseline", random_corr)
+        #print("Random Baseline", random_corr)
         hoo_corrs.append(random_corr)
     return hoo_corrs
 
@@ -185,16 +186,16 @@ def random_vs_all(results):
         user_results.append(create_random_symmetric_mtx()) #All of these words have 3 senses
     return mtx_correlation(user_results, avg_results)
 
-def plot_all_repeats(results, users, random_baseline = False, db = None):
+def all_repeats(results, users, random_baseline = False, db = None, plot = False):
     all_orig = []
     all_repeat = []
     user_corrs = []
     for u in users:
         subject_index = str(users[users == u].index[0])
-        user_orig, user_repeat = plot_repeat_trials(results, u, subject_index)
+        user_orig, user_repeat = repeat_correlations(results, u, subject_index, plot = plot)
         user_corr = mtx_correlation(np.asarray(user_orig), np.asarray(user_repeat))
         user_corrs.append(user_corr)
-        print("User", subject_index, " Correlation ", user_corr)
+        #print("User", subject_index, " Correlation ", user_corr)
         for m in user_orig:
             all_orig.append(m)
         for m in user_repeat:
@@ -206,9 +207,9 @@ def plot_all_repeats(results, users, random_baseline = False, db = None):
         random_repeat = np.array([create_random_symmetric_mtx(first_trial_dim), create_random_symmetric_mtx(second_trial_dim)])
         random_corrs = mtx_correlation(random_orig, random_repeat)
         user_corrs.append(random_corrs)
-        print("Random Baseline", random_corrs)
+        #print("Random Baseline", random_corrs)
 
-    print("Correlation of all original vs. repeat trials", mtx_correlation(all_orig, all_repeat))
+    #print("Correlation of all original vs. repeat trials", mtx_correlation(all_orig, all_repeat))
     return user_corrs
     
 
@@ -285,14 +286,15 @@ def plot_individual_mds(results, word, trial_type, users, db, sense_df):
     plot_mds(word_means, word, mds_model, db, "Reported")
     return sense_df[sense_df['Type'] == word]
 
-def plot_consistency_hist(randoms, parts, title):
+def plot_consistency_hist(randoms, parts, title, legend = True):
     sns.distplot(randoms)
     fmt_color = lambda num: "C" + str(num)
     colors = [fmt_color(i) for i in range(len(parts))]
     #TODO randomly generate this
     for i in range(len(parts)):
         plt.axvline(parts[i], c = colors[i], label = i)
-    plt.legend(title = 'Subject Index')
+    if legend:
+        plt.legend(title = 'Subject Index')
     plt.title(title)
     plt.xlabel("Spearman Correlation")
 
