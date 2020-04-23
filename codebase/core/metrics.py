@@ -39,16 +39,25 @@ def cs_centroids(s1, s2):
 def dist_centroids(s1, s2):
     return euc_dist(centroid(s1), centroid(s2))
 
-def cosine_sim_mtx(word, pos, sel_senses = []):
+def cosine_sim_mtx(word, pos, sel_senses = [], use_masc = False):
     data = semcor_bert_pipeline.load_data(word, pos, 'semcor')
-    embeddings_by_sense = {}
     word_embeddings = data['embeddings']
+    sense_labels = data['sense_labels']
+    if use_masc:
+        try:
+            masc_data = semcor_bert_pipeline.load_data(word, pos, 'masc')
+            word_embeddings += masc_data['embeddings']
+            sense_labels += masc_data['sense_labels']
+        except:
+            pass
+
+    embeddings_by_sense = {}
     word_embeddings = np.array([np.array(e) for e in word_embeddings])
     if not len(sel_senses):
         strip_synset = lambda s: s.strip("Synset()").strip("'")
         sel_senses = [strip_synset(i) for i in data['sense_names']]
     for s in sel_senses:
-        embeddings_by_sense[s] = word_embeddings[np.argwhere(np.array(data['sense_labels']) == s).flatten()]
+        embeddings_by_sense[s] = word_embeddings[np.argwhere(np.array(sense_labels) == s).flatten()]
     result_mtx = []
     for i in sel_senses:
         row = []
@@ -180,7 +189,7 @@ def k_fold_cv(x, y, k = 5):
         model.fit(X_train, y_train)
         test_pred = model.predict(X_test)
         #print(classification_report(y_test, test_pred))
-        f.append(f1_score(y_test, test_pred))
+        f.append(f1_score(y_test, test_pred, average = "weighted"))
         acc.append(accuracy_score(y_test, test_pred))
         incorrect_indices +=[i[0] for i in np.argwhere(y_test != test_pred)]
     return f, acc, incorrect_indices
