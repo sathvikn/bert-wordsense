@@ -335,8 +335,8 @@ def wordnet_defn(fb_sense):
     synset_str = '_'.join(parts[:len(parts) - 2]) + '.' + '.'.join(parts[-2:])
     return wordnet.synset(synset_str).definition()
 
-def mtx_correlation(m1, m2):
-    #m1 and m2 are lists of distance matrices
+def mtx_correlation(m1, m2, method = 'spearman'): 
+    #m1 and m2 are lists of distance matrices, spearman or pearson correlation
     assert len(m1) == len(m2)
     flat_m1 = []
     for i in range(len(m1)):
@@ -345,8 +345,11 @@ def mtx_correlation(m1, m2):
     flat_m2 = []
     for i in range(len(m2)):
         flat_m2 += m2[i][np.triu_indices(m2[i].shape[0], k = 1)].tolist()
-    return stats.spearmanr(flat_m1, flat_m2)[0]
-
+    if method == 'spearman':
+        return stats.spearmanr(flat_m1, flat_m2)[0]
+    if method == 'pearson':
+        return stats.pearsonr(flat_m1, flat_m2)[0]
+        
 def random_num_senses(db):
     vals, probs = get_num_to_sense_dist(db)
     return np.random.choice(vals, p = probs)
