@@ -364,16 +364,20 @@ def create_random_symmetric_mtx(dims = 3):
     mtx = mtx / max_val
     return mtx
 
-"""
-Correlation with average result for each word
-me_global = []
-them_global = []
-shared_plus_gt = shared_plus_gt[(shared_plus_gt['trialType'] == 'shared')]
-for l in shared_plus_gt['lemma'].unique():
-    word_distance = mean_distance_mtx(shared_plus_gt, l, 'shared', users.tolist())
-    my_mtx, _ = get_subject_mtx(shared_plus_gt, '-M3dFu6M2DvitHICPl2A', l, 'shared')
-    print(l, mtx_correlation([word_distance], [my_mtx]))
-    me_global.append(my_mtx)
-    them_global.append(word_distance)
-print("Overall", mtx_correlation(np.array(me_global), np.array(them_global)))
-"""
+def get_results_elig_users(db, metric, value):
+    #gets participants with stats that are higher than value
+    trials = get_trial_data(db)
+    participants = get_participant_data(db)
+    user_data = participants[(participants['completedTask'] == 1) & (participants.index > 4) 
+                             & ~(participants['workerID'].str.startswith("pilot"))] #excluding my data/Jon/Stephan
+    results = trials[trials['userID'].isin(user_data['userID'])]
+    users = user_data['userID']
+    repeat_corr = all_repeats(results, users, plot = False) #self correlation
+    shared_results = results[results['trialType'] == 'shared']
+    shared_corrs = group_consistency(shared_results, users) #shared correlation
+    user_time_word_changes = get_time_and_changes(results, user_data) #metadata
+    consistency = pd.DataFrame({'Group Consistency': shared_corrs, 'Self Consistency': repeat_corr})
+    corrs = user_time_word_changes.merge(consistency, on = user_time_word_changes.index).drop('key_0', axis = 1)
+    corrs['Correlation with SN'] = my_correlations(participants, trials, results, users) #vs gold standard
+    incl_users = corrs[corrs[metric] > value]['userID'].tolist()
+    return results, incl_users
