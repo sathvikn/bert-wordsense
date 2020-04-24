@@ -386,7 +386,7 @@ def create_random_symmetric_mtx(dims = 3):
         mtx.append(row)
     mtx = np.asarray(mtx)
     return mtx / max_value
-    
+
 def get_results_elig_users(db, metric, value):
     #gets participants with stats that are higher than value
     trials = get_trial_data(db)
@@ -404,3 +404,16 @@ def get_results_elig_users(db, metric, value):
     corrs['Correlation with SN'] = my_correlations(participants, trials, results, users) #vs gold standard
     incl_users = corrs[corrs[metric] > value]['userID'].tolist()
     return results, incl_users
+
+def containing_query(df, value, selection_criteria, dist_mtx_dict):
+    words_with_crit = df[df[value].isin(selection_criteria)]['lemma'].unique()
+    data_for_words = {w : dist_mtx_dict[w] for w in words_with_crit}
+    return mtx_correlation([data_for_words[w]['expt'] for w in data_for_words],
+                          [data_for_words[w]['bert'] for w in data_for_words], method = 'pearson')
+
+def range_query(df, value, low, high, dist_mtx_dict):
+    #Inclusive of low and high
+    words_with_crit = df[(df[value] >= low) & (df[value] <= high)]['lemma'].unique()
+    data_for_words = {w : dist_mtx_dict[w] for w in words_with_crit}
+    return mtx_correlation([data_for_words[w]['expt'] for w in data_for_words],
+                          [data_for_words[w]['bert'] for w in data_for_words], method = 'pearson')
