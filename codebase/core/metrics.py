@@ -10,7 +10,7 @@ from adjustText import adjust_text
 from sklearn.linear_model import Lasso, LogisticRegression
 from sklearn.preprocessing import LabelEncoder
 from sklearn.model_selection import KFold
-from sklearn.metrics import accuracy_score, f1_score, classification_report
+from sklearn.metrics import accuracy_score, f1_score, confusion_matrix
 
 def euc_dist(v1, v2):
     if type(v1) == torch.Tensor:
@@ -39,7 +39,7 @@ def cs_centroids(s1, s2):
 def dist_centroids(s1, s2):
     return euc_dist(centroid(s1), centroid(s2))
 
-def cosine_sim_mtx(word, pos, sel_senses = [], use_masc = False):
+def cosine_sim_mtx(word, pos, sel_senses = [], use_masc = False, normalize = False):
     data = semcor_bert_pipeline.load_data(word, pos, 'semcor')
     word_embeddings = data['embeddings']
     sense_labels = data['sense_labels']
@@ -66,8 +66,13 @@ def cosine_sim_mtx(word, pos, sel_senses = [], use_masc = False):
             row.append(dist)
         result_mtx.append(np.asarray(row))
     result_mtx = np.asarray(result_mtx)
+    if normalize:
+        return normalize_cos_dist(result_mtx), sel_senses
     return result_mtx, sel_senses
 
+def normalize_cos_dist(cs_mtx):
+    max_value = np.max(1 - cs_mtx)
+    return (1 - cs_mtx) / max_value
 
 def get_word_senses_ri(folder_name):
     embed_fpath = os.path.join('..', 'data', 'pipeline_results', folder_name + '.json')
@@ -177,11 +182,12 @@ def plot_correlation(corr_dict, max_pcs):
     plt.title("Pearson Correlation")
     plt.legend()
 
-def k_fold_cv(x, y, k = 5):
+def k_fold_cv(x, y, k = 5, labels = []):
     kf = KFold(n_splits = k, shuffle = True)
     f = []
     acc = []
     incorrect_indices = []
+    confusion_matrices = []
     for train_index, test_index in kf.split(x):
         model = LogisticRegression(penalty = 'l1', multi_class = 'multinomial', solver = 'saga', max_iter = 5000)
         X_train, X_test = x[train_index], x[test_index]
@@ -191,8 +197,9 @@ def k_fold_cv(x, y, k = 5):
         #print(classification_report(y_test, test_pred))
         f.append(f1_score(y_test, test_pred, average = "weighted"))
         acc.append(accuracy_score(y_test, test_pred))
+        confusion_matrices.append(confusion_matrix(y_test, test_pred, labels = labels))
         incorrect_indices +=[i[0] for i in np.argwhere(y_test != test_pred)]
-    return f, acc, incorrect_indices
+    return f, acc, incorrect_indices, confusion_matrices
 
 def nonzero_weights(model):
     weights = model.coef_[0]
