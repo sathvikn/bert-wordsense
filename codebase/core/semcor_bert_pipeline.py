@@ -107,10 +107,10 @@ class SemCorSelector:
                 sel_senses.append(s)
         return sel_senses
 
-def get_pos(lem):
+def get_pos(lem, delim = '.'):
     lem = str(lem)
     try:
-        return lem.split('.')[1]
+        return lem.split(delim)[1]
     except:
         return 'No POS'
 
