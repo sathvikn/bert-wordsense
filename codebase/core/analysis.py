@@ -367,13 +367,26 @@ def get_num_to_sense_dist(db):
     return probs.index, probs.values
 
 def create_random_symmetric_mtx(dims = 3):
-    mtx = np.random.uniform(0,1000,size=(dims, dims))
-    mtx = (mtx + mtx.T)/2
-    np.fill_diagonal(mtx, 0)
-    max_val = max(mtx.flatten())
-    mtx = mtx / max_val
-    return mtx
-
+    min_x = 89
+    max_x = 873
+    min_y = 282
+    max_y = 564
+    xs = np.random.uniform(min_x, max_x, size = dims)
+    ys = np.random.uniform(min_y, max_y, size = dims)
+    max_value = -1
+    mtx = []
+    for i in range(dims):
+        row = []
+        for j in range(dims):
+            coords1, coords2 = np.array([xs[i], ys[i]]), np.array([xs[j], ys[j]])
+            dist = np.linalg.norm(coords1 - coords2)
+            row.append(dist)
+            if dist > max_value:
+                max_value = dist
+        mtx.append(row)
+    mtx = np.asarray(mtx)
+    return mtx / max_value
+    
 def get_results_elig_users(db, metric, value):
     #gets participants with stats that are higher than value
     trials = get_trial_data(db)
