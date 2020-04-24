@@ -290,7 +290,6 @@ def plot_consistency_hist(randoms, parts, title, legend = True):
     sns.distplot(randoms)
     fmt_color = lambda num: "C" + str(num)
     colors = [fmt_color(i) for i in range(len(parts))]
-    #TODO randomly generate this
     for i in range(len(parts)):
         plt.axvline(parts[i], c = colors[i], label = i)
     if legend:
@@ -335,21 +334,27 @@ def wordnet_defn(fb_sense):
     synset_str = '_'.join(parts[:len(parts) - 2]) + '.' + '.'.join(parts[-2:])
     return wordnet.synset(synset_str).definition()
 
-def mtx_correlation(m1, m2, method = 'spearman'): 
+def mtx_correlation(m1, m2, method = 'spearman', randomize_labels = False): 
     #m1 and m2 are lists of distance matrices, spearman or pearson correlation
     assert len(m1) == len(m2)
     flat_m1 = []
     for i in range(len(m1)):
          #OpTimiZAtIoNS
-         flat_m1 += m1[i][np.triu_indices(m1[i].shape[0], k = 1)].tolist()
+         ut_m1 = m1[i][np.triu_indices(m1[i].shape[0], k = 1)]
+         if randomize_labels:
+            np.random.shuffle(ut_m1)
+         flat_m1 += ut_m1.tolist()
     flat_m2 = []
     for i in range(len(m2)):
-        flat_m2 += m2[i][np.triu_indices(m2[i].shape[0], k = 1)].tolist()
+        ut_m2 = m2[i][np.triu_indices(m2[i].shape[0], k = 1)]
+        if randomize_labels:
+            np.random.shuffle(ut_m2)
+        flat_m2 += ut_m2.tolist()
     if method == 'spearman':
         return stats.spearmanr(flat_m1, flat_m2)[0]
     if method == 'pearson':
         return stats.pearsonr(flat_m1, flat_m2)[0]
-        
+
 def random_num_senses(db):
     vals, probs = get_num_to_sense_dist(db)
     return np.random.choice(vals, p = probs)
