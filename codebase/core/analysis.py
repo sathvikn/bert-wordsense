@@ -417,3 +417,16 @@ def range_query(df, value, low, high, dist_mtx_dict):
     data_for_words = {w : dist_mtx_dict[w] for w in words_with_crit}
     return mtx_correlation([data_for_words[w]['expt'] for w in data_for_words],
                           [data_for_words[w]['bert'] for w in data_for_words], method = 'pearson')
+
+def sample_from_shared(shared_df, users, matrices, sample_size = 10):
+    #matrices is a dict with format {word -> {expt: nxn distance matrix for senses, 
+                                    #bert: nxn cosine distance matrix of the senses from SEMCOR examples}
+    shared_words = ['foot_n', 'table_n', 'plane_n', 'degree_n', 'right_n', 'model_n']
+    sel_users = np.random.choice(users, 10)
+    bert_matrices = []
+    sample_matrices = []
+    for w in shared_words:
+        sample_means = mean_distance_mtx(results, w, 'shared', sel_users, normalize = True)
+        bert_matrices.append(matrices[w]['bert'])
+        sample_matrices.append(sample_means)
+    return mtx_correlation(sample_matrices, bert_matrices, method = 'pearson')
