@@ -230,9 +230,10 @@ def logistic_cv(lemma, sel_senses = [], use_masc = True):
     name, pos = lemma.split(".")
     data = semcor_bert_pipeline.load_data(name, pos, 'semcor')
     embeddings = data['embeddings']
-    sense_labels = data['sense_labels']
+    sense_labels = np.asarray(data['sense_labels'])
     strip_synset = lambda s: s.strip("Synset()").strip("'")
     target_senses = [strip_synset(i) for i in data['sense_names']]
+    sentences = np.asarray(data['original_sentences'])
     try:
         masc_data = semcor_bert_pipeline.load_data(name, pos, 'masc')
         embeddings += masc_data['embeddings']
@@ -242,18 +243,20 @@ def logistic_cv(lemma, sel_senses = [], use_masc = True):
     le = LabelEncoder()
     le.fit(target_senses)
     x = np.asarray(embeddings)
-    y = le.transform(sense_labels)
     if len(sel_senses):
         sense_indices = [i for i in range(len(sense_labels)) if sense_labels[i] in sel_senses]
         x = x[sense_indices]
-        y = y[sense_indices]
-    model = LogisticRegression(penalty = 'l1', solver = 'saga', max_iter = 10000)
+        sense_labels = sense_labels[sense_indices]
+        sentences = sentences[sense_indices]
+    y = le.transform(sense_labels)
+
+    model = LogisticRegression(penalty = 'l1', solver = 'saga', max_iter = 20000)
     model.fit(x, y)
     #weight_values, weight_indices = nonzero_weights(model)
     f_scores, accuracies, wrong_indices, confusion_matrices = k_fold_cv(x, y, k = 5, labels = target_senses)
-    return {'model': model, "data": x, "labels": sense_labels, "acc": accuracies, "f1": f_scores, 
-            'incorrect_indices': wrong_indices, 'sentences': np.asarray(data['original_sentences']),
-           'confusion_matrices': confusion_matrices}
+    return {'model': model, "data": x, "labels": np.asarray(sense_labels), "acc": accuracies, "f1": f_scores, 
+            'incorrect_indices': wrong_indices, 'sentences': sentences,
+           'confusion_matrices': confusion_matrices, 'weights': model.coef_}
 
 def plot_confusion_mtx(word_matrices, senses):
     agg_confusion = np.sum(np.asarray(word_matrices), axis = 0)
