@@ -40,8 +40,8 @@ def cs_centroids(s1, s2):
 def dist_centroids(s1, s2):
     return euc_dist(centroid(s1), centroid(s2))
 
-def cosine_sim_mtx(word, pos, sel_senses = [], use_masc = False, normalize = False):
-    data = semcor_bert_pipeline.load_data(word, pos, 'semcor')
+def cosine_sim_mtx(word, pos, sel_senses = [], use_masc = False, corpus = 'semcor', normalize = False):
+    data = semcor_bert_pipeline.load_data(word, pos, corpus)
     word_embeddings = data['embeddings']
     sense_labels = data['sense_labels']
     if use_masc:
