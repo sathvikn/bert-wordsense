@@ -5,6 +5,7 @@ import os
 import pandas as pd
 import matplotlib.pyplot as plt
 from . import semcor_bert_pipeline
+from . import analysis
 from scipy import stats
 from adjustText import adjust_text
 from sklearn.linear_model import Lasso, LogisticRegression
@@ -197,8 +198,8 @@ def k_fold_cv(x, y, k = 5, labels = []):
         #print(classification_report(y_test, test_pred))
         f.append(f1_score(y_test, test_pred, average = "weighted"))
         acc.append(accuracy_score(y_test, test_pred))
-        confusion_matrices.append(confusion_matrix(y_test, test_pred, labels = labels))
-        incorrect_indices +=[i[0] for i in np.argwhere(y_test != test_pred)]
+        confusion_matrices.append(confusion_matrix(y_test, test_pred, labels = np.unique(y)))
+        incorrect_indices +=[i[0] for i in np.argwhere(y_test != test_pred) if i[0] not in incorrect_indices]
     return f, acc, incorrect_indices, confusion_matrices
 
 def nonzero_weights(model):
@@ -253,4 +254,10 @@ def logistic_cv(lemma, sel_senses = [], use_masc = True):
     return {'model': model, "data": x, "labels": sense_labels, "acc": accuracies, "f1": f_scores, 
             'incorrect_indices': wrong_indices, 'sentences': np.asarray(data['original_sentences']),
            'confusion_matrices': confusion_matrices}
-    
+
+def plot_confusion_mtx(word_matrices, senses):
+    agg_confusion = np.sum(np.asarray(word_matrices), axis = 0)
+    agg_confusion = agg_confusion / np.sum(agg_confusion)
+    fig, ax = plt.subplots()
+    im = plt.imshow(agg_confusion)
+    analysis.annotate_mtx(agg_confusion, im, ax, senses)
