@@ -260,3 +260,9 @@ def load_data(word, pos, corpus_dir):
         results = json.load(path)
     return results        
 
+def save_embeds_with_wts(embeddings, sense_labels, weights, lemma):
+    nonzero_weight_indices = np.unique(np.concatenate([np.nonzero(weights[i])[0] for i in range(len(weights))]))
+    impt_weight_values = [e[nonzero_weight_indices] for e in embeddings]
+    json_dict = {'embeddings': impt_weight_values, 'sense_labels': sense_labels}
+    word, pos = lemma.split('.')
+    write_json(json_dict, word, pos, 'select_weights')
