@@ -418,7 +418,7 @@ def range_query(df, value, low, high, dist_mtx_dict):
     return mtx_correlation([data_for_words[w]['expt'] for w in data_for_words],
                           [data_for_words[w]['bert'] for w in data_for_words], method = 'pearson')
 
-def sample_from_shared(shared_df, users, matrices, sample_size = 10):
+def sample_from_shared(results, users, matrices, sample_size = 10):
     #matrices is a dict with format {word -> {expt: nxn distance matrix for senses, 
                                     #bert: nxn cosine distance matrix of the senses from SEMCOR examples}
     shared_words = ['foot_n', 'table_n', 'plane_n', 'degree_n', 'right_n', 'model_n']
@@ -430,3 +430,14 @@ def sample_from_shared(shared_df, users, matrices, sample_size = 10):
         bert_matrices.append(matrices[w]['bert'])
         sample_matrices.append(sample_means)
     return mtx_correlation(sample_matrices, bert_matrices, method = 'pearson')
+
+def get_lemma_counts(results, incl_users):
+    test_repeat = results[(results['userID'].isin(incl_users)) & (results['trialType'].isin(['test', 'repeat']))]
+    lemma_counts = test_repeat['lemma'].value_counts()
+    lemma_counts = pd.DataFrame(lemma_counts / [get_num_senses(l, db) for l in lemma_counts.index]).sort_values('lemma',
+                                                                                                 ascending = False)
+    lemma_counts['num_trials'] = lemma_counts['lemma']
+    lemma_counts.drop('lemma', axis = 1, inplace = True)
+    lemma_counts = lemma_counts.reset_index()
+    lemma_counts.rename({'index': 'lemma'}, axis = 1, inplace = True)
+    return lemma_counts
