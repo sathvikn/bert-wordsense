@@ -226,8 +226,8 @@ def misclassified_sentences(model_data, incorrect_indices):
     sense_names, sentences = model_data['labels'][incorrect_indices], model_data['sentences'][incorrect_indices]
     return pd.DataFrame({'true_label': sense_names, 'sentences': sentences})
 
-def logistic_cv(lemma, sel_senses = [], use_masc = True):
-    name, pos = lemma.split(".")
+def logistic_cv(lemma, sel_senses = [], use_masc = True, delim = '.'):
+    name, pos = lemma.split(delim)
     data = semcor_bert_pipeline.load_data(name, pos, 'semcor')
     embeddings = data['embeddings']
     sense_labels = np.asarray(data['sense_labels'])
@@ -258,9 +258,13 @@ def logistic_cv(lemma, sel_senses = [], use_masc = True):
             'incorrect_indices': wrong_indices, 'sentences': sentences,
            'confusion_matrices': confusion_matrices, 'weights': model.coef_}
 
-def plot_confusion_mtx(word_matrices, senses):
+def plot_confusion_mtx(word_matrices, senses, with_dendrogram = False):
     agg_confusion = np.sum(np.asarray(word_matrices), axis = 0)
     agg_confusion = np.nan_to_num(agg_confusion / np.sum(agg_confusion, axis = 0))
+    if with_dendrogram:
+        sns.clustermap(pd.DataFrame(agg_confusion, columns = senses, index = senses), method="single", 
+                   figsize = (6, 6), cmap = 'mako', annot = True, vmin=0, vmax=1)
+        return
     fig, ax = plt.subplots()
     im = plt.imshow(agg_confusion)
     analysis.annotate_mtx(agg_confusion, im, ax, senses)
