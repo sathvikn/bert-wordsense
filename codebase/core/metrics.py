@@ -262,7 +262,9 @@ def plot_confusion_mtx(word_matrices, senses, with_dendrogram = False):
     agg_confusion = np.sum(np.asarray(word_matrices), axis = 0)
     agg_confusion = np.nan_to_num(agg_confusion / np.sum(agg_confusion, axis = 0))
     if with_dendrogram:
-        sns.clustermap(pd.DataFrame(agg_confusion, columns = senses, index = senses), method="single", 
+        row_labels = [s + '_true' for s in senses]
+        col_labels = [s + '_pred' for s in senses]
+        sns.clustermap(pd.DataFrame(agg_confusion, columns = col_labels , index = row_labels), method="single", 
                    figsize = (6, 6), cmap = 'mako', annot = True, vmin=0, vmax=1)
         return
     fig, ax = plt.subplots()
