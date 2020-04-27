@@ -264,8 +264,8 @@ def plot_confusion_mtx(word_matrices, senses, with_dendrogram = False):
     if with_dendrogram:
         sns.clustermap(pd.DataFrame(agg_confusion, columns = senses , index = senses), method="single", 
                    figsize = (6, 6), cmap = 'mako', annot = True, vmin=0, vmax=1, cbar_pos = None)
-        plt.xlabel("True")
-        plt.ylabel("Predicted")
+        plt.xlabel("Predicted")
+        plt.ylabel("True")
         return
     fig, ax = plt.subplots()
     im = plt.imshow(agg_confusion)
