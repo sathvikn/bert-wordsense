@@ -260,7 +260,7 @@ def logistic_cv(lemma, sel_senses = [], use_masc = True):
 
 def plot_confusion_mtx(word_matrices, senses):
     agg_confusion = np.sum(np.asarray(word_matrices), axis = 0)
-    agg_confusion = agg_confusion / np.sum(agg_confusion)
+    agg_confusion = np.nan_to_num(agg_confusion / np.sum(agg_confusion, axis = 0))
     fig, ax = plt.subplots()
     im = plt.imshow(agg_confusion)
     analysis.annotate_mtx(agg_confusion, im, ax, senses)
