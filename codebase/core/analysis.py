@@ -431,7 +431,7 @@ def sample_from_shared(results, users, matrices, sample_size = 10):
         sample_matrices.append(sample_means)
     return mtx_correlation(sample_matrices, bert_matrices, method = 'pearson')
 
-def get_lemma_counts(results, incl_users):
+def get_lemma_counts(results, incl_users, db):
     test_repeat = results[(results['userID'].isin(incl_users)) & (results['trialType'].isin(['test', 'repeat']))]
     lemma_counts = test_repeat['lemma'].value_counts()
     lemma_counts = pd.DataFrame(lemma_counts / [get_num_senses(l, db) for l in lemma_counts.index]).sort_values('lemma',
