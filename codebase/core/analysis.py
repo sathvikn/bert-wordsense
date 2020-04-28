@@ -431,7 +431,7 @@ def sample_from_shared(results, users, matrices, sample_size = 10):
         sample_matrices.append(sample_means)
     return mtx_correlation(sample_matrices, bert_matrices, method = 'pearson')
 
-def get_lemma_counts(results, incl_users, db):
+def get_lemma_counts(results, incl_users):
     test_repeat = results[(results['userID'].isin(incl_users)) & (results['trialType'].isin(['test', 'repeat']))]
     lemma_counts = test_repeat['lemma'].value_counts()
     lemma_counts = pd.DataFrame(lemma_counts / [get_num_senses(l, db) for l in lemma_counts.index]).sort_values('lemma',
@@ -441,3 +441,18 @@ def get_lemma_counts(results, incl_users, db):
     lemma_counts = lemma_counts.reset_index()
     lemma_counts.rename({'index': 'lemma'}, axis = 1, inplace = True)
     return lemma_counts
+
+def mtx_to_df(mtx, senses, reorder = []):
+    mtx = np.round(mtx, 3)
+    df = pd.DataFrame(mtx, columns = senses, index = senses)
+    if len(reorder):
+        df.columns = df.columns[reorder]
+        df.index = df.index[reorder]
+    return df
+
+def get_test_result_data(results, w, incl_users):
+    test_means = mean_distance_mtx(results, w, 'test', incl_users, normalize = True)
+    repeat_means = mean_distance_mtx(results, w, 'repeat', incl_users, normalize = True)
+    expt_means = np.mean([test_means, repeat_means], axis = 0)
+    expt_means /= np.max(expt_means)
+    return expt_means
