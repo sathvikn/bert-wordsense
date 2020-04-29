@@ -405,18 +405,18 @@ def get_results_elig_users(db, metric, value):
     incl_users = corrs[corrs[metric] > value]['userID'].tolist()
     return results, incl_users
 
-def containing_query(df, value, selection_criteria, dist_mtx_dict):
+def containing_query(df, value, selection_criteria, dist_mtx_dict, bert_key = 'bert'):
     words_with_crit = df[df[value].isin(selection_criteria)]['lemma'].unique()
     data_for_words = {w : dist_mtx_dict[w] for w in words_with_crit}
     return mtx_correlation([data_for_words[w]['expt'] for w in data_for_words],
-                          [data_for_words[w]['bert'] for w in data_for_words], method = 'pearson')
+                          [data_for_words[w][bert_key] for w in data_for_words], method = 'pearson')
 
-def range_query(df, value, low, high, dist_mtx_dict):
+def range_query(df, value, low, high, dist_mtx_dict, bert_key = 'bert'):
     #Inclusive of low and high
     words_with_crit = df[(df[value] >= low) & (df[value] <= high)]['lemma'].unique()
     data_for_words = {w : dist_mtx_dict[w] for w in words_with_crit}
     return mtx_correlation([data_for_words[w]['expt'] for w in data_for_words],
-                          [data_for_words[w]['bert'] for w in data_for_words], method = 'pearson')
+                          [data_for_words[w][bert_key] for w in data_for_words], method = 'pearson')
 
 def sample_from_shared(results, users, matrices, sample_size = 10):
     #matrices is a dict with format {word -> {expt: nxn distance matrix for senses, 
@@ -431,7 +431,7 @@ def sample_from_shared(results, users, matrices, sample_size = 10):
         sample_matrices.append(sample_means)
     return mtx_correlation(sample_matrices, bert_matrices, method = 'pearson')
 
-def get_lemma_counts(results, incl_users):
+def get_lemma_counts(results, incl_users, db):
     test_repeat = results[(results['userID'].isin(incl_users)) & (results['trialType'].isin(['test', 'repeat']))]
     lemma_counts = test_repeat['lemma'].value_counts()
     lemma_counts = pd.DataFrame(lemma_counts / [get_num_senses(l, db) for l in lemma_counts.index]).sort_values('lemma',
