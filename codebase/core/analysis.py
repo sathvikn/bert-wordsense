@@ -282,6 +282,7 @@ def plot_all_mds(results, users, trial_type, db):
     for l in data['lemma'].unique():
         word_means = mean_distance_mtx(results, l, trial_type, users)
         plot_mds(word_means, l, mds_model, db, "Reported")
+        plt.savefig("../../results/figures/mds_" + l + '.png')
 
 def plot_individual_mds(results, word, trial_type, users, db, sense_df):
     mds_model = MDS(n_components = 2, dissimilarity = 'precomputed')
