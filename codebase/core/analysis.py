@@ -390,6 +390,12 @@ def create_random_symmetric_mtx(dims = 3):
 
 def get_results_elig_users(db, metric, value):
     #gets participants with stats that are higher than value
+    results, corrs = get_results_users(db)
+    incl_users = corrs[corrs[metric] > value]['userID'].tolist()
+    return results, incl_users
+
+def get_results_users(db):
+    #Simpler version of the above function, so we can apply more complicated exclusion criteria
     trials = get_trial_data(db)
     participants = get_participant_data(db)
     user_data = participants[(participants['completedTask'] == 1) & (participants.index > 4) 
@@ -403,8 +409,7 @@ def get_results_elig_users(db, metric, value):
     consistency = pd.DataFrame({'Group Consistency': shared_corrs, 'Self Consistency': repeat_corr})
     corrs = user_time_word_changes.merge(consistency, on = user_time_word_changes.index).drop('key_0', axis = 1)
     corrs['Correlation with SN'] = my_correlations(participants, trials, results, users) #vs gold standard
-    incl_users = corrs[corrs[metric] > value]['userID'].tolist()
-    return results, incl_users
+    return results, corrs
 
 def containing_query(df, value, selection_criteria, dist_mtx_dict, bert_key = 'bert'):
     words_with_crit = df[df[value].isin(selection_criteria)]['lemma'].unique()
@@ -454,6 +459,8 @@ def mtx_to_df(mtx, senses, reorder = []):
 def get_test_result_data(results, w, incl_users):
     test_means = mean_distance_mtx(results, w, 'test', incl_users, normalize = True)
     repeat_means = mean_distance_mtx(results, w, 'repeat', incl_users, normalize = True)
-    expt_means = np.mean([test_means, repeat_means], axis = 0)
-    expt_means /= np.max(expt_means)
+    expt_means = test_means
+    if repeat_means.shape:
+        expt_means = np.mean([test_means, repeat_means], axis = 0)
+        expt_means /= np.max(expt_means)
     return expt_means
