@@ -121,7 +121,7 @@ def repeat_correlations(results, userID, subject_index = None, plot = False):
             annotate_mtx(repeat_result, rep_img, ax2, senses)
             pos = 2
             my_eyes.subplots_adjust(right = pos)
-            r = mtx_correlation([original_result], [repeat_result])
+            r = mtx_correlation([original_result], [repeat_result])[0]
             my_eyes.suptitle("Subject " + subject_index + " Annotations for Repeated Type " + l + " (r = " + str(np.round(r, 2)) + ")", x = pos / 1.9)
         user_orig.append(np.array(original_result))
         user_repeat.append(np.array(repeat_result))
@@ -156,7 +156,7 @@ def hoo_corr(results, userID, exclude):
             avg_results.append(avg_with_others)
             user_result, _ = get_subject_mtx(results, userID, l, 'shared')
             user_results.append(user_result)
-    return mtx_correlation(user_results, avg_results)
+    return mtx_correlation(user_results, avg_results)[0]
 
 def user_vs_user_shared(results, user1, user2):
     u1_results = []
@@ -166,7 +166,7 @@ def user_vs_user_shared(results, user1, user2):
         u2_word, _ = get_subject_mtx(results, user2, l, 'shared')
         u1_results.append(u1_word)
         u2_results.append(u2_word)
-    return mtx_correlation(u1_results, u2_results)
+    return mtx_correlation(u1_results, u2_results)[0]
 
 def my_correlations(participants, trials, results, userids):
     complete = participants[participants['completedTask'] == 1]
@@ -184,7 +184,7 @@ def random_vs_all(results):
         user_lst = results['userID'].unique().tolist()
         avg_results.append(mean_distance_mtx(results, l, 'shared', user_lst))
         user_results.append(create_random_symmetric_mtx()) #All of these words have 3 senses
-    return mtx_correlation(user_results, avg_results)
+    return mtx_correlation(user_results, avg_results)[0]
 
 def all_repeats(results, users, random_baseline = False, db = None, plot = False):
     all_orig = []
@@ -193,7 +193,7 @@ def all_repeats(results, users, random_baseline = False, db = None, plot = False
     for u in users:
         subject_index = str(users[users == u].index[0])
         user_orig, user_repeat = repeat_correlations(results, u, subject_index, plot = plot)
-        user_corr = mtx_correlation(np.asarray(user_orig), np.asarray(user_repeat))
+        user_corr = mtx_correlation(np.asarray(user_orig), np.asarray(user_repeat))[0]
         user_corrs.append(user_corr)
         #print("User", subject_index, " Correlation ", user_corr)
         for m in user_orig:
@@ -205,7 +205,7 @@ def all_repeats(results, users, random_baseline = False, db = None, plot = False
         second_trial_dim = random_num_senses(db)
         random_orig = np.array([create_random_symmetric_mtx(first_trial_dim), create_random_symmetric_mtx(second_trial_dim)])
         random_repeat = np.array([create_random_symmetric_mtx(first_trial_dim), create_random_symmetric_mtx(second_trial_dim)])
-        random_corrs = mtx_correlation(random_orig, random_repeat)
+        random_corrs = mtx_correlation(random_orig, random_repeat)[0]
         user_corrs.append(random_corrs)
         #print("Random Baseline", random_corrs)
 
@@ -309,7 +309,7 @@ def simulate_self_correlation(num_trials, db):
         second_trial_dim = random_num_senses(db)
         random_orig = np.array([create_random_symmetric_mtx(first_trial_dim), create_random_symmetric_mtx(second_trial_dim)])
         random_repeat = np.array([create_random_symmetric_mtx(first_trial_dim), create_random_symmetric_mtx(second_trial_dim)])
-        random_corrs = mtx_correlation(random_orig, random_repeat)
+        random_corrs = mtx_correlation(random_orig, random_repeat)[0]
         randoms_self.append(random_corrs)
     return randoms_self
 
@@ -339,24 +339,27 @@ def wordnet_defn(fb_sense):
     synset_str = '_'.join(parts[:len(parts) - 2]) + '.' + '.'.join(parts[-2:])
     return wordnet.synset(synset_str).definition()
 
-def mtx_correlation(m1, m2, method = 'spearman', randomize_m1_labels = False): 
+def mtx_correlation(m1, m2, method = 'spearman', randomize_m1_labels = False, confusion = False): 
     #m1 and m2 are lists of distance matrices, spearman or pearson correlation
     assert len(m1) == len(m2)
-    flat_m1 = []
-    for i in range(len(m1)):
-         #OpTimiZAtIoNS
-        ut_m1 = m1[i][np.triu_indices(m1[i].shape[0], k = 1)]
-        if randomize_m1_labels:
-            np.random.shuffle(ut_m1)
-        flat_m1 += ut_m1.tolist()
-    flat_m2 = []
-    for i in range(len(m2)):
-        ut_m2 = m2[i][np.triu_indices(m2[i].shape[0], k = 1)]
-        flat_m2 += ut_m2.tolist()
-    if method == 'spearman':
-        return stats.spearmanr(flat_m1, flat_m2)[0]
-    if method == 'pearson':
-        return stats.pearsonr(flat_m1, flat_m2)[0]
+    if confusion:
+        return stats.spearmanr(m1, m2)
+    else:
+        flat_m1 = []
+        for i in range(len(m1)):
+            #OpTimiZAtIoNS
+            ut_m1 = m1[i][np.triu_indices(m1[i].shape[0], k = 1)]
+            if randomize_m1_labels:
+                np.random.shuffle(ut_m1)
+            flat_m1 += ut_m1.tolist()
+        flat_m2 = []
+        for i in range(len(m2)):
+            ut_m2 = m2[i][np.triu_indices(m2[i].shape[0], k = 1)]
+            flat_m2 += ut_m2.tolist()
+        if method == 'spearman':
+            return stats.spearmanr(flat_m1, flat_m2)
+        if method == 'pearson':
+            return stats.pearsonr(flat_m1, flat_m2)
 
 def random_num_senses(db):
     vals, probs = get_num_to_sense_dist(db)
@@ -415,14 +418,14 @@ def containing_query(df, value, selection_criteria, dist_mtx_dict, bert_key = 'b
     words_with_crit = df[df[value].isin(selection_criteria)]['lemma'].unique()
     data_for_words = {w : dist_mtx_dict[w] for w in words_with_crit}
     return mtx_correlation([data_for_words[w]['expt'] for w in data_for_words],
-                          [data_for_words[w][bert_key] for w in data_for_words], method = 'pearson')
+                          [data_for_words[w][bert_key] for w in data_for_words], method = 'pearson')[0]
 
 def range_query(df, value, low, high, dist_mtx_dict, bert_key = 'bert'):
     #Inclusive of low and high
     words_with_crit = df[(df[value] >= low) & (df[value] <= high)]['lemma'].unique()
     data_for_words = {w : dist_mtx_dict[w] for w in words_with_crit}
     return mtx_correlation([data_for_words[w]['expt'] for w in data_for_words],
-                          [data_for_words[w][bert_key] for w in data_for_words], method = 'pearson')
+                          [data_for_words[w][bert_key] for w in data_for_words], method = 'pearson')[0]
 
 def sample_from_shared(results, users, matrices, sample_size = 10):
     #matrices is a dict with format {word -> {expt: nxn distance matrix for senses, 
@@ -435,7 +438,7 @@ def sample_from_shared(results, users, matrices, sample_size = 10):
         sample_means = mean_distance_mtx(results, w, 'shared', sel_users, normalize = True)
         bert_matrices.append(matrices[w]['bert'])
         sample_matrices.append(sample_means)
-    return mtx_correlation(sample_matrices, bert_matrices, method = 'pearson')
+    return mtx_correlation(sample_matrices, bert_matrices, method = 'pearson')[0]
 
 def get_lemma_counts(results, incl_users, db):
     test_repeat = results[(results['userID'].isin(incl_users)) & (results['trialType'].isin(['test', 'repeat']))]
