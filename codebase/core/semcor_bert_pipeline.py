@@ -11,18 +11,39 @@ from pytorch_pretrained_bert import BertTokenizer, BertModel, BertForMaskedLM
 
 #pipeline
 class SemCorSelector:
+
+    """
+    API to interface with NLTK's SEMCOR corpus reader.
+    Query NLTK with get_word_data function, and store relevant information detailing the current type, sentences it is used in, and its senses
+    """
     def __init__(self):
+        """
+        Loads SEMCOR data from NLTK, as well as state variables 
+        """
+        #Constants
         self.semcor_sentences = nltk.corpus.semcor.sents()
         self.semcor_tagged_sents = nltk.corpus.semcor.tagged_sents(tag = 'sem')
         #assert len(self.semcor_sentences) == len(self.semcor_tagged_sents)
-        self.num_sentences = len(self.semcor_sentences)
-        self.tagged_word = []
-        self.original_sent_for_word = []
-        self.senses = []
-        self.curr_word = ''
+        self.num_sentences = len(self.semcor_sentences) 
+        self.tagged_word = [] #Sentences tagged with WordNet lemmas
+        self.original_sent_for_word = [] #Untagged sentences
+        self.senses = [] #List of WordNet senses (Synset objects)
+        self.curr_word = '' #type as word.pos
     
     def get_word_data(self, word, pos):
+        """
+        Input: self- SemCorSelector object
+        word- word name
+        pos- part of speech (n, v, s)
+
+        Output: update state with data for type:
+        word identity
+        tagged sentences
+        untagged sentences
+        senses
+        """
         self.curr_word = word + '.' + pos
+        #Reset state
         self.original_sent_for_word = []
         self.senses = []
         self.tagged_word = []
@@ -30,10 +51,11 @@ class SemCorSelector:
         for i in range(self.num_sentences):
             s = self.semcor_tagged_sents[i]
             for tok in s:
-                if type(tok) == nltk.tree.Tree:
+                if type(tok) == nltk.tree.Tree: #Gets all lemmas tagged with WordNet senses
                     lem = tok.label()
-                    if type(lem) == nltk.corpus.reader.wordnet.Lemma:
-                        if get_pos(lem) == pos and get_name(lem) == word:
+                    if type(lem) == nltk.corpus.reader.wordnet.Lemma: 
+                        if get_pos(lem) == pos and get_name(lem) == word: 
+                            #If it matches, add the lemma's sense and both untagged and tagged versions of the sentence to the current state
                             self.tagged_word.append(self.semcor_tagged_sents[i])
                             self.original_sent_for_word.append(self.semcor_sentences[i])
                             #sense = (pos, get_sense_num(lem))
@@ -42,6 +64,13 @@ class SemCorSelector:
         #self.senses = [self.get_sense_for_sent(s, word) for s in self.tagged_word]
     
     def get_senses_for_curr_word(self):
+        """
+        Input:
+        self- SemCorSelector object
+        
+        Output:
+        The type's senses present in SEMCOR (as a Set)
+        """
         if len(self.senses):
             print("Senses for word", self.curr_word)
             return set(self.senses)
@@ -49,7 +78,17 @@ class SemCorSelector:
             print("No word has been searched for.")
     
     def get_selected_sense_sents(self, sel_senses):
-        #sel_senses is a list of WordNet Synsets
+        """
+        Input:
+        self- SemCorSelector object
+        sel_senses- list of WordNet Synsets
+
+        Output:
+        selected_origs and selected_tags are sorted by sense in the order specified by sel_senses
+        selected_origs- list of original sentences with the selected senses
+        selected_tagged- list of tagged sentences with the selected senses
+        last_ind_for_sense- list of the last index a sense is used in selected_origs and selected_tagged for each sense in sel_senses
+        """
         original_full = self.change_original(self.original_sent_for_word)
         last_ind_for_sense = []
         selected_origs = []
@@ -66,27 +105,16 @@ class SemCorSelector:
             selected_tagged += [self.tagged_word[i] for i in sense_indices]
         return selected_origs, selected_tagged, last_ind_for_sense     
 
-    #def semcor_for_word(self, word, pos):
-        #Orig, tagged, senses
-        """
-        word_indices = [i for i in np.arange(len(self.semcor_sentences)) if word in self.semcor_sentences[i]]
-        tagged_word = [self.semcor_tagged_sents[i] for i in word_indices]
-        original_sentences = [self.semcor_sentences[i] for i in word_indices]
-        self.tagged_word = tagged_word
-        self.original_sent_for_word = original_sentences
-
-    def get_sense_for_sent(self, sent, word):
-        for w in sent:
-            try:
-                if type(w) == nltk.tree.Tree:
-                    this_word = w.leaves()[0]
-                    if word == this_word:
-                        return self.get_sense_pos(w)
-            except:
-                continue
-    """
-
     def get_sense_pos(self, tree):
+        """
+        DEPRECATED, look at get_pos and get_sense_num
+        Inputs:
+        self- SemCorSelector object
+        tree- NLTK tree object
+
+        Output:
+        tuple of the POS and sense number
+        """
         lem = tree.label()
         #word = tree.leaves()[0]
         sense = str(lem).split('.')[2]
@@ -94,12 +122,36 @@ class SemCorSelector:
         return (pos, sense)
 
     def change_original(self, original_s_list):
+        """
+        Inputs:
+        self- SemCorSelector Object
+        original_s_list- list of lists of tokens corresponding to sentences
+
+        Output: 
+        List of all sentences as strings
+        """
         return [' '.join(s) for s in original_s_list]
 
     def get_ind_for_sense(self, synset):
+        """
+        Inputs:
+        self- SemCorSelector object
+        synset- WordNet Synset object
+
+        Output:
+        indices for sentences corresponding to selected sense
+        """
         return [i for i in np.arange(len(self.senses)) if self.senses[i] == synset]
     
     def select_senses(self, min_sents):
+        """
+        Inputs:
+        self- SemCorSelector object
+        min_sents- integer
+
+        Outputs:
+        Senses for the current type which have more than min_sents instances in SEMCOR
+        """
         sel_senses = []
         uq_senses = self.get_senses_for_curr_word()
         for s in uq_senses:
@@ -120,6 +172,7 @@ def get_sense_num(lem):
         return lem.split('.')[2]
     except:
         return "No marked sense"
+
 def get_name(lem):
     if type(lem) != str:
         return lem.name()
