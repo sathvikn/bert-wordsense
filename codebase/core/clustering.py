@@ -8,9 +8,24 @@ from sklearn.decomposition import PCA
 from scipy.cluster.hierarchy import dendrogram, linkage 
 from sklearn.mixture import GaussianMixture
 from sklearn.metrics import adjusted_rand_score
-#from semcor_bert_pipeline import *
 
+#Plots
 def plot_embeddings(e, sense_indices, sense_names, word_name, savefile = False):
+    """
+    Plots the embeddings with t-SNE, colored by sense
+
+    Inputs:
+    e- list of word embeddings
+    sense_indices- list of indices specifying where the embeddings for each sense are
+    sense_names- list of WordNet Synsets for each unique sense
+    word_name- string in format word.pos
+    savefile- if True, saves file as PNG with path ../data/clustering_results/word_pos/tsne.png
+
+    Output
+    sense_dict = {
+        Synset for sense : t-SNE coordinates in 2D list
+    }
+    """
     assert len(sense_indices) == len(sense_names)
     as_arr = np.asarray(convert_embeddings(e))
     dim_red = TSNE()
@@ -36,17 +51,32 @@ def plot_embeddings(e, sense_indices, sense_names, word_name, savefile = False):
     plt.legend()
     if savefile: #TODO see if we can make this a fn?
         word_token, word_pos = get_name(word_name), get_pos(word_name)
-        path = os.path.join('..', 'data', 'clustering_results', 'tsne.png')
+        path = os.path.join('..', 'data', 'clustering_results', word_token + '_' + word_pos, 'tsne.png')
         plt.savefig(path)
         plt.clf()
         plt.cla()
 
     return sense_dict
 
-#clustering/viz
 def plot_dendrogram(embed_data, color_dict, label_dict, savefile = False):
-    #color_dict is of format: {sense_name: color_str...}
-    #label_dict is of format: {index: {'color': char, 'label': sense label}}
+    """
+    Plots a dendrogram of the BERT embeddings using single linkage agglomerative clustering, where the nodes are colored by sense
+    
+    embed_data = {
+        'lemma': word.pos
+        'embeddings': list of 768 x 1 PyTorch tensors representing vectorized representations of the lemma in a sentence in SEMCOR
+        'original_sentences': List of strings representing sentences where each embedding came from
+        'sense_names': List of Synsets, one for each unique sense of the word where we have embeddings
+        'sense_labels': List of strings representing WordNet senses (name.pos.number), that specifies the sense of the lemma used in each sentence 
+    }
+    color_dict = {
+        sense_name: color_str #C1, C2, C3 in matplotlib
+    }
+    label_dict = {
+        index: {'color': color tag, 'label': sense label}
+    }
+    savefile- if True, saves file as PNG with path ../data/clustering_results/word_pos/dendrogram.png
+    """
     embeds = convert_embeddings(embed_data['embeddings'])
     Z = linkage(embeds, method = 'single', metric = 'cosine')
     #plt.figure(figsize = (20, 8)) # for Jupyter plotting
@@ -69,6 +99,78 @@ def plot_dendrogram(embed_data, color_dict, label_dict, savefile = False):
         plt.clf()
         plt.cla()
 
+#Utility functions
+def recode_labels(true_labels):
+    """
+    Input:
+    true_labels- list of strings showing WordNet senses
+
+    Output:
+    senses_as_nums- senses encoded as numbers
+    """
+    seen = {}
+    senses_as_nums = []
+    label_num = 0
+    for l in true_labels:
+        if l not in seen:
+            seen[l] = label_num
+            label_num += 1
+        senses_as_nums.append(seen[l])
+    return senses_as_nums
+
+def convert_embeddings(embeds):
+    """
+    converts lists/PyTorch tensors to Numpy arrays for embeddings
+    """
+    if type(embeds[0]) == list: #Python list
+        embeds = [np.array(v) for v in embeds]
+    else: #PyTorch tensors
+        embeds = [v.numpy() for v in embeds]
+    return embeds
+
+#Had issues importing these from semcor_bert_pipeline
+def get_name(lem):
+    if type(lem) != str:
+        return lem.name()
+    else:
+        return lem.split('.')[0]
+
+def get_pos(lem):
+    lem = str(lem)
+    try:
+        return lem.split('.')[1]
+    except:
+        return 'No POS'
+
+
+def create_dendrogram_colors(senses):
+    """
+    Input:
+    senses- list of unique sense names
+
+    Output:
+    color_dict = {
+        sense_name: color_str #C1, C2, C3 in matplotlib
+    }
+    label_dict = {
+        index: {'color': color tag, 'label': sense label}
+    }
+    """
+    color_dict = {}
+    label_dict = {}
+    for i in range(len(senses)):
+        mplotlib_color = 'C' + str(i)
+        sense = senses[i] #get_name issue?
+        color_dict[sense] = mplotlib_color
+        label_dict[i] = {'color': mplotlib_color, 'label': sense}
+    return color_dict, label_dict
+
+
+"""
+==================
+Deprecated, tried to run PCA on embeddings/compute the Rand index from Gaussian mixture models/compare this to t-SNE
+==================
+"""
 def tsne_rand(pipeline_output):
     #Only works for 2-3 components
     results_for_word = []
@@ -149,17 +251,6 @@ def plot_gmm_rand_indices(embedding_data, comp_range, save_img = False, save_jso
 
     return raw_results
 
-def recode_labels(true_labels):
-    seen = {}
-    senses_as_nums = []
-    label_num = 0
-    for l in true_labels:
-        if l not in seen:
-            seen[l] = label_num
-            label_num += 1
-        senses_as_nums.append(seen[l])
-    return senses_as_nums
-
 def gmm_rand(clustered_result, wn_labels, true_labels):
     ari_gmm = []
     ari_random = []
@@ -171,33 +262,3 @@ def gmm_rand(clustered_result, wn_labels, true_labels):
         ari_random.append(adjusted_rand_score(gmm_preds, random_clusters))
     return {'GMM': [np.mean(ari_gmm), np.std(ari_gmm)], 'Random': [np.mean(ari_random), np.std(ari_random)],
     "gmm_raw": ari_gmm, 'random_raw': ari_random}
-
-def create_dendrogram_colors(senses):
-    color_dict = {}
-    label_dict = {}
-    for i in range(len(senses)):
-        mplotlib_color = 'C' + str(i)
-        sense = get_name(senses[i])
-        color_dict[sense] = mplotlib_color
-        label_dict[i] = {'color': mplotlib_color, 'label': sense}
-    return color_dict, label_dict
-
-def convert_embeddings(embeds):
-    if type(embeds[0]) == list:
-        embeds = [np.array(v) for v in embeds]
-    else:
-        embeds = [v.numpy() for v in embeds]
-    return embeds
-
-def get_name(lem):
-    if type(lem) != str:
-        return lem.name()
-    else:
-        return lem.split('.')[0]
-
-def get_pos(lem):
-    lem = str(lem)
-    try:
-        return lem.split('.')[1]
-    except:
-        return 'No POS'
