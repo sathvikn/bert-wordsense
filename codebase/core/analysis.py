@@ -13,6 +13,9 @@ plt.set_cmap('Blues')
 
 #Firebase functions, getting trial & subject data
 def access_db():
+    """
+    Returns a JSON of the data on Firebase
+    """
     cred = credentials.Certificate('../data/wordsense-pilesort-firebase-adminsdk-3ipny-791a81e575.json')
     firebase_admin.initialize_app(cred, {
         'databaseURL': 'https://wordsense-pilesort.firebaseio.com'
@@ -22,6 +25,17 @@ def access_db():
 
 #Returns dataframe where rows = trials
 def get_trial_data(db):
+    """
+    db - JSON of Firebase data
+
+    Output:
+    Pandas Dataframe with one row per trial, columns are the following: trialID- UID for row (primary key), userID- UID for participant,
+    trialIndex- which trial it was out of 18 [1, 18], trialType- one of ['training', 'shared', 'test', 'repeat'] in that order,
+    prevChanged- amount of times participant changed the arrangement for the word after seeing the sense [0, number of senses - 1],
+    lemma- word_pos (FB doesn't allow periods in fields so we had to change it from NLTK), sense- word_pos_number,
+    x, y- coordinates of the box participant placed, in pixels
+
+    """
     trials = db['trials']
     df_rows = []
     for trialID in trials:
@@ -39,6 +53,12 @@ def get_trial_data(db):
 
 #Returns dataframe where rows = participants
 def get_participant_data(db):
+    """
+    db- JSON of Firebase data
+
+    Output- Pandas Dataframe with one row for each participant. Columns: userID- UID for participant (primary key), workerID- participant's worker ID from RPP,
+    userIP- hashed IP address, completedTask- 0 or 1 for if participant completed task, timeTaken- time partipant spent on task 
+    """
     node = db['subjectInfo']
     df_rows = []
     for userID in node:
@@ -53,7 +73,22 @@ def get_participant_data(db):
         df_rows.append(row)
     return pd.DataFrame(df_rows)
 
+#Tables with metadata
 def get_num_trials(results):
+    """
+    Input:
+    results- Pandas dataframe with schema of get_trial_data's output:
+        One row per trial, columns are the following: trialID- UID for row (primary key), userID- UID for participant,
+        trialIndex- which trial it was out of 18 [1, 18], trialType- one of ['training', 'shared', 'test', 'repeat'] in that order,
+        prevChanged- amount of times participant changed the arrangement for the word after seeing the sense [0, number of senses - 1],
+        lemma- word_pos (FB doesn't allow periods in fields so we had to change it from NLTK), sense- word_pos_number,
+        x, y- coordinates of the box participant placed, in pixels
+
+    Output:
+    TODO: what's the diff between this and lemma_counts?
+    Pandas dataframe where every row is a type. Columns: type- word_pos, num_trials- number of times this word was shown to a participant,
+    num_senses- number of senses for type
+    """
     lst = []
     for l in results['lemma'].unique():
         num_words = len(results[results['lemma'] == l].index) / get_num_senses(l, db)
@@ -61,6 +96,19 @@ def get_num_trials(results):
     return pd.DataFrame(lst)
 
 def display_sense_definitions(results, trial_type):
+    """
+    Input:
+    results- Pandas dataframe with schema of get_trial_data's output:
+        One row per trial, columns are the following: trialID- UID for row (primary key), userID- UID for participant,
+        trialIndex- which trial it was out of 18 [1, 18], trialType- one of ['training', 'shared', 'test', 'repeat'] in that order,
+        prevChanged- amount of times participant changed the arrangement for the word after seeing the sense [0, number of senses - 1],
+        lemma- word_pos (FB doesn't allow periods in fields so we had to change it from NLTK), sense- word_pos_number,
+        x, y- coordinates of the box participant placed, in pixels
+    trial_type- one of ['training', 'shared', 'test', 'repeat']
+
+    Output:
+    Pandas dataframe where each row is a word sense. Columns: Sense- word_pos_number, Type- word_pos, Definition- definition of sense in WordNet
+    """
     shared_trials = results[results['trialType'] == trial_type]
     pd.set_option('display.max_colwidth', 200)
 
@@ -70,12 +118,25 @@ def display_sense_definitions(results, trial_type):
     sense_defns['Definition'] = sense_defns['Definition']
     return sense_defns
 
-def fb_to_local(fb_sense):
-    parts = fb_sense.split('_')
-    return '_'.join(parts[:len(parts) - 2]) + '.' + '.'.join(parts[-2:])
-
 
 def get_time_and_changes(results, user_df):
+    """
+    Inputs:
+    results- Pandas dataframe with schema of get_trial_data's output:
+        One row per trial, columns are the following: trialID- UID for row (primary key), userID- UID for participant,
+        trialIndex- which trial it was out of 18 [1, 18], trialType- one of ['training', 'shared', 'test', 'repeat'] in that order,
+        prevChanged- amount of times participant changed the arrangement for the word after seeing the sense [0, number of senses - 1],
+        lemma- word_pos (FB doesn't allow periods in fields so we had to change it from NLTK), sense- word_pos_number,
+        x, y- coordinates of the box participant placed, in pixels
+
+    user_df- Pandas dataframe with schema of get_participant_data's output:
+        One row for each participant. Columns: userID- UID for participant (primary key), workerID- participant's worker ID from RPP,
+    userIP- hashed IP address, completedTask- 0 or 1 for if participant completed task, timeTaken- time partipant spent on task 
+
+    Outputs:
+    time- Pandas Dataframe with one row for each participant. Columns: userID- UID for participant (primary key), timeTaken- time partipant spent on task,
+    prevChanged- amount of changes to the schema the participant made
+    """
     changed = results[['userID', 'lemma', 'prevChanged']].groupby(['userID', 'lemma']).agg(max).reset_index()
     user_changes = changed.groupby('userID').agg(sum).reset_index()
     time = user_df[['userID', 'timeTaken']]
@@ -84,6 +145,22 @@ def get_time_and_changes(results, user_df):
 
 #Represents subject's data for a word as a matrix
 def get_subject_mtx(results, userID, word_type, trial_type):
+    """
+    Inputs:
+    results- Pandas dataframe with schema of get_trial_data's output:
+        One row per trial, columns are the following: trialID- UID for row (primary key), userID- UID for participant,
+        trialIndex- which trial it was out of 18 [1, 18], trialType- one of ['training', 'shared', 'test', 'repeat'] in that order,
+        prevChanged- amount of times participant changed the arrangement for the word after seeing the sense [0, number of senses - 1],
+        lemma- word_pos (FB doesn't allow periods in fields so we had to change it from NLTK), sense- word_pos_number,
+        x, y- coordinates of the box participant placed, in pixels
+    userID- string, UID for a participant
+    word_type- string, word_pos
+    trial_type- one of ['training', 'shared', 'test', 'repeat']
+
+    Outputs:
+    result_mtx- Numpy matrix of pairwise distance between tokens participant with user_id placed for the senses of word_type
+    senses- list of senses of word_type (word_pos_number)
+    """
     word_data = results[(results['userID'] == userID) & (results['lemma'] == word_type) & (results['trialType'] == trial_type)]
     result_mtx = []
     senses = word_data['sense']
@@ -97,11 +174,27 @@ def get_subject_mtx(results, userID, word_type, trial_type):
             row.append(dist)
         result_mtx.append(np.asarray(row))
     result_mtx = np.asarray(result_mtx)
-    result_mtx = result_mtx / max_value
+    result_mtx = result_mtx / max_value #normalize between 0 and 1
     return result_mtx, senses
 
 #Plots matrices for a user's repeat trials (2x2)
 def repeat_correlations(results, userID, subject_index = None, plot = False):
+    """
+    Inputs:
+        results- Pandas dataframe with schema of get_trial_data's output:
+        One row per trial, columns are the following: trialID- UID for row (primary key), userID- UID for participant,
+        trialIndex- which trial it was out of 18 [1, 18], trialType- one of ['training', 'shared', 'test', 'repeat'] in that order,
+        prevChanged- amount of times participant changed the arrangement for the word after seeing the sense [0, number of senses - 1],
+        lemma- word_pos (FB doesn't allow periods in fields so we had to change it from NLTK), sense- word_pos_number,
+        x, y- coordinates of the box participant placed, in pixels
+        userID- string, UID for a participant
+        subject_index- integer assigned to a subject (used only when plotting), chose this over UID for brevity
+        plot- if true, plots a subject's judgement matrices for repeated types (two repeated trials, one test trial) 
+    
+    Outputs:
+    user_orig- list of two distance matrices for the original trials
+    user_repeat- list of two distance matrices for the same two words, repeated
+    """
     user_trials = results[results['userID'] == userID]
     repeat_types = user_trials[user_trials['trialType'] == 'repeat']['lemma'].unique()
     user_orig = []
@@ -110,7 +203,7 @@ def repeat_correlations(results, userID, subject_index = None, plot = False):
         original_result, senses = get_subject_mtx(results, userID, l, 'test')
         repeat_result, _ = get_subject_mtx(results, userID, l, 'repeat')
         if plot:
-            my_eyes = plt.figure()
+            fig = plt.figure()
             ax1 = plt.subplot(1, 2, 1)
             ax1.set_title("Original")
             orig_img = ax1.imshow(original_result)
@@ -120,14 +213,30 @@ def repeat_correlations(results, userID, subject_index = None, plot = False):
             rep_img = ax2.imshow(repeat_result)
             annotate_mtx(repeat_result, rep_img, ax2, senses)
             pos = 2
-            my_eyes.subplots_adjust(right = pos)
+            fig.subplots_adjust(right = pos)
             r = mtx_correlation([original_result], [repeat_result])[0]
-            my_eyes.suptitle("Subject " + subject_index + " Annotations for Repeated Type " + l + " (r = " + str(np.round(r, 2)) + ")", x = pos / 1.9)
+            fig.suptitle("Subject " + subject_index + " Annotations for Repeated Type " + l + " (r = " + str(np.round(r, 2)) + ")", x = pos / 1.9)
         user_orig.append(np.array(original_result))
         user_repeat.append(np.array(repeat_result))
     return user_orig, user_repeat
 
 def group_consistency(results, users, random_baseline = False, exclude = []):
+    """
+    Input:
+        results- Pandas dataframe with schema of get_trial_data's output:
+        One row per trial, columns are the following: trialID- UID for row (primary key), userID- UID for participant,
+        trialIndex- which trial it was out of 18 [1, 18], trialType- one of ['training', 'shared', 'test', 'repeat'] in that order,
+        prevChanged- amount of times participant changed the arrangement for the word after seeing the sense [0, number of senses - 1],
+        lemma- word_pos (FB doesn't allow periods in fields so we had to change it from NLTK), sense- word_pos_number,
+        x, y- coordinates of the box participant placed, in pixels
+        users- sequence of userID strings
+        random_baseline- if true, compares users to a random subject
+        exclude- list of word_pos types to be excluded from calculation
+
+        TODO: Exclude the user correlations under random_baseline? (low priority)
+    Output:
+        list of hold-one out correlations for each user (or for a random token assignment) 
+    """
     #Returns a score for each user
     #"for each pairwise relationship, take the average of all participants except one"
     #shared_results = results[results['trialType'] == 'shared']
@@ -136,20 +245,31 @@ def group_consistency(results, users, random_baseline = False, exclude = []):
         subject_index = str(users[users == u].index[0])
         user_corr = hoo_corr(results, u, exclude)
         hoo_corrs.append(user_corr)
-        #print("Hold One Out Correlation for User" , subject_index, user_corr)
     if random_baseline:
         random_corr = random_vs_all(results)
-        #print("Random Baseline", random_corr)
         hoo_corrs.append(random_corr)
     return hoo_corrs
 
 #hold one out correlation
 def hoo_corr(results, userID, exclude):
-    user_results = []
-    avg_results = []
+    """
+    Input:
+        results- Pandas dataframe with schema of get_trial_data's output:
+        One row per trial, columns are the following: trialID- UID for row (primary key), userID- UID for participant,
+        trialIndex- which trial it was out of 18 [1, 18], trialType- one of ['training', 'shared', 'test', 'repeat'] in that order,
+        prevChanged- amount of times participant changed the arrangement for the word after seeing the sense [0, number of senses - 1],
+        lemma- word_pos (FB doesn't allow periods in fields so we had to change it from NLTK), sense- word_pos_number,
+        x, y- coordinates of the box participant placed, in pixels
+        userID- string that is the participant's UID
+        exclude- list of word_pos types to be excluded from calculation
+    
+    Output:
+        Computes the Spearman rank correlation between the participant's judgements and the averaged distance matrix over all other participants for each type
+    """
+    user_results = [] #array of participant's matrices
+    avg_results = [] #array of averaged responses for all types, done over all participants except the one with userID
     for l in results['lemma'].unique():
         if l not in exclude:
-
             held_out_results = results[results['userID'] != userID]
             user_lst = held_out_results['userID'].unique().tolist()
             avg_with_others = mean_distance_mtx(held_out_results, l, 'shared', user_lst)
@@ -159,6 +279,20 @@ def hoo_corr(results, userID, exclude):
     return mtx_correlation(user_results, avg_results)[0]
 
 def user_vs_user_shared(results, user1, user2):
+    """
+    Input: 
+        results- Pandas dataframe with schema of get_trial_data's output:
+        One row per trial, columns are the following: trialID- UID for row (primary key), userID- UID for participant,
+        trialIndex- which trial it was out of 18 [1, 18], trialType- one of ['training', 'shared', 'test', 'repeat'] in that order,
+        prevChanged- amount of times participant changed the arrangement for the word after seeing the sense [0, number of senses - 1],
+        lemma- word_pos (FB doesn't allow periods in fields so we had to change it from NLTK), sense- word_pos_number,
+        x, y- coordinates of the box participant placed, in pixels
+        
+        user1 and user2- userIDs (Strings that are UIDs for each participant)
+
+    Output:
+        Correlation between results for u1 and u2 for the Shared tasks
+    """
     u1_results = []
     u2_results = []
     for l in results.lemma.unique():
@@ -169,6 +303,25 @@ def user_vs_user_shared(results, user1, user2):
     return mtx_correlation(u1_results, u2_results)[0]
 
 def my_correlations(participants, trials, results, userids):
+    """
+    Input: 
+        participants- Pandas dataframe with schema of get_participant_data's output:
+        One row for each participant. Columns: userID- UID for participant (primary key), workerID- participant's worker ID from RPP,
+        userIP- hashed IP address, completedTask- 0 or 1 for if participant completed task, timeTaken- time partipant spent on task 
+        
+        trials- Pandas dataframe with schema of get_trial_data's output:
+        One row per trial, columns are the following: trialID- UID for row (primary key), userID- UID for participant,
+        trialIndex- which trial it was out of 18 [1, 18], trialType- one of ['training', 'shared', 'test', 'repeat'] in that order,
+        prevChanged- amount of times participant changed the arrangement for the word after seeing the sense [0, number of senses - 1],
+        lemma- word_pos (FB doesn't allow periods in fields so we had to change it from NLTK), sense- word_pos_number,
+        x, y- coordinates of the box participant placed, in pixels
+
+        results- Same schema as trials, results for everyone in userids on shared trials
+        userids- List of strings that correspond to participants' UIDs
+
+    Output:
+        List of correlations of each user in userids against my placements for the shared data (a gold standard)
+    """
     complete = participants[participants['completedTask'] == 1]
     my_userid = complete.iloc[1]['userID']
     gt_results = trials[trials['userID'] == my_userid]
@@ -176,8 +329,20 @@ def my_correlations(participants, trials, results, userids):
     shared_plus_gt = shared_plus_gt[shared_plus_gt['trialType'] == 'shared']
     return [user_vs_user_shared(shared_plus_gt, u, my_userid) for u in userids]
 
-#refactoring the above fn to work with random data
 def random_vs_all(results):
+    """
+    Inputs:
+        results- Pandas dataframe with schema of get_trial_data's output:
+            One row per trial, columns are the following: trialID- UID for row (primary key), userID- UID for participant,
+            trialIndex- which trial it was out of 18 [1, 18], trialType- one of ['training', 'shared', 'test', 'repeat'] in that order,
+            prevChanged- amount of times participant changed the arrangement for the word after seeing the sense [0, number of senses - 1],
+            lemma- word_pos (FB doesn't allow periods in fields so we had to change it from NLTK), sense- word_pos_number,
+            x, y- coordinates of the box participant placed, in pixels
+
+    Outputs:
+        Correlation between the averaged results for shared trials and a random token arrangement
+
+    """
     user_results = []
     avg_results = []
     for l in results['lemma'].unique():
@@ -187,6 +352,23 @@ def random_vs_all(results):
     return mtx_correlation(user_results, avg_results)[0]
 
 def all_repeats(results, users, random_baseline = False, db = None, plot = False):
+    """
+    Inputs:
+        results- Pandas dataframe with schema of get_trial_data's output:
+            One row per trial, columns are the following: trialID- UID for row (primary key), userID- UID for participant,
+            trialIndex- which trial it was out of 18 [1, 18], trialType- one of ['training', 'shared', 'test', 'repeat'] in that order,
+            prevChanged- amount of times participant changed the arrangement for the word after seeing the sense [0, number of senses - 1],
+            lemma- word_pos (FB doesn't allow periods in fields so we had to change it from NLTK), sense- word_pos_number,
+            x, y- coordinates of the box participant placed, in pixels
+        users- list of participant userIDs as strings
+        random_baseline- whether the trials should be compared against random placements (boolean). If true, compares to two pairs of random arrangements 
+        db- JSON of experiment results
+        plot- whether the matrices should be plotted (boolean)
+
+    Output:
+    user_corrs- list of correlations for repeat trials (for users or for random placements of tokens )
+
+    """
     all_orig = []
     all_repeat = []
     user_corrs = []
@@ -211,10 +393,58 @@ def all_repeats(results, users, random_baseline = False, db = None, plot = False
 
     #print("Correlation of all original vs. repeat trials", mtx_correlation(all_orig, all_repeat))
     return user_corrs
-    
 
-#Plots all matrices for shared trials (words x subjects)
+def plot_consistency_hist(randoms, parts, title, legend = True):
+    """
+    Input
+    randoms- array of self or group consistency scores computed for random placements of data
+    parts- participants' self or group consistency score
+    title- plot title
+
+    Distplot of random scores, participants' scores are vertical lines
+    """
+    sns.distplot(randoms)
+    fmt_color = lambda num: "C" + str(num)
+    colors = [fmt_color(i) for i in range(len(parts))]
+    for i in range(len(parts)):
+        plt.axvline(parts[i], c = colors[i], label = i)
+    if legend:
+        plt.legend(title = 'Subject Index')
+    plt.title(title)
+    plt.xlabel("Spearman Correlation")
+
+def simulate_self_correlation(num_trials, db):
+    """
+    Inputs: num_trials- number of simulations (large integer like 1000)
+    db- JSON from Firebase
+
+    Output: compute self consistency for two pairs of random arrangements
+    """
+    randoms_self = []
+    for i in range(num_trials):
+        first_trial_dim = random_num_senses(db)
+        second_trial_dim = random_num_senses(db)
+        random_orig = np.array([create_random_symmetric_mtx(first_trial_dim), create_random_symmetric_mtx(second_trial_dim)])
+        random_repeat = np.array([create_random_symmetric_mtx(first_trial_dim), create_random_symmetric_mtx(second_trial_dim)])
+        random_corrs = mtx_correlation(random_orig, random_repeat)[0]
+        randoms_self.append(random_corrs)
+    return randoms_self
+
+
 def plot_all_shared(results, users):
+    """
+    Input:
+        results- Pandas dataframe with schema of get_trial_data's output:
+            One row per trial, columns are the following: trialID- UID for row (primary key), userID- UID for participant,
+            trialIndex- which trial it was out of 18 [1, 18], trialType- one of ['training', 'shared', 'test', 'repeat'] in that order,
+            prevChanged- amount of times participant changed the arrangement for the word after seeing the sense [0, number of senses - 1],
+            lemma- word_pos (FB doesn't allow periods in fields so we had to change it from NLTK), sense- word_pos_number,
+            x, y- coordinates of the box participant placed, in pixels
+        users- list of participant userIDs as strings
+    
+    Output:
+    Plots all matrices for shared trials in a grid with dimensions (words x subjects)
+    """
     shared_words = results[results['trialType'] == 'shared']['lemma'].unique()
     user_lst = users.tolist()
     grid = plt.GridSpec(len(shared_words), len(users), wspace = 0.2, hspace = 0.7, figure = plt.figure(figsize = (20, 20)))
@@ -230,6 +460,16 @@ def plot_all_shared(results, users):
 
 #Annotates a matrix with the senses and perceived distances
 def annotate_mtx(result_mtx, im, ax, senses, write_text = True):
+    """
+    Inputs:
+    result_mtx: participant's relatedness/distance matrix
+    im- result of Matplotlib's plt.imshow
+    ax- Matplotlib axis
+    senses- list of senses represented in the matrix (word_pos_number)
+    write_text- if the matrix should be annotated with its senses
+
+    Adds the numerical values of distances and optionally labels specifying the senses to the image of a relatedness matrix for a type
+    """
     threshold = im.norm(result_mtx.max())/2.
 
     if write_text:
@@ -253,7 +493,24 @@ def annotate_mtx(result_mtx, im, ax, senses, write_text = True):
 
 #MDS functions
 def mean_distance_mtx(results, lemma, trial_type, user_lst, normalize = False):
-    shared_tensor = []
+    """
+    Input:
+    results- Pandas dataframe with schema of get_trial_data's output:
+        One row per trial, columns are the following: trialID- UID for row (primary key), userID- UID for participant,
+        trialIndex- which trial it was out of 18 [1, 18], trialType- one of ['training', 'shared', 'test', 'repeat'] in that order,
+        prevChanged- amount of times participant changed the arrangement for the word after seeing the sense [0, number of senses - 1],
+        lemma- word_pos (FB doesn't allow periods in fields so we had to change it from NLTK), sense- word_pos_number,
+        x, y- coordinates of the box participant placed, in pixels
+    lemma- word_pos string
+    trial_type- one of ['training', 'shared', 'test', 'repeat']
+    user_lst- list of userID strings
+    normalize- if true, divide by the largest value
+
+    Output:
+    Numpy matrix that averages participants' responses for lemma
+
+    """
+    shared_tensor = [] #Data for all the users
     for j in range(len(user_lst)):
         user_result, senses = get_subject_mtx(results, user_lst[j], lemma, trial_type)
         if len(user_result):
@@ -266,6 +523,16 @@ def mean_distance_mtx(results, lemma, trial_type, user_lst, normalize = False):
         return avg
 
 def plot_mds(word_means, word, mds_model, db, src):
+    """
+    Input:
+    word_means- distance matrix for word
+    word- wordform_pos string
+    mds_model- SKLearn MDS object
+    db- JSON of experiment responses from FB
+    src- one of ['human', 'BERT'], part of the plot title
+
+    Plots MDS for the senses of one word 
+    """
     results = mds_model.fit_transform(word_means)
     x = results[:,0]
     y = results[:,1]
@@ -277,6 +544,22 @@ def plot_mds(word_means, word, mds_model, db, src):
     plt.title("MDS over Averaged " + src + " Distances for " + word)
 
 def plot_all_mds(results, users, trial_type, db):
+    """
+    Input:
+        results- Pandas dataframe with schema of get_trial_data's output:
+        One row per trial, columns are the following: trialID- UID for row (primary key), userID- UID for participant,
+        trialIndex- which trial it was out of 18 [1, 18], trialType- one of ['training', 'shared', 'test', 'repeat'] in that order,
+        prevChanged- amount of times participant changed the arrangement for the word after seeing the sense [0, number of senses - 1],
+        lemma- word_pos (FB doesn't allow periods in fields so we had to change it from NLTK), sense- word_pos_number,
+        x, y- coordinates of the box participant placed, in pixels
+
+        users- list of userIDs whose data we are using
+        trial_type- one of ['training', 'shared', 'test', 'repeat']
+        db- JSON of data from Firebase
+
+    Output:
+    Plot of the MDS for all words in results in separate figures
+    """
     data = results[results['trialType'] == trial_type]
     mds_model = MDS(n_components = 2, dissimilarity = 'precomputed')
     for l in data['lemma'].unique():
@@ -285,38 +568,44 @@ def plot_all_mds(results, users, trial_type, db):
         plt.savefig("../../results/figures/mds_" + l + '.png')
 
 def plot_individual_mds(results, word, trial_type, users, db, sense_df):
+    """
+    Input:
+        results- Pandas dataframe with schema of get_trial_data's output:
+        One row per trial, columns are the following: trialID- UID for row (primary key), userID- UID for participant,
+        trialIndex- which trial it was out of 18 [1, 18], trialType- one of ['training', 'shared', 'test', 'repeat'] in that order,
+        prevChanged- amount of times participant changed the arrangement for the word after seeing the sense [0, number of senses - 1],
+        lemma- word_pos (FB doesn't allow periods in fields so we had to change it from NLTK), sense- word_pos_number,
+        x, y- coordinates of the box participant placed, in pixels
+        word- string of word_pos
+        trial_type- one of ['training', 'shared', 'test', 'repeat']
+        users- list of userID strings
+        db- Firebase JSON
+        sense_df- Pandas dataframe where each row is a word sense. Columns: Sense- word_pos_number, Type- word_pos, Definition- definition of sense in WordNet
+
+    Output:
+        Plots MDS for word, and displays a table with the sense definitions
+    """
     mds_model = MDS(n_components = 2, dissimilarity = 'precomputed')
     user_lst = users.tolist()
     word_means = mean_distance_mtx(results, word, trial_type, user_lst)
     plot_mds(word_means, word, mds_model, db, "Reported")
     return sense_df[sense_df['Type'] == word]
 
-def plot_consistency_hist(randoms, parts, title, legend = True):
-    sns.distplot(randoms)
-    fmt_color = lambda num: "C" + str(num)
-    colors = [fmt_color(i) for i in range(len(parts))]
-    for i in range(len(parts)):
-        plt.axvline(parts[i], c = colors[i], label = i)
-    if legend:
-        plt.legend(title = 'Subject Index')
-    plt.title(title)
-    plt.xlabel("Spearman Correlation")
 
-def simulate_self_correlation(num_trials, db):
-    randoms_self = []
-    for i in range(num_trials):
-        first_trial_dim = random_num_senses(db)
-        second_trial_dim = random_num_senses(db)
-        random_orig = np.array([create_random_symmetric_mtx(first_trial_dim), create_random_symmetric_mtx(second_trial_dim)])
-        random_repeat = np.array([create_random_symmetric_mtx(first_trial_dim), create_random_symmetric_mtx(second_trial_dim)])
-        random_corrs = mtx_correlation(random_orig, random_repeat)[0]
-        randoms_self.append(random_corrs)
-    return randoms_self
+#Helper/utility functions
 
-#Helper functions
+def fb_to_local(fb_sense):
+    """
+    fb_sense- word_pos_number
+    Returns word.pos.number because FB doesn't allow . characters for keys in JSON, even if that's how they are stored locally
+    """
+    parts = fb_sense.split('_')
+    return '_'.join(parts[:len(parts) - 2]) + '.' + '.'.join(parts[-2:])
 
-#Creates x and y coordinates
 def segment_position_string(s):
+    """
+    s is a string with format "left: [x]px;top: [y]px", this function extracts the x and y coordinates for a token
+    """
     left, top = s.strip().split(";")
     x = float(left.split(":")[1].strip("px").strip(" "))
     y = float(top.split(":")[1].strip("px").strip(" "))
@@ -324,22 +613,45 @@ def segment_position_string(s):
     
 #Euclidean distance
 def calculate_distance(r1, r2):
+    """
+    r1 and r2 are rows in the dataframe of trials, and have columns with labels 'x' and 'y'
+    Returns the Euclidean distance between the two values
+    """
     s1 = np.array([r1['x'], r1['y']])
     s2 = np.array([r2['x'], r2['y']])
     return np.linalg.norm(s1 - s2)
 
 def get_senses(db, word):
+    """
+    Queries FB for the list of senses that were used in the experiment for word (format word_pos) 
+    """
     return [k for k in db['inputs'][word] if k not in ['senses', 'type']]
 
 def get_num_senses(w, db):
+    """
+    Queries FB for the number of senses participants received for type w (word_pos) 
+    """
     return db['inputs'][w]['senses']
 
 def wordnet_defn(fb_sense):
+    """
+    Gets the WordNet definition for a sense in format word_pos_number
+    """
     parts = fb_sense.split('_')
     synset_str = '_'.join(parts[:len(parts) - 2]) + '.' + '.'.join(parts[-2:])
     return wordnet.synset(synset_str).definition()
 
 def mtx_correlation(m1, m2, method = 'spearman', randomize_m1_labels = False, confusion = False): 
+    """
+    Input:
+        m1 and m2- lists of square Numpy matrices where each element in m1 has the same dimensions as the corresponding element in m2
+        method- either 'spearman' or 'pearson'
+        randomize_m1_labels- shuffle the labels of one of the matrices if true
+        confusion- if true, computes the correlation between the matrices themselves, else computes the correlation of the upper triangular portions only
+
+    Output:
+        Correlation between flattened versions of m1 and m2
+    """
     #m1 and m2 are lists of distance matrices, spearman or pearson correlation
     assert len(m1) == len(m2)
     if confusion:
@@ -361,16 +673,26 @@ def mtx_correlation(m1, m2, method = 'spearman', randomize_m1_labels = False, co
         if method == 'pearson':
             return stats.pearsonr(flat_m1, flat_m2)
 
+#Functions for random sampling
 def random_num_senses(db):
+    """
+    Generate a random number of senses based on frequency in the database
+    """
     vals, probs = get_num_to_sense_dist(db)
     return np.random.choice(vals, p = probs)
 
 def get_num_to_sense_dist(db):
+    """
+    Returns all the senses and their probabilities according to frequency (used for random sampling)
+    """
     val_counts = pd.Series([db['inputs'][i]['senses'] for i in db['inputs']]).value_counts()
     probs = val_counts / sum(val_counts)
     return probs.index, probs.values
 
 def create_random_symmetric_mtx(dims = 3):
+    """
+    Generates dims x dims distance matrix of random coordinate assignments 
+    """
     min_x = 89
     max_x = 873
     min_y = 282
@@ -392,12 +714,20 @@ def create_random_symmetric_mtx(dims = 3):
     return mtx / max_value
 
 def get_results_elig_users(db, metric, value):
+    """
+    TODO: Modify this function based on exclusion criteria/call it
+    """
     #gets participants with stats that are higher than value
     results, corrs = get_results_users(db)
     incl_users = corrs[corrs[metric] > value]['userID'].tolist()
     return results, incl_users
 
 def get_results_users(db):
+    """
+    Returns results- all participants' token assignments
+    corrs- Dataframe where each row corresponds to a user, with the following columns:
+    userID, Group Consistency, Self Consistency, and Correlation with SN, time, and prevChanged (number of times participant changed arrangement)
+    """
     #Simpler version of the above function, so we can apply more complicated exclusion criteria
     trials = get_trial_data(db)
     participants = get_participant_data(db)
@@ -414,33 +744,61 @@ def get_results_users(db):
     corrs['Correlation with SN'] = my_correlations(participants, trials, results, users) #vs gold standard
     return results, corrs
 
+#TODO: Updates these two from notebook version
 def containing_query(df, value, selection_criteria, dist_mtx_dict, bert_key = 'bert'):
     words_with_crit = df[df[value].isin(selection_criteria)]['lemma'].unique()
     data_for_words = {w : dist_mtx_dict[w] for w in words_with_crit}
     return mtx_correlation([data_for_words[w]['expt'] for w in data_for_words],
-                          [data_for_words[w][bert_key] for w in data_for_words], method = 'pearson')[0]
+                          [data_for_words[w][bert_key] for w in data_for_words], method = 'pearson')
 
 def range_query(df, value, low, high, dist_mtx_dict, bert_key = 'bert'):
     #Inclusive of low and high
     words_with_crit = df[(df[value] >= low) & (df[value] <= high)]['lemma'].unique()
     data_for_words = {w : dist_mtx_dict[w] for w in words_with_crit}
     return mtx_correlation([data_for_words[w]['expt'] for w in data_for_words],
-                          [data_for_words[w][bert_key] for w in data_for_words], method = 'pearson')[0]
+                          [data_for_words[w][bert_key] for w in data_for_words], method = 'pearson')
 
 def sample_from_shared(results, users, matrices, sample_size = 10):
-    #matrices is a dict with format {word -> {expt: nxn distance matrix for senses, 
-                                    #bert: nxn cosine distance matrix of the senses from SEMCOR examples}
+    """
+    results- Pandas dataframe with schema of get_trial_data's output:
+        One row per trial, columns are the following: trialID- UID for row (primary key), userID- UID for participant,
+        trialIndex- which trial it was out of 18 [1, 18], trialType- one of ['training', 'shared', 'test', 'repeat'] in that order,
+        prevChanged- amount of times participant changed the arrangement for the word after seeing the sense [0, number of senses - 1],
+        lemma- word_pos (FB doesn't allow periods in fields so we had to change it from NLTK), sense- word_pos_number,
+        x, y- coordinates of the box participant placed, in pixels
+    users- list of userID strings
+    matrices is a dict with format {word -> {expt: nxn distance matrix for senses, 
+                                    bert: nxn cosine distance matrix of the senses from SEMCOR examples}}
+    sample_size- random sample of users
+
+    Return Correlation between [sample_size] responses for the shared trials and BERT matrices for shared words
+    """
     shared_words = ['foot_n', 'table_n', 'plane_n', 'degree_n', 'right_n', 'model_n']
-    sel_users = np.random.choice(users, 10)
+    sel_users = np.random.choice(users, sample_size)
     bert_matrices = []
     sample_matrices = []
     for w in shared_words:
         sample_means = mean_distance_mtx(results, w, 'shared', sel_users, normalize = True)
         bert_matrices.append(matrices[w]['bert'])
         sample_matrices.append(sample_means)
-    return mtx_correlation(sample_matrices, bert_matrices, method = 'pearson')[0]
+    return mtx_correlation(sample_matrices, bert_matrices, method = 'spearman')[0]
 
 def get_lemma_counts(results, incl_users, db):
+    """
+    Input:
+    results- Pandas dataframe with schema of get_trial_data's output:
+        One row per trial, columns are the following: trialID- UID for row (primary key), userID- UID for participant,
+        trialIndex- which trial it was out of 18 [1, 18], trialType- one of ['training', 'shared', 'test', 'repeat'] in that order,
+        prevChanged- amount of times participant changed the arrangement for the word after seeing the sense [0, number of senses - 1],
+        lemma- word_pos (FB doesn't allow periods in fields so we had to change it from NLTK), sense- word_pos_number,
+        x, y- coordinates of the box participant placed, in pixels
+
+    incl_users- list of userID strings
+    db- Firebase JSON of experimental data
+
+    Output:
+    Dataframe that shows the number of times a type was shown to subjects in incl_users
+    """
     test_repeat = results[(results['userID'].isin(incl_users)) & (results['trialType'].isin(['test', 'repeat']))]
     lemma_counts = test_repeat['lemma'].value_counts()
     lemma_counts = pd.DataFrame(lemma_counts / [get_num_senses(l, db) for l in lemma_counts.index]).sort_values('lemma',
@@ -452,6 +810,14 @@ def get_lemma_counts(results, incl_users, db):
     return lemma_counts
 
 def mtx_to_df(mtx, senses, reorder = []):
+    """
+    Input:
+    mtx- square Numpy matrix
+    senses- senses names that correspond to each entry
+    reorder- order the senses should be in
+
+    Output: Pandas Dataframe of matrix information, used for Seaborn plotting
+    """
     mtx = np.round(mtx, 3)
     df = pd.DataFrame(mtx, columns = senses, index = senses)
     if len(reorder):
@@ -460,6 +826,20 @@ def mtx_to_df(mtx, senses, reorder = []):
     return df
 
 def get_test_result_data(results, w, incl_users):
+    """
+    Input:
+    results- Pandas dataframe with schema of get_trial_data's output:
+        One row per trial, columns are the following: trialID- UID for row (primary key), userID- UID for participant,
+        trialIndex- which trial it was out of 18 [1, 18], trialType- one of ['training', 'shared', 'test', 'repeat'] in that order,
+        prevChanged- amount of times participant changed the arrangement for the word after seeing the sense [0, number of senses - 1],
+        lemma- word_pos (FB doesn't allow periods in fields so we had to change it from NLTK), sense- word_pos_number,
+        x, y- coordinates of the box participant placed, in pixels
+    w- word_pos, string
+    incl_users- string of userIDs
+
+    Output: Numpy matrix of the mean distances for type w across both test and repeat trials
+    """
+
     test_means = mean_distance_mtx(results, w, 'test', incl_users, normalize = True)
     repeat_means = mean_distance_mtx(results, w, 'repeat', incl_users, normalize = True)
     expt_means = test_means
@@ -467,3 +847,4 @@ def get_test_result_data(results, w, incl_users):
         expt_means = np.mean([test_means, repeat_means], axis = 0)
         expt_means /= np.max(expt_means)
     return expt_means
+
