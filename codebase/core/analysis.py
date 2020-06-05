@@ -8,6 +8,7 @@ import pandas as pd
 import numpy as np 
 import matplotlib.pyplot as plt
 import seaborn as sns
+import itertools
 plt.set_cmap('Blues')
 
 
@@ -848,3 +849,114 @@ def get_test_result_data(results, w, incl_users):
         expt_means /= np.max(expt_means)
     return expt_means
 
+def get_tagged_distances(results, incl_users, db):
+    """
+    Inputs:
+    results- Pandas dataframe with schema of get_trial_data's output:
+        One row per trial, columns are the following: trialID- UID for row (primary key), userID- UID for participant,
+        trialIndex- which trial it was out of 18 [1, 18], trialType- one of ['training', 'shared', 'test', 'repeat'] in that order,
+        prevChanged- amount of times participant changed the arrangement for the word after seeing the sense [0, number of senses - 1],
+        lemma- word_pos (FB doesn't allow periods in fields so we had to change it from NLTK), sense- word_pos_number,
+        x, y- coordinates of the box participant placed, in pixels
+    incl_users- list of userID strings
+    db- Firebase JSON of responses
+
+    Output:
+    Pandas Dataframe where each row represents a pair of senses. Columns: item- tuple of (sense1, sense2), listed as strings of word_pos_number, 
+    word_type- word_pos, relation_type- either 'homonymous' or 'polysemous', dist- distance between pairs, normalized over participant's responses for word_type,
+    user- participant's userID
+
+    """
+    hp_tags = []
+    homonyms = [('foot_n_01', 'foot_n_02'), ('foot_n_02', 'foot_n_03'), ('table_n_01', 'table_n_02'), ('table_n_02', 'table_n_03'),
+                ('academic_degree_n_01', 'degree_n_01'), ('academic_degree_n_01', 'degree_n_02'), ('right_n_01', 'right_n_02'),
+                ('right_n_01', 'right_n_04'), ('model_n_02', 'model_n_03'), ('model_n_01', 'model_n_03')]
+    for s in results[results['trialType'] != 'training']['lemma'].unique():
+        sense_combos = list(itertools.combinations(get_senses(db, s), 2))
+        for t in sense_combos:
+            if t in homonyms:
+                hp_tags.append({'item': t, 'word_type': s, 'relation_type': 'homonymous'})
+            else:
+                hp_tags.append({'item': t, 'word_type': s, 'relation_type': 'polysemous'})
+    df = []
+    for w in results[results['trialType'] != 'training']['lemma'].unique():
+        pair_results = results[(results['userID'].isin(incl_users)) & (results['lemma'] == w)]
+        for u in pair_results['userID'].unique():
+            max_user_dist = 0
+            user_reported_distances = []
+            word_pairs = [t for t in hp_tags if t['word_type'] == w]
+            for t in word_pairs:
+                user_report = pair_results[(pair_results['trialType'] != 'training') & (pair_results['userID'] == u) & \
+                        (pair_results['lemma'] == t['word_type']) & (pair_results['sense'].isin(t['item']))]
+                user_report = user_report.reset_index()
+                dist = calculate_distance(user_report.iloc[0], user_report.iloc[1])
+                if dist > max_user_dist:
+                    max_user_dist = dist
+                row = t.copy()
+                row['dist'] = dist
+                row['user'] = u
+                user_reported_distances.append(row)
+            for d in user_reported_distances:
+                d['dist'] = d['dist'] / max_user_dist
+            df += user_reported_distances
+    return pd.DataFrame(df)
+
+def exclusion_criteria(corrs):
+    """
+    corrs- Dataframe where each row corresponds to a user, with the following columns:
+    userID, Group Consistency, Self Consistency, and Correlation with SN, time, and prevChanged (number of times participant changed arrangement)
+
+    Applies exclusion criteria to corrs: group consistency > 0.4, or self consistency above 0.2, and English > 50% of the time
+    """
+    incl_users = corrs[(corrs['Group Consistency'] > 0.4) | (corrs['Self Consistency'] > 0.2)]['userID']
+    incl_users = incl_users.tolist()
+    incl_users.remove('-M6Cl_rmTwH43zEQtJcK') #user ID for the worker ID found in pilesort_analysis_full.ipynb
+    return incl_users
+
+
+
+"""
+Work in progress: seeing if one half can predict the other half
+lemmas = lemma_counts.index.tolist()
+all_matrices = {l: [] for l in lemmas}
+for l in lemmas:
+    word_data = test_data[test_data['lemma'] == l]
+    test_users = word_data[word_data['trialType'] == 'test']['userID']
+    repeat_users = word_data[word_data['trialType'] == 'repeat']['userID']
+    for u in test_users:
+        u_mtx, _ = get_subject_mtx(word_data, u, l, 'test')
+        all_matrices[l].append(u_mtx)
+    for u in repeat_users:
+        u_mtx, get_subject_mtx(word_data, u, l, 'repeat')
+        all_matrices[l].append(u_mtx)
+test_corrs = []
+flatten = lambda l: [item for sublist in l for item in sublist]
+
+for _ in range(1000):
+    half_1 = []
+    half_2 = []
+    for l in all_matrices:
+        word_responses = np.array(all_matrices[l])
+        n = len(word_responses)
+        if n % 2 == 1:
+            drop_one = np.random.choice(np.arange(n), n - 1, replace=False)
+            word_responses = word_responses[drop_one]
+        n = len(word_responses)
+        half = int(n / 2)
+        shuffled_indices = np.random.choice(np.arange(n), n, replace = False)
+        half_1 += list(np.mean(word_responses[shuffled_indices[:half]], axis = 0))
+        half_2 += list(np.mean(word_responses[shuffled_indices[half:]], axis = 0))
+    test_corrs.append(mtx_correlation(half_1, half_2, method = 'spearman'))
+    print(test_corrs)
+shared_matrices = {l: [] for l in ['degree_n', 'plane_n', 'table_n', 'foot_n', 'right_n', 'model_n']}
+for l in shared_matrices.keys():
+    word_data = results[results['lemma'] == l]
+    users = word_data['userID']
+    for u in users:
+        u_mtx, _ = get_subject_mtx(word_data, u, l, 'shared')
+        shared_matrices[l].append(u_mtx)
+sns.distplot(test_corrs)
+plt.title("Correlation between two random halves of subjects (Test Trials)")
+plt.xlabel("Spearman Correlation")
+
+"""
