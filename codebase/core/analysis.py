@@ -642,13 +642,14 @@ def wordnet_defn(fb_sense):
     synset_str = '_'.join(parts[:len(parts) - 2]) + '.' + '.'.join(parts[-2:])
     return wordnet.synset(synset_str).definition()
 
-def mtx_correlation(m1, m2, method = 'spearman', randomize_m1_labels = False, confusion = False): 
+def mtx_correlation(m1, m2, method = 'spearman', randomize_m1_labels = False, confusion = False, return_ut = False): 
     """
     Input:
         m1 and m2- lists of square Numpy matrices where each element in m1 has the same dimensions as the corresponding element in m2
         method- either 'spearman' or 'pearson'
         randomize_m1_labels- shuffle the labels of one of the matrices if true
         confusion- if true, computes the correlation between the matrices themselves, else computes the correlation of the upper triangular portions only
+        return_ut- gives upper triangular sections of the matrices of m1 and m2 (1 dimensional arrays)
 
     Output:
         Correlation between flattened versions of m1 and m2
@@ -669,10 +670,16 @@ def mtx_correlation(m1, m2, method = 'spearman', randomize_m1_labels = False, co
         for i in range(len(m2)):
             ut_m2 = m2[i][np.triu_indices(m2[i].shape[0], k = 1)]
             flat_m2 += ut_m2.tolist()
-        if method == 'spearman':
-            return stats.spearmanr(flat_m1, flat_m2)
-        if method == 'pearson':
-            return stats.pearsonr(flat_m1, flat_m2)
+        if return_ut:
+            if method == 'spearman':
+                return stats.spearmanr(flat_m1, flat_m2), flat_m1, flat_m2
+            if method == 'pearson':
+                return stats.pearsonr(flat_m1, flat_m2)
+        else:
+            if method == 'spearman':
+                return stats.spearmanr(flat_m1, flat_m2)
+            if method == 'pearson':
+                return stats.pearsonr(flat_m1, flat_m2)
 
 #Functions for random sampling
 def random_num_senses(db):
@@ -913,8 +920,14 @@ def exclusion_criteria(corrs):
     incl_users.remove('-M6Cl_rmTwH43zEQtJcK') #user ID for the worker ID found in pilesort_analysis_full.ipynb
     return incl_users
 
-
-
+def sense_pair_as_tuple(s):
+    """
+    s- String with '(word_pos_number, word_pos_number)', converts to tuple
+    """
+    s1, s2 = s.split(",")
+    remove_chars = "\'() "
+    s1, s2 = s1.strip(remove_chars), s2.strip(remove_chars)
+    return (fb_to_local(s1), fb_to_local(s2))
 """
 Work in progress: seeing if one half can predict the other half
 lemmas = lemma_counts.index.tolist()
