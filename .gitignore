@@ -1,2 +1,7 @@
 codebase/data/pipeline_results/semcor.zip
-codebase/data/pipeline_results/semcor.zip
+codebase/notebooks/.ipynb-checkpoints/*
+codebase/data/word_sense_disambigation_corpora/
+codebase/data/wordsense-pilesort-export (2).json
+codebase/data/wordsense-pilesort-firebase-adminsdk-3ipny-791a81e575.json
+codebase/pilesort
+codebase/data/pipeline_results/semcor/*
