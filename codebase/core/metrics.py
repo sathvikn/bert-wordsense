@@ -61,7 +61,7 @@ def dist_centroids(s1, s2):
     """
     return euc_dist(centroid(s1), centroid(s2))
 
-def cosine_sim_mtx(word, pos, sel_senses = [], use_masc = False, normalize = False):
+def cosine_sim_mtx(word, pos, sel_senses = [], corpus ='semcor', use_masc = False, normalize = False):
     """
     Inputs:
     word- string, lemma name
@@ -77,7 +77,7 @@ def cosine_sim_mtx(word, pos, sel_senses = [], use_masc = False, normalize = Fal
     """
 
     #Loads from filesystem
-    data = semcor_bert_pipeline.load_data(word, pos, 'semcor')
+    data = semcor_bert_pipeline.load_data(word, pos, corpus)
     word_embeddings = data['embeddings']
     sense_labels = data['sense_labels']
 
