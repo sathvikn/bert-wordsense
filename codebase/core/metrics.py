@@ -240,7 +240,7 @@ def logistic_cv(lemma, sel_senses = [], use_masc = True, delim = '.'):
     model = LogisticRegression(penalty = 'l1', solver = 'saga', max_iter = 20000)
     model.fit(x, y)
     #weight_values, weight_indices = nonzero_weights(model)
-    f_scores, accuracies, wrong_indices, confusion_matrices = k_fold_cv(x, y, k = 5, labels = target_senses)
+    f_scores, accuracies, wrong_indices, confusion_matrices = k_fold_cv(x, y, k = 5)
     return {'model': model, "data": x, "labels": np.asarray(sense_labels), "acc": accuracies, "f1": f_scores, 
             'incorrect_indices': wrong_indices, 'sentences': sentences,
            'confusion_matrices': confusion_matrices, 'weights': model.coef_}

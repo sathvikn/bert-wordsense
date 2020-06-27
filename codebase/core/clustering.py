@@ -205,8 +205,18 @@ def plot_pca_ev(comp_range, embeddings, lemma):
 
 def pca(embeddings, num_comps):
     embeds = convert_embeddings(embeddings)
-    embeds = np.transpose(np.array(embeds))
-    return PCA(n_components = num_comps).fit(embeds).components_.T
+    return sum(PCA(n_components = num_comps).fit(embeds).explained_variance_ratio_)
+
+def plot_pca_grid(df, compare_column):
+    fig = plt.figure(figsize = (10, 8))
+    fig.subplots_adjust(hspace=0.4, wspace=0.4)
+    for i in range(1, 10):
+        ax = fig.add_subplot(3, 3, i)
+        pcs = i + 1
+        with_pcs = df[df['n_pcs'] == pcs]
+        ax.scatter(with_pcs[compare_column], with_pcs['pct_var_explained'], alpha = 0.5)
+        ax.title.set_text(str(pcs) + " PCs")
+    plt.suptitle(compare_column + " vs. % Variance Explained")
 
 def plot_gmm_rand_indices(embedding_data, comp_range, save_img = False, save_json = False):
     #Plots Rand Index means and SDs over 1000 GMM fits
