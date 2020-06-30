@@ -216,8 +216,8 @@ def plot_pca_grid(df, compare_column, fit_line = False):
         ax = fig.add_subplot(3, 3, i)
         pcs = i + 1
         with_pcs = df[df['n_pcs'] == pcs]
-        x = with_pcs[compare_column]
-        y = with_pcs['pct_var_explained']
+        y = with_pcs[compare_column]
+        x = with_pcs['pct_var_explained']
         ax.scatter(x, y, alpha = 0.5)
         if fit_line:
             x = x.values.reshape(-1, 1)
@@ -225,7 +225,7 @@ def plot_pca_grid(df, compare_column, fit_line = False):
             y_pred = linear_model.predict(x)
             ax.plot(x, y_pred, color = 'red')
         ax.title.set_text(str(pcs) + " PCs")
-    plt.suptitle(compare_column + " vs. % Variance Explained")
+    plt.suptitle("% Variance Explained vs. " + compare_column)
 
 def plot_gmm_rand_indices(embedding_data, comp_range, save_img = False, save_json = False):
     #Plots Rand Index means and SDs over 1000 GMM fits
