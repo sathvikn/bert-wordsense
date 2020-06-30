@@ -8,6 +8,7 @@ from sklearn.decomposition import PCA
 from scipy.cluster.hierarchy import dendrogram, linkage 
 from sklearn.mixture import GaussianMixture
 from sklearn.metrics import adjusted_rand_score
+from sklearn.linear_model import LinearRegression
 
 #Plots
 def plot_embeddings(e, sense_indices, sense_names, word_name, savefile = False):
@@ -207,14 +208,22 @@ def pca(embeddings, num_comps):
     embeds = convert_embeddings(embeddings)
     return sum(PCA(n_components = num_comps).fit(embeds).explained_variance_ratio_)
 
-def plot_pca_grid(df, compare_column):
+def plot_pca_grid(df, compare_column, fit_line = False):
     fig = plt.figure(figsize = (10, 8))
     fig.subplots_adjust(hspace=0.4, wspace=0.4)
+    linear_model = LinearRegression()
     for i in range(1, 10):
         ax = fig.add_subplot(3, 3, i)
         pcs = i + 1
         with_pcs = df[df['n_pcs'] == pcs]
-        ax.scatter(with_pcs[compare_column], with_pcs['pct_var_explained'], alpha = 0.5)
+        x = with_pcs[compare_column]
+        y = with_pcs['pct_var_explained']
+        ax.scatter(x, y, alpha = 0.5)
+        if fit_line:
+            x = x.values.reshape(-1, 1)
+            linear_model.fit(x, y)
+            y_pred = linear_model.predict(x)
+            ax.plot(x, y_pred, color = 'red')
         ax.title.set_text(str(pcs) + " PCs")
     plt.suptitle(compare_column + " vs. % Variance Explained")
 
