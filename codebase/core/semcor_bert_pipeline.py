@@ -4,7 +4,7 @@ import nltk
 import torch
 import numpy as np
 import copy
-from pytorch_pretrained_bert import BertTokenizer, BertModel, BertForMaskedLM
+from transformers import BertTokenizer, BertModel, BertConfig
 
 #Selecting words from SEMCOR
 class SemCorSelector:
@@ -244,20 +244,23 @@ def preprocess(text, target_word):
     tokenized_text = tokenizer.tokenize(marked_text)
     #Indices according to BERT's vocabulary
     indexed_tokens = tokenizer.convert_tokens_to_ids(tokenized_text)
+    #DEPRECATED w transformers lib
     #BERT can work with either 1 or 2 sentences, but for our purposes we're using one
-    segments_ids = [1] * len(tokenized_text)
+    #segments_ids = [1] * len(tokenized_text)
     target_token_index = tokenized_text.index(target_word.lower())
-    return (indexed_tokens, segments_ids, target_token_index)
+    return (indexed_tokens, target_token_index), (tokenized_text, target_word)
 
 def initialize_model():
     """
     Loading the pretrained BERT model from Huggingface
     """
-    model = BertModel.from_pretrained('bert-base-uncased')
+    model_config = BertConfig.from_pretrained('bert-base-uncased', output_hidden_states = True,
+                                          output_attentions = True)
+    model = BertModel.from_pretrained('bert-base-uncased', config = model_config)
     model.eval()
     return model
 
-def predict(indexed_tokens, segments_ids, model):
+def predict(indexed_tokens, model):
     """
     Input:
     indexed_tokens and segments_ids are results from preprocess
@@ -268,27 +271,44 @@ def predict(indexed_tokens, segments_ids, model):
         Dimensions- (768 x number_of_tokens x 12)
     """
     tokens_tensor = torch.tensor([indexed_tokens])
-    segments_tensors = torch.tensor([segments_ids])
+    #segments_tensors = torch.tensor([segments_ids])
     with torch.no_grad():
-        encoded_layers, _ = model(tokens_tensor, segments_tensors)
-    token_embeddings = torch.stack(encoded_layers, dim=0)
-    return torch.squeeze(token_embeddings, dim=1)
+        outputs = model(tokens_tensor)
+    hidden_states = outputs[2]
+    token_embeddings = torch.stack(hidden_states, dim=0)
+    token_embeddings = torch.squeeze(token_embeddings, dim=1)
+    token_embeddings = token_embeddings.permute(1,0,2)
+    attentions = format_attention(outputs[3])
+    return token_embeddings, attentions
 
-def get_embeddings(data, model):
+def format_attention(attention):
+    #From https://github.com/jessevig/bertviz/blob/master/bertviz/util.py
+    squeezed = []
+    for layer_attention in attention:
+        # 1 x num_heads x seq_len x seq_len
+        if len(layer_attention.shape) != 4:
+            raise ValueError("The attention tensor does not have the correct number of dimensions. Make sure you set "
+                             "output_attentions=True when initializing your model.")
+        squeezed.append(layer_attention.squeeze(0))
+    # num_layers x num_heads x seq_len x seq_len
+    return torch.stack(squeezed)
+
+
+def get_embeddings_attns(data, model):
     """
     Input:
     data: Array of texts with format from preprocess
     model: Pre-trained BERT model
 
-    Outputs: Embeddings for the target model
+    Outputs: Embeddings for the target token, attention tensor
     """
     indexed_tokens = data[0]
     segments_ids = data[1]
     target_token_index = data[2]
-    all_embeddings = predict(indexed_tokens, segments_ids, model)
-    return all_embeddings[:,target_token_index,:]
+    all_embeddings, attentions = predict(indexed_tokens, segments_ids, model)
+    return all_embeddings[:,target_token_index,:], attentions
 
-def get_raw_embeddings(word, pos, trees, model):
+def get_raw_embeddings_attns(word, pos, trees, model):
     """
     Input:
     word- string, word that is being passed in
@@ -298,11 +318,16 @@ def get_raw_embeddings(word, pos, trees, model):
 
     Output:
     list of 12 x 768 vectors where each element represents the type word.pos used in each sentence in trees
+    list of 12 x 12 x seq_length x seq_length attention matrices
     """
     text_and_word = [process_tree(t, word, pos) for t in trees]
     preprocessed_texts = [preprocess(t[0], t[1]) for t in text_and_word]
-    raw_embeddings = [get_embeddings(t, model) for t in preprocessed_texts]
-    return raw_embeddings
+    indexed_tokens = [t[0] for t in preprocessed_texts]
+    text_tokens = [t[1] for t in preprocessed_texts]
+    model_outputs = [get_embeddings_attns(t, model) for t in indexed_tokens]
+    raw_embeddings = [o[0] for o in model_outputs]
+    attn_tensors = [o[1] for o in model_outputs]
+    return raw_embeddings, attn_tensors, text_tokens
 
 def take_layer(token_embed, layer_num):
     """
@@ -329,6 +354,13 @@ def process_raw_embeddings(raw_embeds, layer, fn):
     Outputs a list of 768-dimensional embeddings for a word
     """
     return [fn(t, layer) for t in raw_embeds]
+
+def process_raw_attentions(attns, tokens):
+    """
+    attns- list of 12 x 12 x seq_len x seq_len tensors consisting of attention matrices for tokens
+    tokens- list of tuples consisting of (tokenized text, target token)
+    """
+
 
 def get_sense_labels(sense_indices, sel_senses):
     """
@@ -389,8 +421,9 @@ def run_pipeline(word, pos, model, min_senses = 10, savefile = False):
     sentences, trees, sense_indices = semcor_reader.get_selected_sense_sents(sel_senses)
     tree_labels = get_sense_labels(sense_indices, sel_senses)
     print("Generating BERT embeddings")
-    raw_embeddings = get_raw_embeddings(word, pos, trees, model)
+    raw_embeddings, attn_tensors, tokenized_texts = get_raw_embeddings_attns(word, pos, trees, model)
     summed_embeds = process_raw_embeddings(raw_embeddings, 4, sum_layers)
+    
     result_dict = {'lemma': semcor_reader.curr_word, 'embeddings': summed_embeds, 'sense_indices': sense_indices, 
     'original_sentences': sentences, 'sense_names': sel_senses, 'sense_labels': tree_labels}
     if savefile:
@@ -428,7 +461,7 @@ def run_pipeline_df(word, pos, df, model, savefile = False):
     df = df.reset_index()
     for i in df.index:
         row = df.iloc[i]
-        activations = get_embeddings(preprocess(row['sentence'], row['word']), model)
+        activations = get_embeddings_attns(preprocess(row['sentence'], row['word']), model)
         embeddings.append(process_raw_embeddings([activations], 4, sum_layers)[0])
         sense_names.append(row['wn_sense'])
         sentences.append(row['sentence'])
