@@ -355,12 +355,30 @@ def process_raw_embeddings(raw_embeds, layer, fn):
     """
     return [fn(t, layer) for t in raw_embeds]
 
+def query_attention(attn, tokens, layer, target_token):
+    #attn is a Pytorch tensor with dimensions Layers x Heads x Token x Words token attends to
+    token_index = tokens.index(target_token)
+    
+    all_heads = attn[layer, :, token_index]
+    return np.mean(all_heads.numpy(), axis = 0)
+
 def process_raw_attentions(attns, tokens):
     """
+    Input:
     attns- list of 12 x 12 x seq_len x seq_len tensors consisting of attention matrices for tokens
     tokens- list of tuples consisting of (tokenized text, target token)
+
+    Output:
+    attention_vectors- a list of dictionaries where the attention for the token is averaged across the heads for each layer
     """
 
+    attention_vectors = []
+    for i in range(len(attns)):
+        sentence_attns = {}
+        for layer in range(12):
+            sentence_attns[layer] = query_attn(attns[i], tokens[i][0], layer, tokens[i][1])
+        attention_vectors.append(sentence_attns)
+    return attention_vectors
 
 def get_sense_labels(sense_indices, sel_senses):
     """
@@ -423,7 +441,7 @@ def run_pipeline(word, pos, model, min_senses = 10, savefile = False):
     print("Generating BERT embeddings")
     raw_embeddings, attn_tensors, tokenized_texts = get_raw_embeddings_attns(word, pos, trees, model)
     summed_embeds = process_raw_embeddings(raw_embeddings, 4, sum_layers)
-    
+    avgd_attns_for_layers = process_raw_attentions(attn_tensors, tokenized_texts)
     result_dict = {'lemma': semcor_reader.curr_word, 'embeddings': summed_embeds, 'sense_indices': sense_indices, 
     'original_sentences': sentences, 'sense_names': sel_senses, 'sense_labels': tree_labels}
     if savefile:
