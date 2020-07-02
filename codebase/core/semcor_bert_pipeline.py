@@ -246,9 +246,9 @@ def preprocess(text, target_word):
     indexed_tokens = tokenizer.convert_tokens_to_ids(tokenized_text)
     #DEPRECATED w transformers lib
     #BERT can work with either 1 or 2 sentences, but for our purposes we're using one
-    #segments_ids = [1] * len(tokenized_text)
+    segments_ids = [1] * len(tokenized_text)
     target_token_index = tokenized_text.index(target_word.lower())
-    return (indexed_tokens, target_token_index), (tokenized_text, target_word)
+    return (indexed_tokens, segments_ids, target_token_index), (tokenized_text, target_word)
 
 def initialize_model():
     """
@@ -260,7 +260,7 @@ def initialize_model():
     model.eval()
     return model
 
-def predict(indexed_tokens, model):
+def predict(indexed_tokens, segments_ids, model):
     """
     Input:
     indexed_tokens and segments_ids are results from preprocess
@@ -271,13 +271,13 @@ def predict(indexed_tokens, model):
         Dimensions- (768 x number_of_tokens x 12)
     """
     tokens_tensor = torch.tensor([indexed_tokens])
-    #segments_tensors = torch.tensor([segments_ids])
+    segments_tensors = torch.tensor([segments_ids])
     with torch.no_grad():
-        outputs = model(tokens_tensor)
+        outputs = model(tokens_tensor, token_type_ids=segments_tensors)
     hidden_states = outputs[2]
     token_embeddings = torch.stack(hidden_states, dim=0)
     token_embeddings = torch.squeeze(token_embeddings, dim=1)
-    token_embeddings = token_embeddings.permute(1,0,2)
+    #token_embeddings = token_embeddings.permute(1,0,2)
     attentions = format_attention(outputs[3])
     return token_embeddings, attentions
 
@@ -294,7 +294,7 @@ def format_attention(attention):
     return torch.stack(squeezed)
 
 
-def get_embeddings_attns(data, model):
+def get_model_output(data, model):
     """
     Input:
     data: Array of texts with format from preprocess
@@ -308,7 +308,7 @@ def get_embeddings_attns(data, model):
     all_embeddings, attentions = predict(indexed_tokens, segments_ids, model)
     return all_embeddings[:,target_token_index,:], attentions
 
-def get_raw_embeddings_attns(word, pos, trees, model):
+def get_activations_attns(word, pos, trees, model):
     """
     Input:
     word- string, word that is being passed in
@@ -324,7 +324,7 @@ def get_raw_embeddings_attns(word, pos, trees, model):
     preprocessed_texts = [preprocess(t[0], t[1]) for t in text_and_word]
     indexed_tokens = [t[0] for t in preprocessed_texts]
     text_tokens = [t[1] for t in preprocessed_texts]
-    model_outputs = [get_embeddings_attns(t, model) for t in indexed_tokens]
+    model_outputs = [get_model_output(t, model) for t in indexed_tokens]
     raw_embeddings = [o[0] for o in model_outputs]
     attn_tensors = [o[1] for o in model_outputs]
     return raw_embeddings, attn_tensors, text_tokens
@@ -376,7 +376,7 @@ def process_raw_attentions(attns, tokens):
     for i in range(len(attns)):
         sentence_attns = {}
         for layer in range(12):
-            sentence_attns[layer] = query_attn(attns[i], tokens[i][0], layer, tokens[i][1])
+            sentence_attns[layer] = query_attention(attns[i], tokens[i][0], layer, tokens[i][1])
         attention_vectors.append(sentence_attns)
     return attention_vectors
 
@@ -412,7 +412,7 @@ def write_json(results, word, pos, corpus_dir):
     with open(os.path.join('..', 'data', 'pipeline_results', corpus_dir, filename), 'w') as f:
         json.dump(results, f)
 
-def run_pipeline(word, pos, model, min_senses = 10, savefile = False):
+def run_pipeline(word, pos, model, min_senses = 10, savefile = False, dir_name = "semcor"):
 
     """
     Input:
@@ -439,17 +439,19 @@ def run_pipeline(word, pos, model, min_senses = 10, savefile = False):
     sentences, trees, sense_indices = semcor_reader.get_selected_sense_sents(sel_senses)
     tree_labels = get_sense_labels(sense_indices, sel_senses)
     print("Generating BERT embeddings")
-    raw_embeddings, attn_tensors, tokenized_texts = get_raw_embeddings_attns(word, pos, trees, model)
-    summed_embeds = process_raw_embeddings(raw_embeddings, 4, sum_layers)
+    activations, attn_tensors, tokenized_texts = get_activations_attns(word, pos, trees, model)
+    embeddings = process_raw_embeddings(activations, 4, sum_layers)
     avgd_attns_for_layers = process_raw_attentions(attn_tensors, tokenized_texts)
-    result_dict = {'lemma': semcor_reader.curr_word, 'embeddings': summed_embeds, 'sense_indices': sense_indices, 
-    'original_sentences': sentences, 'sense_names': sel_senses, 'sense_labels': tree_labels}
+    result_dict = {'lemma': semcor_reader.curr_word, 'embeddings': embeddings, 'sense_indices': sense_indices, 
+    'original_sentences': sentences, 'sense_names': sel_senses, 'sense_labels': tree_labels, "all_activations": activations, "attns": avgd_attns_for_layers}
     if savefile:
         #Convert Pytorch/Numpy arrays to Python lists
         json_dict = result_dict.copy()
         json_dict['embeddings'] = [v.tolist() for v in result_dict['embeddings']]
         json_dict['sense_names'] = [str(s) for s in sel_senses]
-        write_json(json_dict, word, pos, 'semcor')
+        json_dict['all_activations'] = [m.tolist() for m in result_dict['all_activations']]
+        json_dict['attns'] = [{k: d[k].tolist() for k in d} for d in result_dict['attns']]
+        write_json(json_dict, word, pos, dir_name)
     return result_dict
 
 def run_pipeline_df(word, pos, df, model, savefile = False):
