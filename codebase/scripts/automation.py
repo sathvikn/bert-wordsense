@@ -23,16 +23,16 @@ def convert_imgs_to_pdf(name, pos):
     print("Saving as PDF")
     pdf.output("../results/clustering_images/" + name + "_" + pos + ".pdf", "F")
 
-def run_indiv(word, pos, model):
+def run_indiv(word, pos, model, output_dir):
     """
     Generates embeddings, T-SNE plots, and dendrograms for word, pos pairs
     """
     dir_name = os.path.join("data", 'clustering_results', word + '_' + pos)
     os.system('mkdir ' + dir_name)
-    run_clustering(word, pos, model)
+    run_clustering(word, pos, model, output_dir)
     #convert_imgs_to_pdf(word, pos)
 
-def run_from_file(path, model):
+def run_from_file(path, model, output_dir):
     """
     The CSV at path should have one column for word and one column for PoS for each type.
     This goes through all the words in the CSV and computes BERT embeddings, t-SNE plots, and dendrograms. 
@@ -46,7 +46,7 @@ def run_from_file(path, model):
         dir_name = os.path.join('..', "data", 'clustering_results', word + '_' + pos)
         os.system('mkdir ' + dir_name)
         try: 
-            run_clustering(word, pos, model)
+            run_clustering(word, pos, model, output_dir)
             convert_imgs_to_pdf(word, pos)
         except:
             skipped_words.append(word + '.' + pos)
@@ -54,15 +54,16 @@ def run_from_file(path, model):
     write_to_file(skipped_words, os.path.join('..', 'data', 'skipped_words.txt'))
 
 
-def run_clustering(word, pos, model, fit_gmm = False, gmm_dr = 'both'):
+def run_clustering(word, pos, model, output_dir, plot_data = False, fit_gmm = False, gmm_dr = 'both'):
     #either PCA or TSNE
     print(word, pos)
     fname = word + '_' + pos
-    word_results = run_pipeline(word, pos, model, min_senses = 4, savefile = True)
-    print("Generating Plots")
-    tsne_results = plot_embeddings(word_results['embeddings'], word_results['sense_indices'], word_results['sense_names'], word_results['lemma'], savefile = True)
-    color_dict, label_dict = create_dendrogram_colors(word_results['sense_names'])
-    plot_dendrogram(word_results, color_dict, label_dict, savefile = True)
+    word_results = run_pipeline(word, pos, model, min_senses = 10, savefile = True, dir_name = output_dir)
+    if plot_data:
+        print("Generating Plots")
+        tsne_results = plot_embeddings(word_results['embeddings'], word_results['sense_indices'], word_results['sense_names'], word_results['lemma'], savefile = True)
+        color_dict, label_dict = create_dendrogram_colors(np.unique(word_results['sense_labels']))
+        plot_dendrogram(word_results, color_dict, label_dict, savefile = True)
     if fit_gmm:
         print("Running GMM Simulations")
         if gmm_dr == 'PCA':
@@ -186,15 +187,15 @@ def check_for_embedding_data(word, pos, corpus = 'semcor'):
 
 if __name__ == '__main__':
     model = initialize_model()
+    output_dir = sys.argv[4] #--output_dir ../data/[folder name]
     if sys.argv[1] == '--type':
         #--type word.pos
         word, pos = sys.argv[2].split('.')
-        run_indiv(word, pos, model)
+        run_indiv(word, pos, model, output_dir)
     elif sys.argv[1] == '--file':
         #--file ../data/[filename].csv
         path = sys.argv[2]
-        run_from_file(path, model)
-
+        run_from_file(path, model, output_dir)
 #DEPRECATED (may be worth looking at MASC stuff though)
     elif sys.argv[1] == '--tsne_entropy':
         run_tsne_entropy()
