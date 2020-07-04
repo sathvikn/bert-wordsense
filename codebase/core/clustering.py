@@ -218,7 +218,7 @@ def plot_pca_grid(df, compare_column, fit_line = False):
         with_pcs = df[df['n_pcs'] == pcs]
         y = with_pcs[compare_column]
         x = with_pcs['pct_var_explained']
-        ax.scatter(x, y, alpha = 0.5)
+        ax.scatter(x, y, alpha = 0.2)
         if fit_line:
             x = x.values.reshape(-1, 1)
             linear_model.fit(x, y)
