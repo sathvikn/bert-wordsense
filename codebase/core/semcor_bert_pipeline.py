@@ -443,7 +443,7 @@ def run_pipeline(word, pos, model, min_senses = 10, savefile = False, dir_name =
     embeddings = process_raw_embeddings(activations, 4, sum_layers)
     avgd_attns_for_layers = process_raw_attentions(attn_tensors, tokenized_texts)
     result_dict = {'lemma': semcor_reader.curr_word, 'embeddings': embeddings, 'sense_indices': sense_indices, 
-    'original_sentences': sentences, 'sense_names': sel_senses, 'sense_labels': tree_labels, "all_activations": activations, "attns": avgd_attns_for_layers}
+    'original_sentences': sentences, 'tokenized_sentences': tokenized_texts, 'sense_names': sel_senses, 'sense_labels': tree_labels, "all_activations": activations, "attns": avgd_attns_for_layers}
     if savefile:
         #Convert Pytorch/Numpy arrays to Python lists
         json_dict = result_dict.copy()
