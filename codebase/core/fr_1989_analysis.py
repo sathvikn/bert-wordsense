@@ -1,7 +1,10 @@
 from . import semcor_bert_pipeline as bert_client
+from . import metrics
+
 import numpy as np
 import pandas as pd
-
+import seaborn as sns
+import matplotlib.pyplot as plt
 def sentence_pair_comparison(c1, c2, end_index):
     #c1 has no "padding," c2 does
     """
@@ -98,14 +101,49 @@ def target_attns(sentence, target_token, disambig_token, model):
                           "d_idx": d_tok_idx, "target_idx": target_idx}
     return output_dict, target_embeddings
     #return np.array([np.argwhere(np.argsort(-attn_dict[k]) == d_tok_idx)[0][0] for k in attn_dict])
-                                                                                                     
+
+def attn_before_after(attn, title):
+    """
+    attn [{layer_num(integer from 0-11): 
+        {"attn_vector": 
+        vector that corresponds to the attention the target token gives to all other tokens for layer (array),
+        "tokens": text as tokenized by BERT, getting rid of SEP/CLS and punctuation (list),
+        d_idx: index of disambiguating token (NOTE: the token could have been a comma for Expt. 2,
+        we want the sentence after the comma), target_idx: index of target token}...}...]
+    title- title of plot
+
+    Plots mean/SD of sum of attention weights before/after the target token
+    """
+    before_layers = []
+    after_layers = []
+    before_attns = []
+    after_attns = []
+    for s in attn:
+        for layer in s:
+            hc_token_idx = s[layer]['target_idx']
+            before_token = s[layer]['attn_vector'][:hc_token_idx]
+            after_token = s[layer]['attn_vector'][hc_token_idx + 1:]
+            before_layers.append(layer)
+            after_layers.append(layer)
+            before_attns.append(np.sum(before_token))
+            after_attns.append(np.sum(after_token))
+    df = pd.DataFrame({"layers": before_layers + after_layers, "attn": before_attns + after_attns,
+                 "target_token": ["before"] * len(before_layers) + ['after'] * len(after_layers)})
+    sns.pointplot(x = 'layers', y = 'attn', hue = 'target_token', data = df)
+    plt.xlabel("Layer")
+    plt.ylabel("Total Attention")
+    plt.legend()
+    plt.title(title)
+    return avg_before, avg_after, layers
+        
+                                                                                
 #utils
 
 def avg_pairwise_cosine_sim(l1, l2):
     #l1 and l2 are lists of embeddings
     assert len(l1) == len(l2)
     n = len(l1)
-    return np.mean([cosine_sim(l1[i], l2[i]) for i in range(n)])
+    return np.mean([metrics.cosine_sim(l1[i], l2[i]) for i in range(n)])
 
 first_item = lambda l: [i[0] for i in l]
 second_item = lambda l: [i[1] for i in l]
