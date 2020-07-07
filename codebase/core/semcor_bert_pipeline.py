@@ -228,7 +228,7 @@ def process_tree(tree, word, pos):
 
 #Interfacing with BERT
     
-def preprocess(text, target_word):
+def preprocess(text, target_word, s2 = ""):
     """
     Inputs:
     Results from process_tree
@@ -241,12 +241,19 @@ def preprocess(text, target_word):
     #START and STOP tokens
     tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
     marked_text = "[CLS] " + text + " [SEP]" 
+    if s2:
+        marked_text = "[CLS] " + text + " [SEP] " + s2 + " [SEP]"
     tokenized_text = tokenizer.tokenize(marked_text)
     #Indices according to BERT's vocabulary
     indexed_tokens = tokenizer.convert_tokens_to_ids(tokenized_text)
     #DEPRECATED w transformers lib
     #BERT can work with either 1 or 2 sentences, but for our purposes we're using one
     segments_ids = [1] * len(tokenized_text)
+    if s2:
+        first_sep_index = tokenized_text.index("[SEP]")
+        s1_toks = len(tokenized_text[:first_sep_index + 1]) * [0]
+        s2_toks = len(tokenized_text[first_sep_index + 1:]) * [1]
+        segments_ids = s1_toks + s2_toks
     target_token_index = tokenized_text.index(target_word.lower())
     return (indexed_tokens, segments_ids, target_token_index), (tokenized_text, target_word)
 
@@ -345,7 +352,7 @@ def sum_layers(token_embed, num_layers):
     return sum_vec
 
 def process_raw_embeddings(raw_embeds, layer, fn):
-    """
+    """f
     Inputs: 
     raw_embeds- from get_raw_embeddings (list of 12 x 768 matrices)
     layer- index that we're selecting/summing over
