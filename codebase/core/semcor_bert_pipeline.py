@@ -4,7 +4,7 @@ import nltk
 import torch
 import numpy as np
 import copy
-from transformers import BertTokenizer, BertModel, BertConfig
+from transformers import BertTokenizer, BertModel, BertConfig, BertForMaskedLM
 
 #Selecting words from SEMCOR
 class SemCorSelector:
@@ -228,7 +228,7 @@ def process_tree(tree, word, pos):
 
 #Interfacing with BERT
     
-def preprocess(text, target_word, s2 = ""):
+def preprocess(text, target_word, s2 = "", masking = False):
     """
     Inputs:
     Results from process_tree
@@ -243,7 +243,14 @@ def preprocess(text, target_word, s2 = ""):
     marked_text = "[CLS] " + text + " [SEP]" 
     if s2:
         marked_text = "[CLS] " + text + " [SEP] " + s2 + " [SEP]"
+
     tokenized_text = tokenizer.tokenize(marked_text)
+
+    if masking:
+        masked_index = tokenized_text.index(target_word)
+        target_word = "[MASK]"
+        tokenized_text[masked_index] = target_word
+
     #Indices according to BERT's vocabulary
     indexed_tokens = tokenizer.convert_tokens_to_ids(tokenized_text)
     #DEPRECATED w transformers lib
@@ -266,6 +273,20 @@ def initialize_model():
     model = BertModel.from_pretrained('bert-base-uncased', config = model_config)
     model.eval()
     return model
+
+def initialize_masking_lm():
+    model_config = BertConfig.from_pretrained('bert-base-uncased', output_hidden_states = True)
+    model = BertForMaskedLM.from_pretrained('bert-base-uncased', config = model_config)
+    model.eval()
+    return model
+
+def masking_predictions(indexed_tokens, segments_ids, model):
+    tokens_tensor = torch.tensor([indexed_tokens])
+    segments_tensors = torch.tensor([segments_ids])
+    with torch.no_grad():
+        outputs = model(tokens_tensor, token_type_ids=segments_tensors)
+    
+
 
 def predict(indexed_tokens, segments_ids, model):
     """
