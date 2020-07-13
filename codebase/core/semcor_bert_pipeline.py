@@ -4,7 +4,7 @@ import nltk
 import torch
 import numpy as np
 import copy
-from transformers import BertTokenizer, BertModel, BertConfig
+from transformers import BertTokenizer, BertModel, BertConfig, BertForMaskedLM
 
 #Selecting words from SEMCOR
 class SemCorSelector:
@@ -228,7 +228,7 @@ def process_tree(tree, word, pos):
 
 #Interfacing with BERT
     
-def preprocess(text, target_word):
+def preprocess(text, target_word, s2 = "", masking = False):
     """
     Inputs:
     Results from process_tree
@@ -241,13 +241,33 @@ def preprocess(text, target_word):
     #START and STOP tokens
     tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
     marked_text = "[CLS] " + text + " [SEP]" 
+    if s2:
+        marked_text = "[CLS] " + text + " [SEP] " + s2 + " [SEP]"
+
     tokenized_text = tokenizer.tokenize(marked_text)
+
+    if masking:
+        masked_index = tokenized_text.index(target_word)
+        target_word = "[MASK]"
+        tokenized_text[masked_index] = target_word
+
     #Indices according to BERT's vocabulary
     indexed_tokens = tokenizer.convert_tokens_to_ids(tokenized_text)
     #DEPRECATED w transformers lib
     #BERT can work with either 1 or 2 sentences, but for our purposes we're using one
     segments_ids = [1] * len(tokenized_text)
-    target_token_index = tokenized_text.index(target_word.lower())
+    if s2:
+        first_sep_index = tokenized_text.index("[SEP]")
+        s1_toks = len(tokenized_text[:first_sep_index + 1]) * [0]
+        s2_toks = len(tokenized_text[first_sep_index + 1:]) * [1]
+        segments_ids = s1_toks + s2_toks
+    if not masking:
+        target_word = target_word.lower()
+    try:
+        target_token_index = tokenized_text.index(target_word)
+    except:
+        tokenized_target = tokenizer.tokenize(target_word)[0]
+        target_token_index = tokenized_text.index(tokenized_target) #hack to get more data, not a good solution though
     return (indexed_tokens, segments_ids, target_token_index), (tokenized_text, target_word)
 
 def initialize_model():
@@ -259,6 +279,13 @@ def initialize_model():
     model = BertModel.from_pretrained('bert-base-uncased', config = model_config)
     model.eval()
     return model
+
+def initialize_masking_lm():
+    model_config = BertConfig.from_pretrained('bert-base-uncased', output_hidden_states = True)
+    model = BertForMaskedLM.from_pretrained('bert-base-uncased', config = model_config)
+    model.eval()
+    return model
+
 
 def predict(indexed_tokens, segments_ids, model):
     """
@@ -280,6 +307,25 @@ def predict(indexed_tokens, segments_ids, model):
     #token_embeddings = token_embeddings.permute(1,0,2)
     attentions = format_attention(outputs[3])
     return token_embeddings, attentions
+
+def mask_predictions(indexed_tokens, model, tokenizer):    
+    tokens_tensor, segments_tensors = torch.tensor([indexed_tokens[0]]), torch.tensor([indexed_tokens[1]])
+    masked_index = indexed_tokens[2]
+    with torch.no_grad():
+        outputs = model(tokens_tensor, token_type_ids=segments_tensors)
+        predictions, hidden_states = outputs
+
+    hidden_states = torch.stack(hidden_states, dim=0)
+    hidden_states = torch.squeeze(hidden_states, dim=1)
+    token_activations = hidden_states[:, masked_index, :]
+    mask_embedding = sum_layers(token_activations, 4)
+
+    predictions = torch.squeeze(predictions, dim = 0)
+    sorted_ids = np.flip(torch.argsort(predictions[masked_index]).numpy())
+    tokens_in_order = tokenizer.convert_ids_to_tokens(sorted_ids)
+    softmax_probs = torch.nn.Softmax(dim = -1)(predictions[masked_index])
+    sorted_probs = np.flip(np.sort(softmax_probs))
+    return mask_embedding, (softmax_probs, tokens_in_order)
 
 def format_attention(attention):
     #From https://github.com/jessevig/bertviz/blob/master/bertviz/util.py
@@ -345,7 +391,7 @@ def sum_layers(token_embed, num_layers):
     return sum_vec
 
 def process_raw_embeddings(raw_embeds, layer, fn):
-    """
+    """f
     Inputs: 
     raw_embeds- from get_raw_embeddings (list of 12 x 768 matrices)
     layer- index that we're selecting/summing over
@@ -357,7 +403,11 @@ def process_raw_embeddings(raw_embeds, layer, fn):
 
 def query_attention(attn, tokens, layer, target_token):
     #attn is a Pytorch tensor with dimensions Layers x Heads x Token x Words token attends to
-    token_index = tokens.index(target_token)
+    try:
+        token_index = tokens.index(target_token)
+    except:
+        tknzer = BertTokenizer.from_pretrained('bert-base-uncased')
+        token_index = tokens.index(tknzer.tokenize(target_token)[0])
     
     all_heads = attn[layer, :, token_index]
     return np.mean(all_heads.numpy(), axis = 0)

@@ -58,7 +58,7 @@ def run_clustering(word, pos, model, output_dir, plot_data = False, fit_gmm = Fa
     #either PCA or TSNE
     print(word, pos)
     fname = word + '_' + pos
-    word_results = run_pipeline(word, pos, model, min_senses = 10, savefile = True, dir_name = output_dir)
+    word_results = run_pipeline(word, pos, model, min_senses = 0, savefile = True, dir_name = output_dir)
     if plot_data:
         print("Generating Plots")
         tsne_results = plot_embeddings(word_results['embeddings'], word_results['sense_indices'], word_results['sense_names'], word_results['lemma'], savefile = True)
