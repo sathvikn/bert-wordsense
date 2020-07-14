@@ -1,0 +1,65 @@
+bias,d_s,early_late,stimulus_index,sentence,target_token,disambig_token,p_h
+0,d,early,1,Tom was unhappy that the fall arrived so early.,fall,arrived,h
+0,s,early,1,Tom was unhappy that the fall hurt Sue's back permanently,fall,hurt,h
+0,d,late,1,Tom was unhappy that the fall had seemed to arrive so early.,fall,arrive,h
+0,s,late,1,Tom was unhappy that the fall seemed to hurt Sue's back permanently.,fall,hurt,h
+0,d,early,2,John thought that the straw smelled rotten because it had been left in the barn.,straw,smelled,p
+0,s,early,2,John thought that the straw split because it was made of cheap plastic.,straw,split,p
+0,d,late,2,John thought that the straw was very likely to smell because it had been left in the barn.,straw,smell,p
+0,s,late,2,John thought that the straw was very likely to split because it was made of cheap plastic.,straw,split,p
+0,d,early,3,Harry should have known that the club sponsored community affairs.,club,sponsored,h
+0,s,early,3,Harry should have known that the club splintered if it was used improperly.,club,splintered,h
+0,d,late,3,Harry should have known that the club would only be likely to sponsor community affairs.,club,sponsor,h
+0,s,late,3,Harry should have known that the club would only be likely to splinter if it was used improperly.,club,splinter,h
+0,d,early,4,Even the little children knew that the ruler measured only flat surfaces and straight lines.,ruler,measured,h
+0,s,early,4,Even the little children knew that the ruler unified many different ethnic groups.,ruler,unified,h
+0,d,late,4,Even the little children knew that the ruler was useful for measuring only flat surfaces and straight lines.,ruler,measuring,h
+0,s,late,4,Even the little children knew that the ruler was useful for unifying many different ethnic groups.,ruler,unifying,h
+0,d,early,5,Mr. Anderson said that the panel warped severely after the last rain storm.,panel,warped,h
+0,s,early,5,Mr. Anderson said that the panel talked for hours trying to reach an agreement.,panel,talked,h
+0,d,late,5,Mr. Anderson said that the panel appeared to have warped severely after the last rain storm.,panel,warped,h
+0,s,late,5,Mr. Anderson said that the panel appeared to have talked for hours trying to reach an agreement.,panel,talked,h
+0,d,early,6,We could hear the fans cheering all night.,fans,cheering,h
+0,s,early,6,We could hear the fans whirring all night.,fans,whirring,h
+0,d,late,6,We could hear the fans that were very noisily cheering all night.,fans,cheering,h
+0,s,late,6,We could hear the fans that were very noisily whirring all night.,fans,whirring,h
+0,d,early,7,Everyone thought that the punch tasted very good.,punch,tasted,h
+0,s,early,7,Everyone thought that the punch broke the man's nose.,punch,broke,h
+0,d,late,7,Everyone thought that the punch would probably taste very good.,punch,taste,h
+0,s,late,7,Everyone thought that the punch would probably break the man's nose.,punch,break,h
+0,d,early,8,Jack saw the pitcher crack when Mary set it on the stove.,pitcher,crack,h
+0,s,early,8,Jack saw the pitcher throw a perfect no-hitter.,pitcher,throw,h
+0,d,late,8,Jack saw the pitcher was very likely to crack when Mary set it on the stove.,pitcher,crack,h
+0,s,late,8,Jack saw the pitcher was very likely to throw a perfect no-hitter.,pitcher,throw,h
+1,d,early,1,George knew that the bank cashed out of town checks.,bank,cashed,h
+1,s,early,1,George knew that the bank eroded from the stream's current.,bank,eroded,h
+1,d,late,1,George knew that the bank would have to cash out of town checks.,bank,cash,h
+1,s,late,1,George knew that the bank would have to erode from the stream's current.,bank,erode,h
+1,d,early,2,Larry knew that the suit fit him very well.,suit,fit,h
+1,s,early,2,Larry knew that the suit relied on shaky evidence.,suit,relied,h
+1,d,late,2,Larry knew that the suit would have to fit him very well.,suit,fit,h
+1,s,late,2,Larry knew that the suit would have to rely on shaky evidence.,suit,rely,h
+1,d,early,3,My brother was pleased that the band played some of his old favorites. ,band,played,h
+1,s,early,3,My brother was pleased that the band fit on his finger.,band,fit,h
+1,d,late,3,My brother was pleased that the band could so easily play some of his old favorites. ,band,play,h
+1,s,late,3,My brother was pleased that the band could so easily fit on his finger. ,band,fit,h
+1,d,early,4,Fred claimed that the match burned for twenty minutes.,match,burned,h
+1,s,early,4,Fred claimed that the match ended as soon as the boy fell down.,match,ended,h
+1,d,late,4,Fred claimed that the match could have easily burned for twenty minutes.,match,burned,h
+1,s,late,4,Fred claimed that the match could have easily ended as soon as the boy fell down.,match,ended,h
+1,d,early,5,It was not clear that the pens wrote well or lasted for very long.,pens,wrote,h
+1,s,early,5,It was not clear that the pens restricted the animal's movements effectively.,pens,restricted,h
+1,d,late,5,It was not clear that the pens would in fact write well or last for very long.,pens,write,h
+1,s,late,5,It was not clear that the pens would in fact restrict the animals' movements effectively.,pens,restrict,h
+1,d,early,6,George said that the wire surrounded the entire barracks including the rifle range.,wire,surrounded,p
+1,s,early,6,George said that the wire informed John that his aunt would arrive on Monday.,wire,informed,p
+1,d,late,6,George said that the wire was supposed to surround the entire barracks including the rifle range.,wire,surround,p
+1,s,late,6,George said that the wire was supposed to inform John that his aunt would arrive on Monday.,wire,inform,p
+1,d,early,7,Harold watched everyone's glasses fog up when they came into the warm kitchen.,glasses,fog,p
+1,s,early,7,Harold watched everyone's glasses spill when they walked downstairs to the kitchen.,glasses,spill,p
+1,d,late,7,Harold watched everyone's glasses to see if they would fog up when they came into the warm kitchen.,glasses,fog,p
+1,s,late,7,Harold watched everyone's glasses to see if they would spill when they walked downstairs to the kitchen.,glasses,spill,p
+1,d,early,8,Nobody could believe that the records played continuously for three hours.,records,played,p
+1,s,early,8,Nobody could believe that the records showed that the company earned two billion dollars last year.,records,showed,p
+1,d,late,8,Nobody could believe that the records would really end up playing continuously for three hours.,records,playing,p
+1,s,late,8,Nobody could believe that the records would really end up showing that the company earned two billion dollars last year.,records,showing,p

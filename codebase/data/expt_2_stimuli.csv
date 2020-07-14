@@ -1,0 +1,97 @@
+﻿bias,d_s,before_after,stimulus_index,sentence,disambig_token,target_token,p_h
+0,d,before,1,"Apologizing for their behavior, the club was virtually useless.",",",club,h
+0,s,before,1,"Weighing almost thirty pounds, the club was virtually useless.",",",club,h
+0,d,after,1,"Unfortunately the club was virtually useless, apologizing for their behavior.",",",club,h
+0,s,after,1,"Unfortunately the club was virtually useless, weighing almost thirty pounds.",",",club,h
+0,d,before,2,"Cheering happily for a change, the fans were very noisy.",",",fans,h
+0,s,before,2,"Operating correctly for a change, the fans were very noisy.",",",fans,h
+0,d,after,2,"Apparently the fans were very noisy, cheering happily for a change.",",",fans,h
+0,s,after,2,"Apparently the fans were very noisy, operating correctly for a change.",",",fans,h
+0,d,before,3,"Being so elegantly designed, the pitcher pleased Mary.",",",pitcher,h
+0,s,before,3,"Throwing so many curve balls, the pitcher pleased Mary.",",",pitcher,h
+0,d,after,3,"Of course, the pitcher pleased Mary, being so elegantly designed.",",",pitcher,h
+0,s,after,3,"Of course the pitcher pleased Mary, throwing so many curve balls.",",",pitcher,h
+0,d,before,4,"Because it was an ugly color, the ruler was unpopular.",",",ruler,h
+0,s,before,4,"Demanding obedience from everyone, the ruler was unpopular.",",",ruler,h
+0,d,after,4,Apparently the ruler was unpopular because it was an ugly color.,",",ruler,h
+0,s,after,4,Apparently the ruler was unpopular demanding obedience from everyone.,",",ruler,h
+0,d,before,5,"After warping and sagging for months, the panel finally gave in.",",",panel,h
+0,s,before,5,"After studying the issue for months, the panel finally gave in.",",",panel,h
+0,d,after,5,Reportedly the panel finally gave in after warping or sagging for months.,after,panel,h
+0,s,after,5,Reportedly the panel finally gave in after studying the issue for months.,after,panel,h
+0,d,before,6,"Deciding that the theorem was too difficult to understand, the pupil appeared distant and far away.",",",pupil,h
+0,s,before,6,"When the overhead lights turned on abruptly and without warning, the pupils appeared distant and far away.",",",pupil,h
+0,d,after,6,The pupil appeared distant and far away after deciding that the theorem was too difficult to understand.,after,pupil,h
+0,s,after,6,The pupil appeared distant and far away when the overhead lights turned on abruptly and without warning.,when,pupil,h
+0,d,before,7,"Because it was faded and dirty, the board received a lot of attention.",",",board,h
+0,s,before,7,"Because they revoked a popular zoning law, the board received a lot of attention.",",",board,h
+0,d,after,7,Undoubtedly the board received a lot of attention because it was faded and dirty.,because,board,h
+0,s,after,7,Undoubtedly the board received a lot of attention because they revoked a popular zoning law.,because,board,h
+0,d,before,8,"Arriving so early, the fall really upset Nina.",",",fall,h
+0,s,before,8,"Breaking her arm, the fall really upset Nina.",",",fall,h
+0,d,after,8,"Clearly the fall really upset Nina, arriving so early.",",",fall,h
+0,s,after,8,"Clearly the fall reaelly upset Nina, breaking her arm.",",",fall,h
+0,d,before,9,"Jingling loudly in Tim's pocket, the change was bothersome.",",",change,h
+0,s,before,9,"Influencing almost everyone's life, the change was bothersome.",",",change,h
+0,d,after,9,"Reportedly the change was bothersome, jingling loudly in Tim's pocket.",",",change,h
+0,s,after,9,"Reportedly the change was bothersome, influencing most everyone's life.",",",change,h
+0,d,before,10,"Because she didn't know why her brother would do such crazy things, the deed really upset Mary.",",",deed,h
+0,s,before,10,"Because she couldn't locate it in the files, the deed really upset Mary.",",",deed,h
+0,d,after,10,The deed really upset Mary because she didn't know why her brother would do such a crazy thing.,because,deed,h
+0,s,after,10,The deed really upset Mary because she couldn't locate it in the files.,because,deed,h
+0,d,before,11,"Looking so cheap, the ring infuriated Susan.",",",ring,h
+0,s,before,11,"Sounding so shrill, the ring infuriated Susan.",",",ring,h
+0,d,after,11,"Everyone thought the ring infuriated Susan, looking so cheap.",",",ring,h
+0,s,after,11,"Everyone thought the ring infuriated Susan, sounding so shrill.",",",ring,h
+0,d,before,12,"Stacked neatly in the hallway, the bats still disturbed grandmother.",",",bats,h
+0,s,before,12,"Sleeping quietly in the hallway, the bats still disturbed Grandmother.",",",bats,h
+0,d,after,12,"The bats still disturbed Grandmother, stacked neatly in the hallway.",",",bats,h
+0,s,after,12,"The bats still disturbed Grandmother, sleeping quietly in the hallway.",",",bats,h
+1,d,before,1,"Because it wrinkled so easily, the suit bothered Dick",",",suit,h
+1,s,before,1,"Because it progressed so slowly, the suit bothered Dick.",",",suit,h
+1,d,after,1,It seems that the suit bothered Dick because it wrinkled so easily.,because,suit,h
+1,s,after,1,It seems that the suit bothered Dick because it progressed so slowly.,because,suit,h
+1,d,before,2,"Being so bright despite the enormous distance, the star impressed everyone.",",",star,h
+1,s,before,2,"Being so humble despite all the publicity, the star impressed everyone.",",",star,h
+1,d,after,2,"Clearly the star impressed everyone, being so bright despite the enormous distance.",",",star,h
+1,s,after,2,"Clearly the star impressed everyone, being so humble despite all the publicity.",",",star,h
+1,d,before,3,"Because of its very intricate carvings, the cabinet impressed us.",",",cabinet,h
+1,s,before,3,"Because of its considerable political expertise, the cabinet impressed us.",",",cabinet,h
+1,d,after,3,The cabinet impressed us because of its very intricate carvings.,because,cabinet,h
+1,s,after,3,The cabinet impressed us because of its considerable political expertise.,because,cabinet,h
+1,d,before,4,"Due to changing fads in card games, that type of poker has become rare.",",",poker,h
+1,s,before,4,"Due to changing fads in wood stoves, that type of poker has become rare.",",",poker,h
+1,d,after,4,That type of poker has become rare due to changing fads in card games.,to,poker,h
+1,s,after,4,That type of poker has become rare due to changing fads in wood stoves.,to,poker,h
+1,d,before,5,"Wearing corduroy jackets and blue jeans, the press seemed out of date.",",",press,p
+1,s,before,5,"Looking rusty and out of repair, the press seemed out of date.",",",press,p
+1,d,after,5,"Obviously the press seemed out of date, wearing corduroy jackets and blue jeans. ",",",press,p
+1,s,after,5,"Obviously the press seemed out of date, looking rusty and out of repair.",",",press,p
+1,d,before,6,"Screaming furiously, the coach terrified everyone.",",",coach,h
+1,s,before,6,"Swaying dangerously, the coach terrified everyone.",",",coach,h
+1,d,after,6,"Obviously the coach terrified everyone, screaming furiously.",",",coach,h
+1,s,after,6,"Obviously the coach terrified everyone, swaying dangerously.",",",coach,h
+1,d,before,7,"Burning for nearly an hour, the match surprised George.",",",match,h
+1,s,before,7,"Lasting for nearly an hour, the match surprised George.",",",match,h
+1,d,after,7,Yesterday the match surprised George by burning for nearly an hour.,by,match,h
+1,s,after,7,Yesterday the match surprised George by lasting for nearly an hour.,by,match,h
+1,d,before,8,"Playing so loudly, the wedding band upset the groom.",",",band,h
+1,s,before,8,"Looking so tarnished, the wedding band upset the groom.",",",band,h
+1,d,after,8,The wedding band upset the groom by playing so loudly.,by,band,h
+1,s,after,8,The wedding band upset the groom by looking so tarnished.,by,band,h
+1,d,before,9,"After they were all scratched, the records were carefully guarded.",",",records,p
+1,s,before,9,"After the political takeover, the records were carefully guarded.",",",records,p
+1,d,after,9,The records were carefully guarded after they were all scratched.,after,records,p
+1,s,after,9,The records were carefully guarded after the political takeover.,after,records,p
+1,d,before,10,"Looking so tattered, the page seemed out of place.",",",page,h
+1,s,before,10,"Smiling so cheerfully, the page seemed out of place.",",",page,h
+1,d,after,10,"The page seemed out of place, looking so tattereed.",",",page,h
+1,s,after,10,"The page seemed out of place, smiling so cheerfully.",",",page,h
+1,d,before,11,"Bouncing very high, the ball was a real success.",",",ball,h
+1,s,before,11,"Lasting all night, the ball was a real success.",",",ball,h
+1,d,after,11,"Luckily the ball was a real success, bouncing very high.",",",ball,h
+1,s,after,11,"Luckily the ball was a real success, bouncing very high.",",",ball,h
+1,d,before,12,"Walking in late, her date surprised Jane.",",",date,h
+1,s,before,12,"Tasting so bitter, her date surprised Jane.",",",date,h
+1,d,after,12,Yesterday her date surprised Jane by walking in late.,by,date,h
+1,s,after,12,Yesterday her date surprised Jane by tasting so bitter.,by,date,h
