@@ -1,0 +1,85 @@
+,sentence_ctx,rel_type,s1,s2,target,dis_ctx,wn_sense
+0,curr,reg_pol,Barney was on vacation. ,"He fed a chicken, which was fun.",chicken,fed,chicken.n.01
+1,curr,reg_pol,Barney was on vacation. ,"He roasted a chicken, which was fun.",chicken,roasted,chicken.n.02
+2,prev,reg_pol,Barney was playing at a farm.,The chicken was nice.,chicken,playing at a farm,chicken.n.01
+3,prev,reg_pol,Barney was at a supermarket.,The chicken was nice.,chicken,at a supermarket,chicken.n.02
+4,curr,reg_pol,Oscar was at the beach.,"He caught a fish, which was exciting.",fish,caught,fish.n.01
+5,curr,reg_pol,Oscar was at the beach.,"He grilled a fish, which was exciting",fish,grilled,fish.n.02
+6,prev,reg_pol,Oscar was at the ocean.,The fish was exciting.,fish,the ocean,fish.n.01
+7,prev,reg_pol,Oscar was at a restaurant.,The fish was exciting.,fish,a restaurant,fish.n.02
+12,curr,reg_pol,The Count was at home. ,"He planted some herbs, which was messy.",herbs,planted,herb.n.01
+13,curr,reg_pol,The Count was at home. ,"He chopped some herbs, which was messy.",herbs,chopped,herb.n.02
+14,prev,reg_pol,The Count was in the garden.,The herbs were messy.,herbs,garden,herb.n.01
+15,prev,reg_pol,The Count was in the kitchen.,The herbs were messy.,herbs,kitchen,herb.n.02
+36,curr,irreg_pol,Bugs Bunny was at school.,"He said a letter, which was fun.",letter,said,letter.n.01
+37,curr,irreg_pol,Bugs Bunny was at school.,"He sent a letter, which was fun.",letter,sent,letter.n.02
+38,prev,irreg_pol,Bugs Bunny was at school.,The letter was fun.,letter,school,letter.n.01
+39,prev,irreg_pol,Bugs Bunny was at the post office.,The letter was fun.,letter,the post office,letter.n.02
+40,curr,irreg_pol,Elmo was in his room.,"He pushed a button, which was easy.",button,pushed,push_button.n.01
+41,curr,irreg_pol,Elmo was in his room.,"He undid a button, which was easy.",button,undid,button.n.01
+42,prev,irreg_pol,Elmo turned on the music.,The button was easy.,button,turned on the music,push_button.n.01
+43,prev,irreg_pol,Elmo was putting on a shirt.,The button was easy.,button,was putting on a shirt,button.n.01
+48,curr,irreg_pol,Dora was playing. ,"She aimed the bow, which was difficult.",bow,aimed,bow.n.04
+49,curr,irreg_pol,Dora was playing. ,"She tied the bow, which was difficult.",bow,tied,bow.n.01
+50,prev,irreg_pol,Charlie Brown was at camp.,The bow was tough.,bow,at camp,bow.n.04
+51,prev,irreg_pol,Charlie Brown was wrapping a present.,The bow was tough.,bow,wrapping a present,bow.n.01
+56,curr,irreg_pol,SpongeBob and Patrick were playing. ,"They got in a line, which was fun.",line,got in,line.n.03
+57,curr,irreg_pol,SpongeBob and Patrick were playing. ,"They drew a line, which was fun.",line,drew,line.n.02
+58,prev,irreg_pol,SpongeBob and Patrick were waiting.,The line was long.,line,waiting,line.n.03
+59,prev,irreg_pol,SpongeBob and Patrick were in art class.,The line was long.,line,in art class,line.n.02
+64,curr,hom,Snoopy was outside.,"He chased a bat, which was big.",bat,chased,bat.n.01
+65,curr,hom,Snoopy was outside.,"He swung a bat, which was big.",bat,swung,bat.n.02
+66,prev,hom,Snoopy was reading about animals.,The bat was big.,bat,reading about animals,bat.n.01
+67,prev,hom,Snoopy was watching sports.,The bat was big.,bat,watching sports,bat.n.02
+68,curr,hom,Dora was in her house.,"She painted a nail, which was fun.",nail,painted,nail.n.01
+69,curr,hom,Dora was in her house.,"She pulled out a nail, which was fun.",nail,pulled out,nail.n.02
+70,prev,hom,Dora was at the beauty salon.,The nail was long.,nail,at the beauty salon,nail.n.01
+71,prev,hom,Dora was building a house.,The nail was long.,nail,building a house,nail.n.02
+72,curr,hom,Minnie was at the park.,"She poured out a pitcher, which was nice.",pitcher,poured out,pitcher.n.02
+73,curr,hom,Minnie was at the park.,"She talked to a pitcher, which was nice.",pitcher,talked to,pitcher.n.01
+74,prev,hom,Minnie was pouring water.,The pitcher was nice.,pitcher,pouring water,pitcher.n.02
+75,prev,hom,Minnie was playing sports.,The pitcher was nice.,pitcher,playing sports,pitcher.n.01
+80,curr,hom,Dora was in her room.,"She stretched the band, which was cool.",band,stretched,band.n.04
+81,curr,hom,Dora was in her room.,"She listened to the band, which was cool.",band,listened to,band.n.02
+82,prev,hom,Dora looked in her drawer.,The band was cool.,band,looked in her drawer,band.n.04
+83,prev,hom,Dora heard some music.,The band was cool.,band,heard some music,band.n.02
+84,curr,hom,Ernie was at a party.,"He lay in the sun, which was fun.",sun,lay in,sunlight.n.01
+85,curr,hom,Ernie was at a party.,"He chatted with the son, which was fun.",son,chatted with,son.n.01
+86,prev,hom,Ernie was relaxing.,The sun was nice.,sun,relaxing,sunlight.n.01
+87,prev,hom,Ernie was at a family reunion.,The son was nice.,son,at a family reunion,son.n.01
+88,curr,hom,Bert was at a dance.,"He dressed up as a knight, which was cool.",knight,dressed up as,knight.n.01
+89,curr,hom,Bert was at a dance.,"He stayed up for a night, which was cool",night,stayed up for,night.n.01
+90,prev,hom,Bert was at a costume party.,The knight was cool.,knight,was at a costume party,knight.n.01
+91,prev,hom,Bert looked at his watch.,The night was cool.,night,looked at his watch,night.n.01
+8,curr,reg_pol,Cookie Monster was in California.,"He petted a lamb, which was good.",lamb,petted,lamb.n.01
+9,curr,reg_pol,Cookie Monster was in California.,"He barbecued a lamb, which was good.",lamb,barbecued,lamb.n.05
+10,prev,reg_pol,Cookie Monster was in a barn.,The lamb was good.,lamb,in a barn,lamb.n.01
+11,prev,reg_pol,Cookie Monster was at a barbecue.,The lamb was good.,lamb,at a barbecue,lamb.n.05
+16,curr,reg_pol,Kermit was in the country.,"He heard a turkey, which was cool.",turkey,heard,turkey.n.01
+17,curr,reg_pol,Kermit was in the country.,"He cooked a turkey, which was cool.",turkey,cooked,turkey.n.04
+18,prev,reg_pol,Kermit was in the country.,The turkey was cool.,turkey,in the country,turkey.n.01
+19,prev,reg_pol,Kermit was having dinner.,The turkey was cool.,turkey,having dinner,turkey.n.04
+24,curr,reg_pol,Grover was in Boston.,"He ran after a duck, which was good.",duck,ran after,duck.n.01
+25,curr,reg_pol,Grover was in Boston.,"He ate a duck, which was good.",duck,ate,duck.n.03
+26,prev,reg_pol,Grover was swimming in a lake. ,The duck was good.,duck,swimming in a lake,duck.n.01
+27,prev,reg_pol,Grover was at the kitchen table.,The duck was good.,duck,at the kitchen table,duck.n.03
+32,curr,irreg_pol,Zoe was inside.,"She put on some glasses, which were pretty.",glasses,put on,spectacles.n.01
+33,curr,irreg_pol,Zoe was inside.,"She filled up some glasses, which were pretty.",glasses,filled up,glass.n.02
+34,prev,irreg_pol,Zoe was getting dressed. ,The glasses were pretty.,glasses,dressed,spectacles.n.01
+35,prev,irreg_pol,Zoe was getting water.,The glasses were pretty.,glasses,water,glass.n.02
+44,curr,irreg_pol,Daffy was in his room. ,"He clicked a mouse, which was easy.",mouse,clicked,mouse.n.04
+45,curr,irreg_pol,Daffy was in his room. ,"He captured a mouse, which was easy.",mouse,captured,mouse.n.01
+46,prev,irreg_pol,Daffy needed batteries.,The mouse was old.,mouse,needed batteries,mouse.n.04
+47,prev,irreg_pol,Daffy was in the yard.,The mouse was old.,mouse,was in the yard,mouse.n.01
+52,curr,irreg_pol,Goofy was in the garden.,"He chewed a roll, which was good.",roll,chewed,roll.n.07
+53,curr,irreg_pol,Goofy was in the garden.,"He performed a roll, which was good.",roll,performed,axial_rotation.n.01
+54,prev,irreg_pol,Goofy was having lunch.,The roll was good.,roll,having lunch,roll.n.07
+55,prev,irreg_pol,Goofy was doing gymnastics.,The roll was good.,roll,doing gymnastics,axial_rotation.n.01
+60,curr,irreg_pol,Winnie and Piglet were in the kitchen.,"They played with some cards, which was nice.",cards,played with,card.n.01
+61,curr,irreg_pol,Winnie and Piglet were in the kitchen.,"They wrote some cards, which was nice.",cards,wrote,card.n.03
+62,prev,irreg_pol,Winnie and Piglet playing a game.,The cards were nice.,cards,playing a game,card.n.01
+63,prev,irreg_pol,Winnie and Piglet were reading messages.,The cards were nice.,cards,reading messages,card.n.03
+76,curr,hom,Elmo was outside.,"He heard the bark, which was ok.",bark,heard,bark.n.02
+77,curr,hom,Elmo was outside.,"He touched the bark, which was ok.",bark,touched,bark.n.01
+78,prev,hom,Elmo heard a loud noise.,The bark was nice.,bark,heard a loud noise,bark.n.02
+79,prev,hom,Elmo was climbing.,The bark was nice.,bark,was climbing,bark.n.01
