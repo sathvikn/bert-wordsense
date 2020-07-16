@@ -1,0 +1,72 @@
+sense,sentence,centroid_cs
+experiment.n.01,"I believe that what I do has some effect on his actions and I have learned , in a way , to commune with drunks , but certainly my actions seem to resemble more nearly the performance of a rain dance than the carrying out of an experiment in physics .",0.7166764205480207
+experiment.n.01,Experiments were made on an electric arc applying a porous graphite anode cooled by a transpiring gas ( Argon ) .,0.8083852722184806
+experiment.n.01,Another anode holder used in the experiments is shown in figure 3 .,0.8865302900507528
+experiment.n.01,"In order to reduce the number of variable parameters , all experiments were made with a constant arc length of 0.5 '' and a current of 100 Amp .",0.9093807630381182
+experiment.n.01,"Because negative pressure dialysis gave better recovery of proteins , permitted detection of proteins concentrated from very dilute solutions and was a gentler procedure , it was used in all but the earliest experiments .",0.8667246948509693
+experiment.n.01,"In 2 of 15 experiments on whole serum a region of agglutinin activity with intermediate anionic binding capacity was detected ( Region 3 , Fig. 1 ) .",0.8447533514771381
+experiment.n.01,( 3 ) In other experiments the indirect conjugate was treated with 3 volumes of ethyl acetate as recommended by Dineen and Ade ( 1957 ) .,0.8725043044324621
+experiment.n.01,"The sections were mounted on cold slides smeared with Haupts ' adhesive ( Johansen , 1940 ) in earlier experiments , and in later experiments with a different mixture of the same components reported by Schramm and Rottger ( 1959 ) .",0.8599751745556883
+experiment.n.01,"The sections were mounted on cold slides smeared with Haupts ' adhesive ( Johansen , 1940 ) in earlier experiments , and in later experiments with a different mixture of the same components reported by Schramm and Rottger ( 1959 ) .",0.8599751745556883
+experiment.n.01,In the first few experiments * * f was passed through Dowex-2-chloride twice and absorbed twice with 50 - 100 mg sweet clover tissue powder .,0.8779806904155142
+experiment.n.01,"When 1 ml of conjugate was passed through a column ( * * f ) , the first and second milliliter fractions collected were the most specific and gave no nonspecific staining in some experiments , and very little in others .",0.8830871414215913
+experiment.n.01,"In later experiments , * * f and * * f were prepared by conjugating 8 mg of FITC per gram of globulin .",0.8585764097487829
+experiment.n.01,"In experiments with topical application of strychnine on the cerebral cortex , the transmission of impulses from the cortex to the hypothalamus was demonstrated .",0.8481831497080747
+experiment.n.01,"In addition , the neocortical hypothalamic relations play a great role in primates , as Mirsky 's interesting experiment on the `` communication of affect '' demonstrates .",0.8468731319046048
+experiment.n.01,Physiological experiments and clinical observations have shown that these procedures influence the hypothalamically controlled hypophyseal secretions and increase sympathetic discharges .,0.7879184211514039
+experiment.n.01,Wolpe 's experiments and therapeutic work lie in this area .,0.7450366350994966
+experiment.n.01,"In a conditioning experiment , he demonstrated the antagonism between feeding and pain .",0.8484554150492211
+experiment.n.01,"Appropriate experiments showed that this is , indeed , possible .",0.8365743026374055
+experiment.n.01,"Some experiments are composed of repetitions of independent trials , each with two possible outcomes .",0.9037110536639145
+experiment.n.01,The binomial probability distribution may describe the variation that occurs from one set of trials of such a binomial experiment to another .,0.8621356456626499
+experiment.n.01,We begin with a few examples of binomial experiments .,0.8964222452594
+experiment.n.01,"More generally , suppose that an experiment consists of a number of independent trials , that each trial results in either a `` success '' or a `` non success '' ( `` failure '' ) , and that the probability of success remains constant from trial to trial .",0.8648322684117211
+experiment.n.01,"Experiments are often composed of several identical trials , and sometimes experiments themselves are repeated .",0.887661606286019
+experiment.n.01,"Experiments are often composed of several identical trials , and sometimes experiments themselves are repeated .",0.887661606286019
+experiment.n.01,"Further , an experiment might consist of five rounds , and several sets of five rounds might be regarded as a super experiment composed of several repetitions of the five round experiment .",0.914003719540399
+experiment.n.01,"Further , an experiment might consist of five rounds , and several sets of five rounds might be regarded as a super experiment composed of several repetitions of the five round experiment .",0.914003719540399
+experiment.n.01,"Further , an experiment might consist of five rounds , and several sets of five rounds might be regarded as a super experiment composed of several repetitions of the five round experiment .",0.914003719540399
+experiment.n.01,"If three dice are tossed , a trial is one toss of one die and the experiment is composed of three trials .",0.8734368758036807
+experiment.n.01,"Or , what amounts to the same thing , if one die is tossed three times , each toss is a trial , and the three tosses form the experiment .",0.8520037084648006
+experiment.n.01,"Mathematically , we shall not distinguish the experiment of three dice tossed once from that of one die tossed three times .",0.851292184161821
+experiment.n.01,"These examples are illustrative of the use of the words `` trial '' and `` experiment '' as they are used in this chapter , but they are quite flexible words and it is well not to restrict them too narrowly .",0.7862337979644967
+experiment.n.01,We now generalize these ideas for general binomial experiments .,0.8837454346947214
+experiment.n.01,"For an experiment to qualify as a binomial experiment , it must have four properties : ( 1 ) there must be a fixed number of trials , ( 2 ) each trial must result in a `` success '' or a `` failure '' ( a binomial trial ) , ( 3 ) all trials must have identical probabilities of success , ( 4 ) the trials must be independent of each other .",0.889028108769525
+experiment.n.01,"For an experiment to qualify as a binomial experiment , it must have four properties : ( 1 ) there must be a fixed number of trials , ( 2 ) each trial must result in a `` success '' or a `` failure '' ( a binomial trial ) , ( 3 ) all trials must have identical probabilities of success , ( 4 ) the trials must be independent of each other .",0.889028108769525
+experiment.n.01,"Note that we need not know the value of p , for the experiment to be binomial .",0.8887641936748452
+experiment.n.01,"Strictly speaking , this means that the probability for each possible outcome of the experiment can be computed by multiplying together the probabilities of the possible outcomes of the single binomial trials .",0.8790639836352591
+experiment.n.01,"When this experiment is viewed as composed of five binomial trials , one for each member of the family , the outcomes of the trials are obviously not independent .",0.891863376545431
+experiment.n.01,"Indeed , the experiment is better viewed as consisting of one binomial trial for the entire family .",0.905977852235561
+experiment.n.01,"An experiment consists of the voting of one couple , or two trials .",0.8763580266113942
+experiment.n.01,"In repetitions of the experiment from couple to couple , the votes of the two persons in a couple probably agree more often than independence would imply , because couples who visit the museum together are more likely to have similar tastes than are a random pair of people drawn from the entire population of visitors .",0.8506404907060273
+experiment.n.01,"Each performance of an n-trial binomial experiment results in some whole number from 0 through n as the value of the random variable X , where * * f .",0.9289016244239122
+experiment.n.01,A binomial experiment can produce random variables other than the number of successes .,0.8960325406695298
+experiment.n.01,"A binomial experiment consists of * * f independent binomial trials , all with the same probability * * f of yielding a success .",0.9141579374188997
+experiment.n.01,The outcome of the experiment is X successes .,0.889321915263204
+experiment.n.01,Each binomial trial of a binomial experiment produces either 0 or 1 success .,0.9271703353180359
+experiment.n.01,"The several trials of a binomial experiment produce a new random variable X , the total number of successes , which is just the sum of the random variables associated with the single trials .",0.8923059771281566
+experiment.n.01,"Their sum is X , the total number of successes , which in this experiment has the value * * f .",0.8748181913968706
+experiment.n.01,"The value of the elections was lost , both as an experiment in increased political participation and as a reliable indicator of commercial interest , as shown in Table /1 , .",0.7092905205581631
+experiment.n.01,The first argument is thus an ideal experiment in which we use the method of difference .,0.8974505745591154
+experiment.n.01,Applications to organs other than the gastrointestinal tract are planned for future experiments .,0.8225814211016582
+experiment.n.01,The frequency used for these experiments is 15 mc. and the transducer is a specially cut crystal with an epoxy lens capable of providing beam diameters smaller than one millimeter .,0.8705136035512552
+experiment.n.01,He was stirred by the announcement of Volta 's discovery of chemical electricity and he immediately applied the voltaic pile to experiments with acids and alkalis .,0.767791104754583
+experiment.n.01,"However , he continued experimenting and lecturing , publishing the results of his experiments in German and Danish periodicals .",0.7410834121879672
+experiment.n.01,"In February 1801 , Oersted did manage to experiment with physical apparatus and reported experiments made with a voltaic battery of 600 plates of zinc and silver and of later experiments with a battery of 60 plates of zinc and lead .",0.7946667999086484
+experiment.n.01,"In February 1801 , Oersted did manage to experiment with physical apparatus and reported experiments made with a voltaic battery of 600 plates of zinc and silver and of later experiments with a battery of 60 plates of zinc and lead .",0.7946667999086484
+experiment.n.01,The experiments of Romagnosi and others have already been noted but no one had determined the cause and effect relationship between these two primary forces .,0.8550560076325411
+experiment.n.01,"Oersted 's own earlier experiments were unimpressive , possibly because he had , like other experimenters , laid the conducting wire across the compass needle instead of parallel with it .",0.8549870117779719
+experiment.n.01,"The limits are suggested by an imaginary experiment : contrast the perceptual skill of English professors with that of their colleagues in discriminating among motor cars , political candidates , or female beauty .",0.8241717887023096
+experiment.n.01,Preparations are being made for similar experiments on CH and SH radicals .,0.8574819012423078
+experiment.n.02,"There 's more reading and instruction to be heard on discs than ever before , although the spoken rather than the sung word is as old as Thomas Alva Edison 's first experiment in recorded sound .",0.7204081686686572
+experiment.n.02,These experiments can be considered exploratory only .,0.9053629097555624
+experiment.n.02,We then outline the theory of the interaction of paramagnetic dipoles with nuclei and show that the theory is in excellent agreement with experiment .,0.7512049919084033
+experiment.n.02,"The contents of the manifold for liquid phase experiments were then mixed by shaking , redistributed to the reaction tubes , frozen down , and each tube was then sealed off .",0.8861308574160464
+experiment.n.02,The reactants for the gas phase experiments were first frozen out in a side arm attached to the manifold and then allowed to distill slowly into the manifold of pre-cooled reaction cells before sealing off .,0.9025924502917593
+experiment.n.02,In a few experiments the tubes were made from standard 6 mm. i.d. Pyrex tubing of 1 mm. wall thickness .,0.8627708487326343
+experiment.n.02,"Experiments were done at 180 , 200 , 210 , 220 ` .",0.887818221643782
+experiment.n.02,"Following observation of the fact that the reaction rates of supposedly identical reaction mixtures prepared on the same filling manifold and exposed under identical conditions often differed by several hundred per cent , a systematic series of experiments was undertaken to see whether the difficulty could be ascribed to the method of preparing the chlorine , to the effects of oxygen or moisture or to the effect of surface to volume ratio in the reaction tubes .",0.8731013527663485
+experiment.n.02,"There is some reason to think that thyroglobulin synthesis may proceed independently of iodination , for in certain transplantable tumours of the rat thyroid containing essentially no iodinated thyroglobulin , a protein that appears to be thyroglobulin has been observed in ultracentrifuge experiments ( Wolff , Robbins and Rall , 1959 ) .",0.8952662959276214
+experiment.n.02,"And the USSR existed as the revolutionary experiment in radical socialism , the ultimate exemplar .",0.6689220041255943
+experiment.n.02,Experiments have shown that the shutter is 75 percent open in about 60 - 80 microseconds .,0.8707729248377362
+experiment.n.02,"Results of this experiment include the frequencies of the two strong spectral lines by which OH may be identified in interstellar gas ; the frequencies are 1665.32 and 1667.36 * * f , with an uncertainty of 0.10 * * f .",0.8466867390920467

@@ -1,0 +1,15 @@
+sense,sentence,centroid_cs
+transform.v.01,"The most obvious of these is the quadratic complex of tangents to Q , each line of which is transformed into the entire pencil of lines tangent to Q at the image of the point of tangency of the given line .",0.9601634673408601
+transform.v.01,Thus pencils of tangents to Q are transformed into pencils of tangents .,0.9333355630764925
+transform.v.01,"For the lines of any plane , | p , meeting Q in a conic C , are transformed into the congruence of secants of the curve C ' into which C is transformed in the point involution on Q .",0.9567554768283373
+transform.v.01,"For the lines of any plane , | p , meeting Q in a conic C , are transformed into the congruence of secants of the curve C ' into which C is transformed in the point involution on Q .",0.9567554768283373
+transform.v.01,"In particular , tangents to C are transformed into tangents to C ' .",0.9124963621472947
+transform.v.01,"Each generator , | l , of * * f is also exceptional , for each is transformed into the entire congruence of secants of the curve into which that generator is transformed by the point involution on Q .",0.9521127192898742
+transform.v.01,"Each generator , | l , of * * f is also exceptional , for each is transformed into the entire congruence of secants of the curve into which that generator is transformed by the point involution on Q .",0.9521127192898742
+transform.v.01,"Now the only way in which all curves of the image family of * * f can pass through a fixed point is to have a generator of * * f which is not a secant but a tangent of \ g , for then any point on such a generator will be transformed into the point of tangency .",0.9272882941553364
+transform.v.01,"Clearly , any line , l , of any bundle having one of these points of tangency , T , as vertex will be transformed into the entire pencil having the image of the second intersection of l and Q as vertex and lying in the plane determined by the image point and the generator of * * f which is tangent to \ g at T .",0.9386248047811697
+transform.v.01,"A line through two of these points , * * f and * * f , will be transformed into the entire bilinear congruence having the tangents to \ g at * * f and * * f as directrices .",0.9648084495446445
+transform.v.01,"But if this is the case , then an arbitrary pencil of lines having a point , P , of \ g as vertex is transformed into a ruled surface of order * * f having * * f generators concurrent at P .",0.9428022121028878
+transform.v.01,"From the preceding remarks , it is clear that such a bundle is transformed into itself in an involutorial fashion .",0.8966557849234158
+transform.v.01,"In each case , lines of the bundles are transformed by involutions within the pencils they determine with the multiple secant .",0.9089055994821231
+transform.v.01,"The multiple secants , of course , are exceptional and in each case are transformed into cones of order * * f .",0.9251343942527913

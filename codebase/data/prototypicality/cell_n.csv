@@ -1,0 +1,116 @@
+sense,sentence,centroid_cs
+cell.n.01,The required amount of carbon tetrachloride was distilled into a series of reaction cells on a manifold on a vacuum line .,0.8087373494781069
+cell.n.01,The desired amounts of inactive chlorine and radioactive chlorine were likewise condensed in these cells on the vacuum line following which they were frozen down and the manifold as a whole was sealed off .,0.8190024971555536
+cell.n.01,The reactants for the gas phase experiments were first frozen out in a side arm attached to the manifold and then allowed to distill slowly into the manifold of pre-cooled reaction cells before sealing off .,0.7842094026651257
+cell.n.01,This method in general solved the problem of obtaining fairly equal concentrations of reactants in each of the six cells from a set .,0.8337685804755781
+cell.n.01,"The photochemical reaction cells consisted of 10 mm. i.d. Pyrex tubing , 5.5 cm. long , diffraction effects being minimized by the fact that the light passed through only liquid glass interfaces and not gas glass interfaces .",0.8167705777058172
+cell.n.01,These cells were used rather than square Pyrex tubing because of the tendency of the latter to shatter when thawing frozen carbon tetrachloride .,0.8262012708579315
+cell.n.01,The round cells were reproducibly positioned in the light beam which entered the thermostated mineral oil bath through a window .,0.8216457477959794
+cell.n.01,The light was filtered by the soft glass window of the thermostat thus ensuring that only light absorbed by the chlorine and not by the carbon tetrachloride could enter the reaction cell .,0.7938762278285703
+cell.n.01,Changes of intensity on the cell were achieved by use of a wire screen and by varying the distance of the light source from the cell .,0.78805420493207
+cell.n.01,Changes of intensity on the cell were achieved by use of a wire screen and by varying the distance of the light source from the cell .,0.78805420493207
+cell.n.01,Following reaction the cells were scratched with a file and opened under a 20 % aqueous sodium iodide solution .,0.8340901905836202
+cell.n.01,Carrier * * f was added and the aqueous and organic phases were separated ( cells containing gaseous reactants were immersed in liquid air before opening under sodium iodide ) .,0.8276566775137827
+cell.n.01,The improvement was most noticeable in the greater consistency among reaction cells prepared as a group on the same manifold .,0.8648720984026994
+cell.n.01,Rather large differences were still found between reaction cells from different manifold fillings .,0.8513197792461541
+cell.n.01,By comparing reaction cells sealed from the same manifold temperature dependency corresponding to activation energies ranging from 11 to 18 * * f was observed while dependence on the first power of the light intensity seemed to be indicated in most cases .,0.8322923757341458
+cell.n.01,"It was possible to make estimates of the quantum yield by observing the extent of reduction of a uranyl oxalate actinometer solution illuminated for a known time in a typical reaction cell and making appropriate conversions based on the differences in the absorption spectra of uranyl oxalate and of chlorine , and considering the spectral distribution of the light source .",0.7947029354634206
+cell.n.01,"When typical reaction cells to which 0.3 of an atmosphere of oxygen had been added were illuminated , chlorine and phosgene were produced .",0.8090294600823976
+cell.n.01,"Exchange was also observed in these cells , which had chlorine present at * * f .",0.7737278644952433
+cell.n.01,"In series /1 , the relative light intensity was varied by varying the distance of the lamp from the reaction cell over the range from 14.7 to 29.2 cm. .",0.8311785124681593
+cell.n.01,The last column shows the rate of exchange that would have been observed at a relative intensity of 4 ( 14.7 cm. distance ) calculated on the assumptions that the incident light intensity is inversely proportional to the square of the distance of the lamp from the cell and that the rate is directly proportional to the incident light intensity .,0.8118621854364668
+cell.n.01,"On this , she builds an `` egg compartment '' or `` egg cell '' which is filled with that famous pollen and nectar mixture called beebread .",0.7370393078018675
+cell.n.01,"The bottom part of a burrow has a number of side tunnels or `` cells '' , each of which is provided with an egg plus a store of beebread .",0.7255195203880709
+cell.n.01,"But they are still enclosed in their larval cells and remain there throughout the summer , fall , and winter .",0.707034449623577
+cell.n.01,"The first is compiling a list of text forms , assigning an information cell to each , and replacing text occurrences with the information cell assigned to the form of each occurrence .",0.860716292365037
+cell.n.01,"The first is compiling a list of text forms , assigning an information cell to each , and replacing text occurrences with the information cell assigned to the form of each occurrence .",0.860716292365037
+cell.n.01,For this step the computer memory is separated into three regions : cells in the W region are used for storage of the forms in the text form list ; cells in the X-region and Y region are reserved as information cells for text forms .,0.8246667944368681
+cell.n.01,For this step the computer memory is separated into three regions : cells in the W region are used for storage of the forms in the text form list ; cells in the X-region and Y region are reserved as information cells for text forms .,0.8246667944368681
+cell.n.01,For this step the computer memory is separated into three regions : cells in the W region are used for storage of the forms in the text form list ; cells in the X-region and Y region are reserved as information cells for text forms .,0.8246667944368681
+cell.n.01,"When an occurrence * * f is isolated during text reading , a random memory address * * f , the address of a cell in the X-region , is computed from the form of * * f .",0.8696721934438062
+cell.n.01,"If cell * * f has not previously been assigned as the information cell of a form in the text form list , it is now assigned as the information cell of * * f .",0.8112552117034038
+cell.n.01,"If cell * * f has not previously been assigned as the information cell of a form in the text form list , it is now assigned as the information cell of * * f .",0.8112552117034038
+cell.n.01,"If cell * * f has not previously been assigned as the information cell of a form in the text form list , it is now assigned as the information cell of * * f .",0.8112552117034038
+cell.n.01,"The form itself is stored in the next available cells of the W-region , beginning in cell * * f .",0.8122585069730518
+cell.n.01,"The form itself is stored in the next available cells of the W-region , beginning in cell * * f .",0.8122585069730518
+cell.n.01,The address * * f and the number of cells required to store the form are written in * * f ; the information cell * * f is saved to represent the text occurrence .,0.840795410715569
+cell.n.01,The address * * f and the number of cells required to store the form are written in * * f ; the information cell * * f is saved to represent the text occurrence .,0.840795410715569
+cell.n.01,"If * * f was assigned as the information cell for * * f , the routine can detect that * * f is identical to * * f by comparing * * f with the form stored at location * * f .",0.8508257748436048
+cell.n.01,The address * * f is stored in the cell * * f .,0.7937385668816506
+cell.n.01,"Thus , when more than one distinct form leads to a particular cell in the X-region , a chain of information cells must be created to accommodate the forms , one cell in the chain for each form .",0.8714339763851491
+cell.n.01,"Thus , when more than one distinct form leads to a particular cell in the X-region , a chain of information cells must be created to accommodate the forms , one cell in the chain for each form .",0.8714339763851491
+cell.n.01,"Thus , when more than one distinct form leads to a particular cell in the X-region , a chain of information cells must be created to accommodate the forms , one cell in the chain for each form .",0.8714339763851491
+cell.n.01,"If * * f leads to an address * * f that is equal to the address computed from * * f , even though * * f does not match * * f , the chain of information cells is extended from * * f by storing the address of the next available cell in the Y-region , * * f , in * * f .",0.877989476185288
+cell.n.01,"If * * f leads to an address * * f that is equal to the address computed from * * f , even though * * f does not match * * f , the chain of information cells is extended from * * f by storing the address of the next available cell in the Y-region , * * f , in * * f .",0.877989476185288
+cell.n.01,The cell * * f becomes the second information cell in the chain and is assigned as the information cell of * * f .,0.8384383166980569
+cell.n.01,The cell * * f becomes the second information cell in the chain and is assigned as the information cell of * * f .,0.8384383166980569
+cell.n.01,The cell * * f becomes the second information cell in the chain and is assigned as the information cell of * * f .,0.8384383166980569
+cell.n.01,"A third cell can be added by storing the address of another Y-cell in * * f ; similarly , as many cells are added as are required .",0.8268565865858531
+cell.n.01,"A third cell can be added by storing the address of another Y-cell in * * f ; similarly , as many cells are added as are required .",0.8268565865858531
+cell.n.01,Each information cell in the chain contains the address of the Y-cell where the form to which it is assigned is stored .,0.8814376792784678
+cell.n.01,Each cell except the last in the chain also contains the address of the Y-cell that is the next element of the chain ; the absence of such a link in the last cell indicates the end of the chain .,0.8693439386642878
+cell.n.01,Each cell except the last in the chain also contains the address of the Y-cell that is the next element of the chain ; the absence of such a link in the last cell indicates the end of the chain .,0.8693439386642878
+cell.n.01,"Hence , when the address * * f is computed from * * f , the cell * * f and all Y-cells in its chain must be inspected to determine whether * * f is already in the form list or whether it should be added to the form list and the chain .",0.8193041017813745
+cell.n.01,"When the information cell for * * f has been determined , it is saved as a representation of * * f .",0.8480377583720828
+cell.n.01,This initiates the second step of glossary lookup - connecting the information cell of forms in the text form list to dictionary forms .,0.8022645585371415
+cell.n.01,"Each time a dictionary form matches a text form , the information cell of the matching text form is saved .",0.8505103129969813
+cell.n.01,"If cell * * f is an information cell , it and any information cells in the Y-region that have been linked to * * f each contain an address in the W-region where a potentially matching form is stored .",0.8794511260453164
+cell.n.01,"If cell * * f is an information cell , it and any information cells in the Y-region that have been linked to * * f each contain an address in the W-region where a potentially matching form is stored .",0.8794511260453164
+cell.n.01,"If cell * * f is an information cell , it and any information cells in the Y-region that have been linked to * * f each contain an address in the W-region where a potentially matching form is stored .",0.8794511260453164
+cell.n.01,If cell * * f is not an information cell we conclude that the i-th dictionary form is not in the text list .,0.8094118389563443
+cell.n.01,If cell * * f is not an information cell we conclude that the i-th dictionary form is not in the text list .,0.8094118389563443
+cell.n.01,"The final step merely uses the table of dictionary usage to select the dictionary information that pertains to each form matched in the text form list , and uses the list of information cells recorded in text order to attach the appropriate information to each occurrence in text .",0.8136731916748484
+cell.n.01,The list of text forms in the W-region of memory and the contents of the information cells in the X and Y-regions are no longer required .,0.8584259360529148
+cell.n.01,Only the assignment of the information cells is important .,0.8663675650522552
+cell.n.01,Each entry that is selected for storage is written into the next available cells of the W-region .,0.8907208767611029
+cell.n.01,The address of the first cell and the number of cells used is written in the information cell for the form .,0.8981092662433569
+cell.n.01,The address of the first cell and the number of cells used is written in the information cell for the form .,0.8981092662433569
+cell.n.01,The address of the first cell and the number of cells used is written in the information cell for the form .,0.8981092662433569
+cell.n.01,( The address of the information cell is also supplied by the table of dictionary usage . ),0.8656338095613435
+cell.n.01,"When the complete file has been read , the grammatic descriptions for all text forms found in the dictionary have been stored in the W-region ; the information cell assigned to each text form contains the address of the grammatic description of the form it represents .",0.821131781431972
+cell.n.01,"Hence , the description of each text occurrence can be retrieved by reading the list of text ordered information cell addresses and outputting the description indicated by the information cell for each occurrence .",0.8509123791618161
+cell.n.01,"Hence , the description of each text occurrence can be retrieved by reading the list of text ordered information cell addresses and outputting the description indicated by the information cell for each occurrence .",0.8509123791618161
+cell.n.02,"As cells coalesced into organisms , they built new `` unnatural '' and internally controlled environments to cope even more successfully with the entropy increasing properties of the external world .",0.8199429838626137
+cell.n.02,In several instances group O cells were also used as controls .,0.8936412740161621
+cell.n.02,The mixtures of sample plus cell suspension were allowed to stand at room temperature for 1 hr .,0.7245480666703239
+cell.n.02,"For the albumin method , equal volumes of 30 % bovine albumin , sample and 2 % cells suspended in saline were allowed to stand at room temperature for 1 hr and then were centrifuged at 1000 rpm for 1 min .",0.8646227435115561
+cell.n.02,"Homozygous and heterozygous * * f cells , * * f and homozygous and heterozygous * * f cells were used to test each sample ; however , in the interest of clarity and conciseness only the results obtained with homozygous * * f and homozygous * * f cells will be presented here .",0.8398486616624856
+cell.n.02,"Homozygous and heterozygous * * f cells , * * f and homozygous and heterozygous * * f cells were used to test each sample ; however , in the interest of clarity and conciseness only the results obtained with homozygous * * f and homozygous * * f cells will be presented here .",0.8398486616624856
+cell.n.02,"Homozygous and heterozygous * * f cells , * * f and homozygous and heterozygous * * f cells were used to test each sample ; however , in the interest of clarity and conciseness only the results obtained with homozygous * * f and homozygous * * f cells will be presented here .",0.8398486616624856
+cell.n.02,"The cells were washed three times with saline , anti human serum was added , the cells were resuspended , and the mixture was centrifuged at 1000 rpm for 1 min and examined for agglutination .",0.8940143450134893
+cell.n.02,"The cells were washed three times with saline , anti human serum was added , the cells were resuspended , and the mixture was centrifuged at 1000 rpm for 1 min and examined for agglutination .",0.8940143450134893
+cell.n.02,"The red cells for the Rh antibody tests were used within 3 days after drawing except for the * * f cells , which had been glycerolized and stored at - 20 ` C for approximately 1 year .",0.8663660145276658
+cell.n.02,"These cells were thawed at 37 ` C for 30 min and were deglycerolized by alternately centrifuging and mixing with descending concentrations of glycerol solutions ( 20 , 18 , 10 , 8 , 4 and 2 % ) .",0.9097398882365206
+cell.n.02,The cells were then washed three times with saline and resuspended to 2 % in saline .,0.8996936260218705
+cell.n.02,"Paper electrophoresis was carried out on the concentrated samples in a Spinco model R cell using barbital buffer , pH 8.6 , ionic strength 0.075 , at room temperature on Whatman 3 MM filter paper .",0.7879898375193946
+cell.n.02,"Five milliamperes / cell were applied for 18 hr , after which the strips were stained with bromophenol blue and densitometry was carried out using a Spinco Analytrol .",0.7337274181845016
+cell.n.02,"In all cases the activity against * * f cells was spread over a wider area than that with * * f cells , regardless of the type of test ( saline , albumin , indirect Coombs ) used for comparison .",0.8452288478293842
+cell.n.02,"In all cases the activity against * * f cells was spread over a wider area than that with * * f cells , regardless of the type of test ( saline , albumin , indirect Coombs ) used for comparison .",0.8452288478293842
+cell.n.02,In fact agglutination of * * f cells in saline could be produced by the insoluble material from sera containing `` only '' incomplete antibody activity .,0.8792892698405281
+cell.n.02,"Its synthesis has not been demonstrated in cell-free systems , nor has its synthesis by systems with intact thyroid cells in vitro been unequivocally proven .",0.854077790182215
+cell.n.02,"At the present time we do not know by what biochemical mechanism TSH acts on the thyroid , but for bio-assay of the hormone there are a number of properties by which its activity may be estimated , including release of iodine from the thyroid , increase in thyroid weight , increase in mean height of the follicular cells and increase in the thyroidal uptake of * * f .",0.8012450962095464
+cell.n.02,The intima of the larger coronary arteries was thickened by fibrous tissue containing fusiform clefts and mononuclear cells .,0.8622351267473387
+cell.n.02,"The endothelial cells lining the sinusoids were prominent , and many contained large quantities of hemosiderin .",0.8800733614801238
+cell.n.02,"Some of the sinusoids contained large numbers of nucleated red cells , and cells of the granulocytic series were found in small numbers .",0.9186022824329304
+cell.n.02,"Some liver cord cells contained vacuolated cytoplasm , while others had small amounts of brown hemosiderin pigment .",0.9040610765592081
+cell.n.02,"Microscopically , both kidneys showed many small cortical scars in which there was glomerular and interstitial fibrosis , tubular atrophy , and an infiltration of lymphocytes and plasma cells .",0.8467961060244279
+cell.n.02,"The cells of the erythroid , myeloid , and megakaryocytic series were normal except for their numbers .",0.9041986224080277
+cell.n.02,Inflammatory cells were strikingly absent .,0.8590086865536464
+cell.n.02,"Such sections showed bright yellow-green specific fluorescence in the cells of the pseudophloem tissue ( Lee and Black , 1955 ) .",0.8570752531101139
+cell.n.02,"Specific staining by DEAE-cellulose treated * * f and * * f , although clearly distinguishable under the microscope from either nonspecific staining or autofluorescence of cells , was not satisfactorily photographed to show such differences in spite of many attempts with black and white and color photography .",0.8905515102899326
+cell.n.02,This was chiefly because of the bluish white autofluorescence from the cells .,0.8429749825588787
+cell.n.02,The autofluorescence from the walls of the xylem cells was particularly brilliant .,0.8654254418159554
+cell.n.02,"Frequently a few isolated thick walled cells or , rarely , groups of such cells in the xylem region , were also specifically stained , but there was no such staining in epidermis , cortex , most xylem cells , ray cells , or pith .",0.9232786257539354
+cell.n.02,"Frequently a few isolated thick walled cells or , rarely , groups of such cells in the xylem region , were also specifically stained , but there was no such staining in epidermis , cortex , most xylem cells , ray cells , or pith .",0.9232786257539354
+cell.n.02,"Frequently a few isolated thick walled cells or , rarely , groups of such cells in the xylem region , were also specifically stained , but there was no such staining in epidermis , cortex , most xylem cells , ray cells , or pith .",0.9232786257539354
+cell.n.02,"Frequently a few isolated thick walled cells or , rarely , groups of such cells in the xylem region , were also specifically stained , but there was no such staining in epidermis , cortex , most xylem cells , ray cells , or pith .",0.9232786257539354
+cell.n.02,Within the pseudophloem cells the distribution of WTV antigen was irregular in the cytoplasm .,0.8907818167730784
+cell.n.02,No antigen was detectable in certain dark spherical areas in most cells .,0.892585023282978
+cell.n.02,"The specific staining by both direct and indirect methods showed that WTV antigen was concentrated in the pseudophloem tissue and in a few thick walled cells in the xylem region , but was not detectable in any other tissues of the root and stem tumors .",0.9052802255429996
+cell.n.02,A study of the distribution of WTV antigen within the pseudophloem cells indicates that it is irregularly distributed in the cytoplasm .,0.8988680543057596
+cell.n.02,"Many cells , bacteria , and other microorganisms are transparent to visible light and must be stained for microscopic investigation .",0.8269382322287072
+cell.n.02,This stain often disrupts the normal cell activity or else colors only the outside .,0.8343300242765554
+cell.n.02,A completely new insight into living cells and their structure will be possible by use of a new technique which replaces visible light with ultraviolet radiation and combines a microscope with a color - TV system to view the results .,0.8815989782223602
+cell.n.02,"Many of the cells and microorganisms which are transparent to visible light , absorb or reflect the much shorter wavelengths of the ultraviolet spectrum .",0.856025584986337
+cell.n.02,Different parts of these cells sometimes absorb or reflect different wavelengths so that it is often possible to see internal portions of cells in a different color .,0.904597768638697
+cell.n.02,Different parts of these cells sometimes absorb or reflect different wavelengths so that it is often possible to see internal portions of cells in a different color .,0.904597768638697

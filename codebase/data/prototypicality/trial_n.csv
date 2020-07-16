@@ -1,0 +1,45 @@
+sense,sentence,centroid_cs
+test.n.05,In the first trial an inert substance was disseminated from a boat travelling some ten miles off shore under appropriately selected meteorological conditions .,0.7584078075481918
+test.n.05,Figure 1 describes the results obtained in this trial .,0.8633847411036439
+test.n.05,"Some experiments are composed of repetitions of independent trials , each with two possible outcomes .",0.9084743305480009
+test.n.05,The binomial probability distribution may describe the variation that occurs from one set of trials of such a binomial experiment to another .,0.9011871701767862
+test.n.05,"More generally , suppose that an experiment consists of a number of independent trials , that each trial results in either a `` success '' or a `` non success '' ( `` failure '' ) , and that the probability of success remains constant from trial to trial .",0.8823948759099334
+test.n.05,"More generally , suppose that an experiment consists of a number of independent trials , that each trial results in either a `` success '' or a `` non success '' ( `` failure '' ) , and that the probability of success remains constant from trial to trial .",0.8823948759099334
+test.n.05,"More generally , suppose that an experiment consists of a number of independent trials , that each trial results in either a `` success '' or a `` non success '' ( `` failure '' ) , and that the probability of success remains constant from trial to trial .",0.8823948759099334
+test.n.05,"More generally , suppose that an experiment consists of a number of independent trials , that each trial results in either a `` success '' or a `` non success '' ( `` failure '' ) , and that the probability of success remains constant from trial to trial .",0.8823948759099334
+test.n.05,The major question in this chapter is : What is the probability of exactly x successes in n trials ?,0.9061588324701803
+test.n.05,"Experiments are often composed of several identical trials , and sometimes experiments themselves are repeated .",0.9013009598834956
+test.n.05,"In the marksmanship example , a trial consists of `` one round shot at a target '' with outcome either one bull's-eye ( success ) or none ( failure ) .",0.8141394873788081
+test.n.05,"If three dice are tossed , a trial is one toss of one die and the experiment is composed of three trials .",0.8680533296274806
+test.n.05,"If three dice are tossed , a trial is one toss of one die and the experiment is composed of three trials .",0.8680533296274806
+test.n.05,"Or , what amounts to the same thing , if one die is tossed three times , each toss is a trial , and the three tosses form the experiment .",0.7738741734855468
+test.n.05,"These examples are illustrative of the use of the words `` trial '' and `` experiment '' as they are used in this chapter , but they are quite flexible words and it is well not to restrict them too narrowly .",0.7574001517256762
+test.n.05,Note that there are 3 trials of interest .,0.8820639984953398
+test.n.05,Each trial consists of choosing a student manager at random .,0.8247888744333511
+test.n.05,The 2 possible outcomes on each trial are `` driver '' or `` nondriver '' .,0.8558499037707771
+test.n.05,"Since the choice is by lot each week , the outcomes of different trials are independent .",0.9091374914584573
+test.n.05,"For an experiment to qualify as a binomial experiment , it must have four properties : ( 1 ) there must be a fixed number of trials , ( 2 ) each trial must result in a `` success '' or a `` failure '' ( a binomial trial ) , ( 3 ) all trials must have identical probabilities of success , ( 4 ) the trials must be independent of each other .",0.9115722163987
+test.n.05,"For an experiment to qualify as a binomial experiment , it must have four properties : ( 1 ) there must be a fixed number of trials , ( 2 ) each trial must result in a `` success '' or a `` failure '' ( a binomial trial ) , ( 3 ) all trials must have identical probabilities of success , ( 4 ) the trials must be independent of each other .",0.9115722163987
+test.n.05,"For an experiment to qualify as a binomial experiment , it must have four properties : ( 1 ) there must be a fixed number of trials , ( 2 ) each trial must result in a `` success '' or a `` failure '' ( a binomial trial ) , ( 3 ) all trials must have identical probabilities of success , ( 4 ) the trials must be independent of each other .",0.9115722163987
+test.n.05,"For an experiment to qualify as a binomial experiment , it must have four properties : ( 1 ) there must be a fixed number of trials , ( 2 ) each trial must result in a `` success '' or a `` failure '' ( a binomial trial ) , ( 3 ) all trials must have identical probabilities of success , ( 4 ) the trials must be independent of each other .",0.9115722163987
+test.n.05,"For an experiment to qualify as a binomial experiment , it must have four properties : ( 1 ) there must be a fixed number of trials , ( 2 ) each trial must result in a `` success '' or a `` failure '' ( a binomial trial ) , ( 3 ) all trials must have identical probabilities of success , ( 4 ) the trials must be independent of each other .",0.9115722163987
+test.n.05,"Here the number of trials is a random variable , not a fixed number .",0.9121201278863049
+test.n.05,Each of the n trials is either a success or a failure .,0.9071255487569105
+test.n.05,`` Success '' and `` failure '' are just convenient labels for the two categories of outcomes when we talk about binomial trials in general .,0.8924340959943515
+test.n.05,"The word `` binomial '' means `` of two names '' or `` of two terms '' , and both usages apply in our work : the first to the names of the two outcomes of a binomial trial , and the second to the terms p and * * f that represent the probabilities of `` success '' and `` failure '' .",0.8792659569582247
+test.n.05,"Sometimes when there are many outcomes for a single trial , we group these outcomes into two classes , as in the example of the die , where we have arbitrarily constructed the classes `` ace '' and `` not ace '' .",0.8887520528742351
+test.n.05,"We can escape from such a difficulty by ruling out the animal as not constituting a trial , but such a solution is not always satisfactory .",0.8098975906298357
+test.n.05,"Strictly speaking , this means that the probability for each possible outcome of the experiment can be computed by multiplying together the probabilities of the possible outcomes of the single binomial trials .",0.908653205412144
+test.n.05,"Experimentally , we expect independence when the trials have nothing to do with one another .",0.8540539259055246
+test.n.05,"When this experiment is viewed as composed of five binomial trials , one for each member of the family , the outcomes of the trials are obviously not independent .",0.9145438303839873
+test.n.05,"When this experiment is viewed as composed of five binomial trials , one for each member of the family , the outcomes of the trials are obviously not independent .",0.9145438303839873
+test.n.05,"Indeed , the experiment is better viewed as consisting of one binomial trial for the entire family .",0.8721765165524012
+test.n.05,"An experiment consists of the voting of one couple , or two trials .",0.8906254183165448
+test.n.05,"A binomial experiment consists of * * f independent binomial trials , all with the same probability * * f of yielding a success .",0.9278550610877518
+test.n.05,"Binomial distributions were treated by James Bernoulli about 1700 , and for this reason binomial trials are sometimes called Bernoulli trials .",0.8485295771177164
+test.n.05,"Binomial distributions were treated by James Bernoulli about 1700 , and for this reason binomial trials are sometimes called Bernoulli trials .",0.8485295771177164
+test.n.05,Each binomial trial of a binomial experiment produces either 0 or 1 success .,0.9137533566704152
+test.n.05,"Therefore each binomial trial can be thought of as producing a value of a random variable associated with that trial and taking the values 0 and 1 , with probabilities q and p respectively .",0.9053919491364918
+test.n.05,"Therefore each binomial trial can be thought of as producing a value of a random variable associated with that trial and taking the values 0 and 1 , with probabilities q and p respectively .",0.9053919491364918
+test.n.05,"The several trials of a binomial experiment produce a new random variable X , the total number of successes , which is just the sum of the random variables associated with the single trials .",0.9189748999793921
+test.n.05,"The several trials of a binomial experiment produce a new random variable X , the total number of successes , which is just the sum of the random variables associated with the single trials .",0.9189748999793921

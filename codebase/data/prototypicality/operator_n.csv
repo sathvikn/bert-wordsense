@@ -1,0 +1,28 @@
+sense,sentence,centroid_cs
+operator.n.01,"We are trying to study a linear operator T on the finite dimensional space V , by decomposing T into a direct sum of operators which are in some sense elementary .",0.8321743969083997
+operator.n.01,The second situation is illustrated by the operator T on * * f ( F any field ) represented in the standard basis by * * f .,0.9227608458536461
+operator.n.01,The diagonalizable operator is the special case of this in which * * f for each i .,0.9331388218407882
+operator.n.01,"Then ( a ) * * f ( b ) each * * f is invariant under T ( c ) if * * f is the operator induced on * * f by T , then the minimal polynomial for * * f is * * f .",0.9144629641515208
+operator.n.01,"If * * f is the operator induced on * * f by T , then evidently * * f , because by definition * * f is 0 on the subspace * * f .",0.937635406627916
+operator.n.01,"By Theorem 10 , D is a diagonalizable operator which we shall call the diagonalizable part of T .",0.9419286629932924
+operator.n.01,Let us look at the operator * * f .,0.53370504033182
+operator.n.01,"When * * f for each i , we shall have * * f , because the operator * * f will then be 0 on the range of * * f .",0.7873848139837727
+operator.n.01,"Then there is a diagonalizable operator D on V and a nilpotent operator N on V such that ( a ) * * f , ( b ) * * f .",0.9478143107664959
+operator.n.01,"Then there is a diagonalizable operator D on V and a nilpotent operator N on V such that ( a ) * * f , ( b ) * * f .",0.9478143107664959
+operator.n.01,The diagonalizable operator D and the nilpotent operator N are uniquely determined by ( a ) and ( b ) and each of them is a polynomial in T .,0.9407947318011594
+operator.n.01,The diagonalizable operator D and the nilpotent operator N are uniquely determined by ( a ) and ( b ) and each of them is a polynomial in T .,0.9407947318011594
+operator.n.01,Now we have * * f or * * f and all four of these operators commute with one another .,0.8046350259362518
+operator.n.01,"Since N and N ' are both nilpotent and they commute , the operator * * f is nilpotent ; for , using the fact that N and N ' commute * * f and so when r is sufficiently large every term in this expression for * * f will be 0 .",0.9046649114729814
+operator.n.01,"( Actually , a nilpotent operator on an n-dimensional space must have its nth power 0 ; if we take * * f above , that will be large enough .",0.9408518736324415
+operator.n.01,Now * * f is a diagonalizable operator which is also nilpotent .,0.9535905593964313
+operator.n.01,"Such an operator is obviously the zero operator ; for since it is nilpotent , the minimal polynomial for this operator is of the form * * f for some * * f ; but then since the operator is diagonalizable , the minimal polynomial cannot have a repeated root ; hence * * f and the minimal polynomial is simply x , which says the operator is 0 .",0.9180672654167341
+operator.n.01,"Such an operator is obviously the zero operator ; for since it is nilpotent , the minimal polynomial for this operator is of the form * * f for some * * f ; but then since the operator is diagonalizable , the minimal polynomial cannot have a repeated root ; hence * * f and the minimal polynomial is simply x , which says the operator is 0 .",0.9180672654167341
+operator.n.01,"Such an operator is obviously the zero operator ; for since it is nilpotent , the minimal polynomial for this operator is of the form * * f for some * * f ; but then since the operator is diagonalizable , the minimal polynomial cannot have a repeated root ; hence * * f and the minimal polynomial is simply x , which says the operator is 0 .",0.9180672654167341
+operator.n.01,"Such an operator is obviously the zero operator ; for since it is nilpotent , the minimal polynomial for this operator is of the form * * f for some * * f ; but then since the operator is diagonalizable , the minimal polynomial cannot have a repeated root ; hence * * f and the minimal polynomial is simply x , which says the operator is 0 .",0.9180672654167341
+operator.n.01,"Such an operator is obviously the zero operator ; for since it is nilpotent , the minimal polynomial for this operator is of the form * * f for some * * f ; but then since the operator is diagonalizable , the minimal polynomial cannot have a repeated root ; hence * * f and the minimal polynomial is simply x , which says the operator is 0 .",0.9180672654167341
+operator.n.01,Then every linear operator T on V can be written as the sum of a diagonalizable operator D and a nilpotent operator N which commute .,0.924667570787488
+operator.n.01,Then every linear operator T on V can be written as the sum of a diagonalizable operator D and a nilpotent operator N which commute .,0.924667570787488
+operator.n.01,These operators D and N are unique and each is a polynomial in T .,0.9066021363398796
+operator.n.01,"From these results , one sees that the study of linear operators on vector spaces over an algebraically closed field is essentially reduced to the study of nilpotent operators .",0.8370652095112789
+operator.n.01,"If D denotes the differentiation operator and p is the polynomial * * f then V is the null space of the operator p ( D ) , because * * f simply says * * f .",0.9155272320256991
+operator.n.01,"If D denotes the differentiation operator and p is the polynomial * * f then V is the null space of the operator p ( D ) , because * * f simply says * * f .",0.9155272320256991

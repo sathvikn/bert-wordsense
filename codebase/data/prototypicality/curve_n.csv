@@ -1,0 +1,18 @@
+sense,sentence,centroid_cs
+curve.n.01,"Consider a simple , closed , plane curve C which is a real analytic image of the unit circle , and which is given by **f .",0.9017865355091663
+curve.n.01,"In the following paper it is shown that in a certain definite sense , exactly an odd number of squares can be inscribed in every such curve which does not contain an infinite number of inscribed squares .",0.8778537686276983
+curve.n.01,"Here , for the case of squares inscribed in plane curves , we remove the restriction to convexity and give certain other results .",0.8359185250154757
+curve.n.01,"A square inscribed in a curve C means a square with its four corner points on the curve , though it may not lie entirely in the interior of C .",0.8676989899606443
+curve.n.01,"A square inscribed in a curve C means a square with its four corner points on the curve , though it may not lie entirely in the interior of C .",0.8676989899606443
+curve.n.01,For any such square the middle corner of these will be called the vertex of the square and the corner not on the curve will be called the diagonal point of the square .,0.8295536117115455
+curve.n.01,"If the vertex is at **f , and if the interior of C is on the left as one moves in the direction of increasing t , then every such corner can be found from the curve obtained by rotating C clockwise through 90 ` about the vertex .",0.8906989530630712
+curve.n.01,"The set of intersections of **f , the rotated curve , with the original curve C consists of just the set of forward corner points on C corresponding to the vertex at **f , plus the vertex itself .",0.9123020844859323
+curve.n.01,"The set of intersections of **f , the rotated curve , with the original curve C consists of just the set of forward corner points on C corresponding to the vertex at **f , plus the vertex itself .",0.9123020844859323
+curve.n.01,"We note that two such curves C and **f , cannot coincide at more than a finite number of points ; otherwise , being analytic , they would coincide at all points , which is impossible since they do not coincide near **f .",0.8777532747571124
+curve.n.01,"There are two types of such intersections , depending essentially on whether the curves cross at the point of intersection .",0.8534618163670428
+curve.n.01,"Near Q , both curves can be represented by analytic functions of u .",0.8789141000240336
+curve.n.01,"But **f is just the curve **f translated without rotation through a small arc , for **f is always obtained by rotating C through exactly 90 ` .",0.8873643822355616
+curve.n.01,The arc is itself a segment of an analytic curve .,0.9095067811730747
+curve.n.01,"The fact that there can not be any limit points of the set except in closed intervals follows from the argument used in Lemma 1 , namely , that near any tangent point in the C-plane the curves C and **f are analytic , and therefore the difference between them must be a monotone function in some neighborhood on either side of the tangent point .",0.8386452332904407
+curve.n.01,A continuous change in t through an amount e results in a translation along an analytic arc of the curve **f .,0.9168579843346623
+curve.n.01,"Again , the analyticity of the two curves guarantee that such intervals exist .",0.854646732787917

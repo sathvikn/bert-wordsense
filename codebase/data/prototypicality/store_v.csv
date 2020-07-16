@@ -1,0 +1,28 @@
+sense,sentence,centroid_cs
+store.v.02,The purified product was stored at - 78 ` in a tube equipped with a break seal .,0.918938170789304
+store.v.02,The radiochlorine was stored at - 78 ` in a tube equipped with a break seal .,0.8963994573062345
+store.v.02,"The red cells for the Rh antibody tests were used within 3 days after drawing except for the * * f cells , which had been glycerolized and stored at - 20 ` C for approximately 1 year .",0.8853140043365201
+store.v.02,"First , is the circulating form of the hormone the same as that found in the gland where it is synthesised and stored ?",0.8471476130698163
+store.v.02,The sections were then thawed by placing a finger under the slide and dried under a fan for 30 minutes ; until used they were stored for as long as 2 weeks .,0.8563163795458255
+store.v.02,"He looked very carefully at every piece of furnishing , as though hoping to store this information carefully in his mind .",0.7671744219942573
+store.v.02,"When he had stored his stock in the great oak chest , locked the two big hasps and secured the additional chain , tied the fly of the tent , and picked up the cash box , he moved up the darkening street .",0.8036534954616685
+store.v.02,"At the same time he started walking the streets , peering at the people passing or shopping at the stalls , storing up fresh impressions of what they looked like , how they moved .",0.736271240773407
+store.v.02,Here was stored $ 1000000 worth of bonded whisky .,0.7784306378077663
+store.v.02,We scour literature for them ; here we find stored the wisdom of great minds .,0.77911847546029
+store.v.02,"Food , medical supplies , utensils , and equipment , if not already stored in the shelter , must be quickly gathered up and carried into it .",0.855240689133216
+store.v.01,"Therefore , give Him your affection and store up His love for you .",0.6765374901489767
+store.v.01,A location in the computer store is also named for each marked form ; dictionary information about the form stored at this location can be retrieved directly by occurrences of the form in text .,0.862792983373354
+store.v.01,"The form itself is stored in the next available cells of the W-region , beginning in cell * * f .",0.8968831602249292
+store.v.01,The address * * f and the number of cells required to store the form are written in * * f ; the information cell * * f is saved to represent the text occurrence .,0.8320109072911016
+store.v.01,"If * * f was assigned as the information cell for * * f , the routine can detect that * * f is identical to * * f by comparing * * f with the form stored at location * * f .",0.8592956155121051
+store.v.01,The address * * f is stored in the cell * * f .,0.8560143262499509
+store.v.01,"If * * f leads to an address * * f that is equal to the address computed from * * f , even though * * f does not match * * f , the chain of information cells is extended from * * f by storing the address of the next available cell in the Y-region , * * f , in * * f .",0.8320561056830861
+store.v.01,"A third cell can be added by storing the address of another Y-cell in * * f ; similarly , as many cells are added as are required .",0.8427322176322863
+store.v.01,Each information cell in the chain contains the address of the Y-cell where the form to which it is assigned is stored .,0.8863238732645673
+store.v.01,Text reading is terminated when a pre-determined number of forms have been stored in the text form list .,0.899783277735704
+store.v.01,"If cell * * f is an information cell , it and any information cells in the Y-region that have been linked to * * f each contain an address in the W-region where a potentially matching form is stored .",0.9036619770438201
+store.v.01,"When entries are being retrieved from this file , the table of dictionary usage indicates which entries to skip and which entries to store in the computer .",0.8188521039768233
+store.v.01,"When the complete file has been read , the grammatic descriptions for all text forms found in the dictionary have been stored in the W-region ; the information cell assigned to each text form contains the address of the grammatic description of the form it represents .",0.8845249085176385
+store.v.01,"How lightly her `` eventshah-leh '' passed into the crannies where I was storing dialect material for some vaguely dreamed opus , and how the word would echo .",0.7490833241627665
+store.v.01,"The garden supplies enough carrots , turnips , rutabagas , potatoes , beets , cabbage and squash to store for winter meals in the root cellar .",0.6932882470138344
+store.v.01,"The cold settled like a tangible pall over the Mile High City , locking it in an icy grip that harshened its outlines and altered its physical appearance ; it had a look of grim stark realism , resembling other cities whose habitual climate was cold , instead of the sprawling bumptious open-handed greedy Western city basking in eternal sunshine at the foot of mountains stored with endless riches and resources .",0.6612529610871364
