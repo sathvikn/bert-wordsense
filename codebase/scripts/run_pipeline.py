@@ -23,16 +23,16 @@ def convert_imgs_to_pdf(name, pos):
     print("Saving as PDF")
     pdf.output("../results/clustering_images/" + name + "_" + pos + ".pdf", "F")
 
-def run_indiv(word, pos, model, output_dir):
+def run_indiv(word, pos, model, output_dir, min_instances, save_plots):
     """
     Generates embeddings, T-SNE plots, and dendrograms for word, pos pairs
     """
     dir_name = os.path.join("data", 'clustering_results', word + '_' + pos)
     os.system('mkdir ' + dir_name)
-    run_clustering(word, pos, model, output_dir)
+    run_clustering(word, pos, model, output_dir, min_instances = min_instances, plot_data = save_plots)
     #convert_imgs_to_pdf(word, pos)
 
-def run_from_file(path, model, output_dir):
+def run_from_file(path, model, output_dir, min_instances, save_plots):
     """
     The CSV at path should have one column for word and one column for PoS for each type.
     This goes through all the words in the CSV and computes BERT embeddings, t-SNE plots, and dendrograms. 
@@ -46,7 +46,7 @@ def run_from_file(path, model, output_dir):
         dir_name = os.path.join('..', "data", 'clustering_results', word + '_' + pos)
         os.system('mkdir ' + dir_name)
         try: 
-            run_clustering(word, pos, model, output_dir)
+            run_clustering(word, pos, model, output_dir, min_instances = min_instances, plot_data = save_plots)
             convert_imgs_to_pdf(word, pos)
         except:
             skipped_words.append(word + '.' + pos)
@@ -54,11 +54,11 @@ def run_from_file(path, model, output_dir):
     write_to_file(skipped_words, os.path.join('..', 'data', 'skipped_words.txt'))
 
 
-def run_clustering(word, pos, model, output_dir, plot_data = False, fit_gmm = False, gmm_dr = 'both'):
+def run_clustering(word, pos, model, output_dir, min_instances = 10,  plot_data = False, fit_gmm = False, gmm_dr = 'both'):
     #either PCA or TSNE
     print(word, pos)
     fname = word + '_' + pos
-    word_results = run_pipeline(word, pos, model, min_senses = 0, savefile = True, dir_name = output_dir)
+    word_results = run_pipeline(word, pos, model, min_senses = min_instances, savefile = True, dir_name = output_dir)
     if plot_data:
         print("Generating Plots")
         tsne_results = plot_embeddings(word_results['embeddings'], word_results['sense_indices'], word_results['sense_names'], word_results['lemma'], savefile = True)
@@ -195,16 +195,18 @@ def configure_parser():
     return parser.parse_args()
 if __name__ == '__main__':
     model = initialize_model()
-    print(configure_parser())
-    output_dir = sys.argv[4] #--output_dir ../data/[folder name]
-    if sys.argv[1] == '--type':
+    args = configure_parser()
+    output_dir = args.output_dir
+    min_instances = args.min_instances
+    save_plots = args.plotting
+    if args.type:
         #--type word.pos
-        word, pos = sys.argv[2].split('.')
-        run_indiv(word, pos, model, output_dir)
-    elif sys.argv[1] == '--file':
+        word, pos = args.type.split('.')
+        run_indiv(word, pos, model, output_dir, min_instances, save_plots)
+    elif args.file:
         #--file ../data/[filename].csv
         path = sys.argv[2]
-        run_from_file(path, model, output_dir)
+        run_from_file(path, model, output_dir, min_instances, save_plots)
 #DEPRECATED (may be worth looking at MASC stuff though)
     elif sys.argv[1] == '--tsne_entropy':
         run_tsne_entropy()
