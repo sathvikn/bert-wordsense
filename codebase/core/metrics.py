@@ -12,6 +12,7 @@ from sklearn.linear_model import Lasso, LogisticRegression
 from sklearn.preprocessing import LabelEncoder
 from sklearn.model_selection import KFold
 from sklearn.metrics import accuracy_score, f1_score, confusion_matrix
+from sklearn.decomposition import PCA
 
 #Distance metrics
 def euc_dist(v1, v2):
@@ -194,13 +195,15 @@ def misclassified_sentences(model_data, incorrect_indices):
     sense_names, sentences = model_data['labels'][incorrect_indices], model_data['sentences'][incorrect_indices]
     return pd.DataFrame({'true_label': sense_names, 'sentences': sentences})
 
-def logistic_cv(lemma, sel_senses = [], use_masc = True, delim = '.'):
+def logistic_cv(lemma, sel_senses = [], use_masc = True, delim = '.', use_pca = False, comps = 22):
     """
     Inputs:
     lemma- String of word[delim]pos
     sel_senses- senses that will be considered (all senses by default)
     use_masc- whether the Google MASC dataset will be loaded
     delim- character separating word and PoS
+    use_pca- if True, take PCA of embeddings and use as input for classifier
+    comps- components for pca
 
     Output:
     {'model': Scikit Learn LogisticRegression object fitted to classifying the senses of the full set of embeddings with L1 regularization,
@@ -230,6 +233,9 @@ def logistic_cv(lemma, sel_senses = [], use_masc = True, delim = '.'):
     le = LabelEncoder()
     le.fit(target_senses)
     x = np.asarray(embeddings)
+    if use_pca:
+        pca = PCA(n_components=comps)
+        x = pca.fit_transform(x)
     if len(sel_senses):
         sense_indices = [i for i in range(len(sense_labels)) if sense_labels[i] in sel_senses]
         x = x[sense_indices]
