@@ -26,25 +26,24 @@ def centroid_dict(sense_data, n):
         type_centroids[s] = centroid(embeds_for_sense)
     return type_centroids
 
-path = "../data/pipeline_results/select_weights"
+path = "../data/pipeline_results/semcor_pca"
 for f in os.listdir(path):
     word = '_'.join(f.split("_")[:-1])
     pos = f.split("_")[-1].split(".")[0]
     try:
-        type_data = load_data(word, pos, 'select_weights')
-        orig_data = load_data(word, pos, 'semcor')
+        type_data = load_data(word, pos, 'semcor_pca')
         if type_data['embeddings']:
             num_instances = len(type_data['embeddings'])
             centroids = centroid_dict(type_data, num_instances)
             type_sims = []
             for i in range(num_instances):
                 embed, sense = type_data['embeddings'][i], type_data['sense_labels'][i]
-                instance_data = {"sense": sense, "sentence": orig_data['original_sentences'][i]}
+                instance_data = {"sense": sense, "sentence": type_data['original_sentences'][i]}
                 for s in centroids:
                     instance_data[s] = cosine_sim(embed, centroids[s])
                 type_sims.append(instance_data)
         similarity_df = pd.DataFrame(type_sims)
-        similarity_df.to_csv(os.path.join("../data/prototypicality_stimuli/", word + "_" + pos + ".csv"), index = False)
+        similarity_df.to_csv(os.path.join("../data/prototypicality_pca/", word + "_" + pos + ".csv"), index = False)
     except:
         pass
 
