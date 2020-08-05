@@ -21,6 +21,7 @@ from fewshot.configs import get_config
 from fewshot.configs.mini_imagenet_config import *
 from fewshot.configs.omniglot_config import *
 from fewshot.configs.tiered_imagenet_config import *
+from fewshot.configs.bert_config import *
 from fewshot.data.data_factory import get_dataset
 from fewshot.data.episode import Episode
 from fewshot.data.mini_imagenet import MiniImageNetDataset
