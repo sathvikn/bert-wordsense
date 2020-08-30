@@ -21,6 +21,7 @@ class SemCorSelector:
         self.semcor_sentences = nltk.corpus.semcor.sents()
         self.semcor_tagged_sents = nltk.corpus.semcor.tagged_sents(tag = 'sem')
         #assert len(self.semcor_sentences) == len(self.semcor_tagged_sents)
+        self.semcor_ht = {} #type -> {orig_sent: [], tagged_sent: [], senses: []}
         self.num_sentences = len(self.semcor_sentences) 
         self.tagged_word = [] #Sentences tagged with WordNet lemmas
         self.original_sent_for_word = [] #Untagged sentences
@@ -41,22 +42,39 @@ class SemCorSelector:
         """
         self.curr_word = word + '.' + pos
         #Reset state
-        self.original_sent_for_word = []
-        self.senses = []
-        self.tagged_word = []
-        #self.semcor_for_word(word, pos)
-        for i in range(self.num_sentences):
-            s = self.semcor_tagged_sents[i]
-            for tok in s:
-                if type(tok) == nltk.tree.Tree: #Gets all lemmas tagged with WordNet senses
-                    lem = tok.label()
-                    if type(lem) == nltk.corpus.reader.wordnet.Lemma: 
-                        if get_pos(lem) == pos and get_name(lem) == word: 
-                            #If it matches, add the lemma's sense and both untagged and tagged versions of the sentence to the current state
-                            self.tagged_word.append(self.semcor_tagged_sents[i])
-                            self.original_sent_for_word.append(self.semcor_sentences[i])
-                            #sense = (pos, get_sense_num(lem))
-                            self.senses.append(lem.synset())
+        if self.semcor_ht:
+            type_dict = self.semcor_ht[self.curr_word]
+            self.original_sent_for_word = type_dict['orig_sent']
+            self.senses = type_dict['senses']
+            self.tagged_word = type_dict['tagged_word'] 
+        else:
+
+            self.original_sent_for_word = []
+            self.senses = []
+            self.tagged_word = []
+            #self.semcor_for_word(word, pos)
+            for i in range(self.num_sentences):
+                s = self.semcor_tagged_sents[i]
+                for tok in s:
+                    if type(tok) == nltk.tree.Tree: #Gets all lemmas tagged with WordNet senses
+                        lem = tok.label()
+                        if type(lem) == nltk.corpus.reader.wordnet.Lemma: 
+                            pos = get_pos(lem)
+                            name = get_name(lem)
+                            lem = name + '.' + pos
+                            if lem not in self.semcor_ht:
+                                self.semcor_ht[lem] = {'orig_sent': [], 'tagged_word': [], 'senses': []}
+                            self.semcor_ht[lem]['orig_sent'].append(self.semcor_sentences[i])
+                            self.semcor_ht[lem]['tagged_word'].append(self.semcor_tagged_sents)
+                            self.semcor_ht[lem]['senses'].append(lem.synset())
+                            """
+                            if get_pos(lem) == pos and get_name(lem) == word: 
+                                #If it matches, add the lemma's sense and both untagged and tagged versions of the sentence to the current state
+                                self.tagged_word.append(self.semcor_tagged_sents[i])
+                                self.original_sent_for_word.append(self.semcor_sentences[i])
+                                #sense = (pos, get_sense_num(lem))
+                                self.senses.append(lem.synset())
+                            """
 
         #self.senses = [self.get_sense_for_sent(s, word) for s in self.tagged_word]
     
