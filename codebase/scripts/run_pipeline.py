@@ -6,6 +6,7 @@ import pandas as pd
 from core.semcor_bert_pipeline import *
 from core.clustering import *
 from fpdf import FPDF
+from tqdm import tqdm
 
 def convert_imgs_to_pdf(name, pos):
     """
@@ -40,25 +41,28 @@ def run_from_file(path, model, output_dir, min_instances, save_plots):
     """
     df = pd.read_csv(path)
     skipped_words = []
-    for i in range(len(df.index)):
+    sel = SemCorSelector()
+    for i in tqdm(range(len(df.index))):
         row = df.iloc[i]
         word, pos = row['word'], row['pos']
         dir_name = os.path.join('..', "data", 'clustering_results', word + '_' + pos)
-        os.system('mkdir ' + dir_name)
+        if save_plots:
+            os.system('mkdir ' + dir_name)
         try: 
-            run_clustering(word, pos, model, output_dir, min_instances = min_instances, plot_data = save_plots)
-            convert_imgs_to_pdf(word, pos)
+            run_clustering(word, pos, model, output_dir, min_instances = min_instances, plot_data = save_plots, selector = sel)
+            if save_plots:
+                convert_imgs_to_pdf(word, pos)
         except:
             skipped_words.append(word + '.' + pos)
             continue
     write_to_file(skipped_words, os.path.join('..', 'data', 'skipped_words.txt'))
 
 
-def run_clustering(word, pos, model, output_dir, min_instances = 10,  plot_data = False, fit_gmm = False, gmm_dr = 'both'):
+def run_clustering(word, pos, model, output_dir, min_instances = 10,  plot_data = False, fit_gmm = False, gmm_dr = 'both', selector = None):
     #either PCA or TSNE
     print(word, pos)
     fname = word + '_' + pos
-    word_results = run_pipeline(word, pos, model, min_senses = min_instances, savefile = True, dir_name = output_dir)
+    word_results = run_pipeline(word, pos, model, min_senses = min_instances, savefile = True, dir_name = output_dir, selector = selector)
     if plot_data:
         print("Generating Plots")
         tsne_results = plot_embeddings(word_results['embeddings'], word_results['sense_indices'], word_results['sense_names'], word_results['lemma'], savefile = True)
@@ -197,7 +201,7 @@ if __name__ == '__main__':
     model = initialize_model()
     args = configure_parser()
     output_dir = args.output_dir
-    min_instances = args.min_instances
+    min_instances = int(args.min_instances)
     save_plots = args.plotting
     if args.type:
         #--type word.pos

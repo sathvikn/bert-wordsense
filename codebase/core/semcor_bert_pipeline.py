@@ -42,13 +42,7 @@ class SemCorSelector:
         """
         self.curr_word = word + '.' + pos
         #Reset state
-        if self.semcor_ht:
-            type_dict = self.semcor_ht[self.curr_word]
-            self.original_sent_for_word = type_dict['orig_sent']
-            self.senses = type_dict['senses']
-            self.tagged_word = type_dict['tagged_word'] 
-        else:
-
+        if not self.semcor_ht: #if the Semcor hashtable doesn't exist
             self.original_sent_for_word = []
             self.senses = []
             self.tagged_word = []
@@ -61,12 +55,12 @@ class SemCorSelector:
                         if type(lem) == nltk.corpus.reader.wordnet.Lemma: 
                             pos = get_pos(lem)
                             name = get_name(lem)
-                            lem = name + '.' + pos
-                            if lem not in self.semcor_ht:
-                                self.semcor_ht[lem] = {'orig_sent': [], 'tagged_word': [], 'senses': []}
-                            self.semcor_ht[lem]['orig_sent'].append(self.semcor_sentences[i])
-                            self.semcor_ht[lem]['tagged_word'].append(self.semcor_tagged_sents)
-                            self.semcor_ht[lem]['senses'].append(lem.synset())
+                            wtype = name + '.' + pos
+                            if wtype not in self.semcor_ht:
+                                self.semcor_ht[wtype] = {'orig_sent': [], 'tagged_word': [], 'senses': []}
+                            self.semcor_ht[wtype]['orig_sent'].append(self.semcor_sentences[i])
+                            self.semcor_ht[wtype]['tagged_word'].append(self.semcor_tagged_sents[i])
+                            self.semcor_ht[wtype]['senses'].append(lem.synset())
                             """
                             if get_pos(lem) == pos and get_name(lem) == word: 
                                 #If it matches, add the lemma's sense and both untagged and tagged versions of the sentence to the current state
@@ -75,6 +69,11 @@ class SemCorSelector:
                                 #sense = (pos, get_sense_num(lem))
                                 self.senses.append(lem.synset())
                             """
+        type_dict = self.semcor_ht[self.curr_word]
+        self.original_sent_for_word = type_dict['orig_sent']
+        self.senses = type_dict['senses']
+        self.tagged_word = type_dict['tagged_word'] 
+
 
         #self.senses = [self.get_sense_for_sent(s, word) for s in self.tagged_word]
     
@@ -480,7 +479,7 @@ def write_json(results, word, pos, corpus_dir):
     with open(os.path.join('..', 'data', 'pipeline_results', corpus_dir, filename), 'w') as f:
         json.dump(results, f)
 
-def run_pipeline(word, pos, model, min_senses = 10, savefile = False, dir_name = "semcor"):
+def run_pipeline(word, pos, model, min_senses = 10, savefile = False, dir_name = "semcor", selector = None):
 
     """
     Input:
@@ -500,7 +499,9 @@ def run_pipeline(word, pos, model, min_senses = 10, savefile = False, dir_name =
     }
     """
     print("Getting data from SEMCOR")
-    semcor_reader = SemCorSelector()
+    semcor_reader = selector
+    if not selector:
+        semcor_reader = SemCorSelector()
     semcor_reader.get_word_data(word, pos)
     print("Getting sentences for relevant senses")
     sel_senses = semcor_reader.select_senses(min_senses)
