@@ -9,20 +9,27 @@ import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 import itertools
+import json
 plt.set_cmap('Blues')
 
 
 #Firebase functions, getting trial & subject data
-def access_db():
+def access_db(use_fb = False):
     """
     Returns a JSON of the data on Firebase
     """
-    cred = credentials.Certificate('../data/wordsense-pilesort-firebase-adminsdk-3ipny-791a81e575.json')
-    firebase_admin.initialize_app(cred, {
-        'databaseURL': 'https://wordsense-pilesort.firebaseio.com'
-    })
-    ref = db.reference('polysemy_pilesort')
-    return ref.get()
+    if use_fb:
+        cred = credentials.Certificate('../data/wordsense-pilesort-firebase-adminsdk-3ipny-791a81e575.json')
+        firebase_admin.initialize_app(cred, {
+            'databaseURL': 'https://wordsense-pilesort.firebaseio.com'
+        })
+        ref = db.reference('polysemy_pilesort')
+        
+        return ref.get()
+    else:
+        with open('../data/expt_data_scrubbed.json', 'r') as f:
+            db = json.load(f)
+        return db['polysemy_pilesort']
 
 #Returns dataframe where rows = trials
 def get_trial_data(db):
@@ -68,7 +75,7 @@ def get_participant_data(db):
             elapsedTimeSec = (user_data['endedAt'] - user_data['startedAt']) / 1000 #Time for trial in seconds
         else:
             elapsedTimeSec = -1
-        row = {"userID": userID, "workerID": user_data['qualtricsWorkerID'], "userIP": user_data['ipAddress'], 
+        row = {"userID": userID,
         'completedTask': user_data['completed'], 'timeTaken': elapsedTimeSec
         }
         df_rows.append(row)
@@ -541,8 +548,8 @@ def plot_mds(word_means, word, mds_model, db, src):
     fig, ax = plt.subplots()
     ax.scatter(x, y)
     for i, txt in enumerate(senses):
-        ax.annotate(txt, (x[i], y[i]))
-    plt.title("MDS over Averaged " + src + " Distances for " + word)
+        ax.annotate(txt, (x[i] + 0.01, y[i] + 0.01), fontsize = 12)
+    plt.title("MDS over Averaged " + src + " Distances for " + word, fontsize = 14)
 
 def plot_all_mds(results, users, trial_type, db):
     """
@@ -626,7 +633,15 @@ def get_senses(db, word):
     """
     Queries FB for the list of senses that were used in the experiment for word (format word_pos) 
     """
-    return [k for k in db['inputs'][word] if k not in ['senses', 'type']]
+    sr_types = {'face_n': ['expression_n_01', 'face_n_04'], 'book_n': ['record_n_05'],
+     'glass_n': ['glass_n_03'], 'door_n': ['door_n_03'], 'school_n': ['school_n_03'], 
+     'heart_n': ['center_n_01']}
+
+    if word not in sr_types:
+        return [k for k in db['inputs'][word] if k not in ['senses', 'type']]
+    else:
+        insuf_instances = sr_types[word]
+        return [k for k in db['inputs'][word] if k not in ['senses', 'type'] + insuf_instances]
 
 def get_num_senses(w, db):
     """
@@ -642,7 +657,7 @@ def wordnet_defn(fb_sense):
     synset_str = '_'.join(parts[:len(parts) - 2]) + '.' + '.'.join(parts[-2:])
     return wordnet.synset(synset_str).definition()
 
-def mtx_correlation(m1, m2, method = 'spearman', randomize_m1_labels = False, confusion = False, return_ut = False): 
+def mtx_correlation(m1, m2, method = 'spearman', randomize_m1_labels = False, confusion = False, return_ut = False, output_ci = False): 
     """
     Input:
         m1 and m2- lists of square Numpy matrices where each element in m1 has the same dimensions as the corresponding element in m2
@@ -650,9 +665,12 @@ def mtx_correlation(m1, m2, method = 'spearman', randomize_m1_labels = False, co
         randomize_m1_labels- shuffle the labels of one of the matrices if true
         confusion- if true, computes the correlation between the matrices themselves, else computes the correlation of the upper triangular portions only
         return_ut- gives upper triangular sections of the matrices of m1 and m2 (1 dimensional arrays)
+        output_ci- boolean that specifies whether or not a 95% confidence interval should be outputted for the correlation
 
     Output:
         Correlation between flattened versions of m1 and m2
+        if return_ut, returns correlation, and upper triangular versions of m1 and m2
+        if output_ci, returns (correlation, p-value), (ci_lower_bound, ci_upper_bound)
     """
     #m1 and m2 are lists of distance matrices, spearman or pearson correlation
     assert len(m1) == len(m2)
@@ -675,11 +693,59 @@ def mtx_correlation(m1, m2, method = 'spearman', randomize_m1_labels = False, co
                 return stats.spearmanr(flat_m1, flat_m2), flat_m1, flat_m2
             if method == 'pearson':
                 return stats.pearsonr(flat_m1, flat_m2)
+        if output_ci:
+            if method == 'spearman':
+                r, p, lb, ub = corr_ci(flat_m1, flat_m2)
+            if method == 'pearson':
+                r, p, lb, ub = corr_ci(flat_m1, flat_m2, method = 'pearson')
+            return (r, p), (lb, ub)
         else:
             if method == 'spearman':
                 return stats.spearmanr(flat_m1, flat_m2)
             if method == 'pearson':
                 return stats.pearsonr(flat_m1, flat_m2)
+
+def rank_transform(a):
+    """
+    Inputs:
+    a- numpy array
+    Outputs:
+    Rank transform of a, 
+    """
+    temp = a.argsort()
+    ranks = np.empty_like(temp)
+    ranks[temp] = np.arange(len(a))
+    return ranks
+
+def corr_ci(x, y, alpha=0.05, method = 'spearman'):
+    ''' calculate Spearman or Pearson correlation along with the confidence interval using scipy and numpy
+    Parameters
+    From https://zhiyzuo.github.io/Pearson-Correlation-CI-in-Python/
+    ----------
+    x, y : iterable object such as a list or np.array
+      Input for correlation calculation
+    alpha : float
+      Significance level. 0.05 by default
+    method = 'spearman' by default (if this is set, then we apply a rank transform)
+    Returns
+    -------
+    r : float
+      Spearman's correlation coefficient
+    pval : float
+      The corresponding p value
+    lo, hi : float
+      The lower and upper bound of confidence intervals
+    '''
+    x, y = np.asarray(x), np.asarray(y)
+    if method == 'spearman':
+        x, y = rank_transform(x), rank_transform(y)
+    r, p = stats.pearsonr(x,y)
+    r_z = np.arctanh(r)
+    se = 1/np.sqrt(len(x)-3)
+    z = stats.norm.ppf(1-alpha/2)
+    lo_z, hi_z = r_z-z*se, r_z+z*se
+    lo, hi = np.tanh((lo_z, hi_z))
+    return r, p, lo, hi
 
 #Functions for random sampling
 def random_num_senses(db):
@@ -734,13 +800,12 @@ def get_results_users(db):
     """
     Returns results- all participants' token assignments
     corrs- Dataframe where each row corresponds to a user, with the following columns:
-    userID, Group Consistency, Self Consistency, and Correlation with SN, time, and prevChanged (number of times participant changed arrangement)
+    userID, Group Consistency, and Self Consistency, time, and prevChanged (number of times participant changed arrangement)
     """
     #Simpler version of the above function, so we can apply more complicated exclusion criteria
     trials = get_trial_data(db)
     participants = get_participant_data(db)
-    user_data = participants[(participants['completedTask'] == 1) & (participants.index > 4) 
-                             & ~(participants['workerID'].str.startswith("pilot"))] #excluding my data/Jon/Stephan
+    user_data = participants[(participants['completedTask'] == 1) & (participants.index > 4)] #Excluding data from experimenters
     results = trials[trials['userID'].isin(user_data['userID'])]
     users = user_data['userID']
     repeat_corr = all_repeats(results, users, plot = False) #self correlation
@@ -749,7 +814,6 @@ def get_results_users(db):
     user_time_word_changes = get_time_and_changes(results, user_data) #metadata
     consistency = pd.DataFrame({'Group Consistency': shared_corrs, 'Self Consistency': repeat_corr})
     corrs = user_time_word_changes.merge(consistency, on = user_time_word_changes.index).drop('key_0', axis = 1)
-    corrs['Correlation with SN'] = my_correlations(participants, trials, results, users) #vs gold standard
     return results, corrs
 
 #TODO: Updates these two from notebook version
@@ -763,8 +827,14 @@ def range_query(df, value, low, high, dist_mtx_dict, bert_key = 'bert'):
     #Inclusive of low and high
     words_with_crit = df[(df[value] >= low) & (df[value] <= high)]['lemma'].unique()
     data_for_words = {w : dist_mtx_dict[w] for w in words_with_crit}
+    if bert_key == 'confusion':
+        expt_data = [(1 - data_for_words[w]['expt']).tolist() for w in data_for_words]
+        conf_matrices = [data_for_words[w][bert_key] for w in data_for_words]
+
+        return stats.spearmanr(flatten(flatten(expt_data)), flatten(flatten(conf_matrices)))[0]
+
     return mtx_correlation([data_for_words[w]['expt'] for w in data_for_words],
-                          [data_for_words[w][bert_key] for w in data_for_words], method = 'pearson')
+                          [data_for_words[w][bert_key] for w in data_for_words])[0]
 
 def sample_from_shared(results, users, matrices, sample_size = 10):
     """
@@ -877,7 +947,8 @@ def get_tagged_distances(results, incl_users, db):
     hp_tags = []
     homonyms = [('foot_n_01', 'foot_n_02'), ('foot_n_02', 'foot_n_03'), ('table_n_01', 'table_n_02'), ('table_n_02', 'table_n_03'),
                 ('academic_degree_n_01', 'degree_n_01'), ('academic_degree_n_01', 'degree_n_02'), ('right_n_01', 'right_n_02'),
-                ('right_n_01', 'right_n_04'), ('model_n_02', 'model_n_03'), ('model_n_01', 'model_n_03')]
+                ('right_n_01', 'right_n_04'), ('model_n_02', 'model_n_03'), ('model_n_01', 'model_n_03'), ('airplane_n_01', 'plane_n_02'),
+                ('airplane_n_01', 'plane_n_03')]
     for s in results[results['trialType'] != 'training']['lemma'].unique():
         sense_combos = list(itertools.combinations(get_senses(db, s), 2))
         for t in sense_combos:
@@ -917,7 +988,7 @@ def exclusion_criteria(corrs):
     """
     incl_users = corrs[(corrs['Group Consistency'] > 0.4) | (corrs['Self Consistency'] > 0.2)]['userID']
     incl_users = incl_users.tolist()
-    incl_users.remove('-M6Cl_rmTwH43zEQtJcK') #user ID for the worker ID found in pilesort_analysis_full.ipynb
+    incl_users.remove('-M6Cl_rmTwH43zEQtJcK') #user ID for the worker ID reporting English as < 50% of language use (private)
     return incl_users
 
 def sense_pair_as_tuple(s):
